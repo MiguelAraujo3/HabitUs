@@ -1,4 +1,4 @@
-import "../../style.css"
+import "style"
 export function showMenu() {
  return `
   <header class="bg-brand-gray text-white flex justify-between items-center px-8 py-6 shadow-md">

@@ -1,4 +1,4 @@
-import "/src/style.css"
-import { showMenu } from "/src/componets/menu/header"
+// import "style"
+import { showMenu } from "header"
 
 document.querySelector('#menu').innerHTML = showMenu();

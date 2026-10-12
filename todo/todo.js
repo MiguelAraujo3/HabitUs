@@ -1,5 +1,5 @@
-import "/src/style.css"
-import { showMenu } from "/src/componets/menu/header"
+// import "style"
+import { showMenu } from "header"
 
 // function takeAndGuardName() {
 //   alert('botao funcionando')
