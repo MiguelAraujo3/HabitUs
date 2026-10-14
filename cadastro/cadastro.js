@@ -48,14 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = document.getElementById('userid').value;
       const passwd = document.getElementById('passwd').value;
       const confirmpasswd = document.getElementById('confirmpasswd').value;
-      
+      if (passwd != confirmpasswd) {
+        alert('As senhas não coincidem');
+        return;
+      }
       let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
 
       if (usuarios.some(usuario => usuario.user === user || usuario.usermail === usermail)) {
-        alert('erro: usuário ou email já cadastrado');
+        alert('erro: usuário já cadastrado');
         return;
       }
-      const usuario = { username, usermail, user, passwd, confirmpasswd} ;
+      else if (usuarios.some(usuario => usuario.usermail === usermail)) {
+        alert('erro: email já cadastrado')
+      }
+      const usuario = { username, usermail, user, passwd} ;
       usuarios.push(usuario);
       localStorage.setItem('usuarios', JSON.stringify(usuarios));
 
