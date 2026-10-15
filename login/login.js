@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
 
       if (usuarios.some(usuario => (usuario.usermail === usermailOrUser || usuario.user === usermailOrUser) && usuario.passwd === passwd)) {
+        const usuarioLogado = usuarios.find(usuario => (usuario.usermail === usermailOrUser || usuario.user === usermailOrUser));
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
         alert('Login realizado com sucesso');
         window.location.assign('../index.html');
         return;
