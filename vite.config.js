@@ -1,29 +1,23 @@
-import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
-import path from 'path';
+import { resolve } from 'node:path';
+
+const raiz = import.meta.dirname;
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      'header': path.resolve(__dirname, './src/componets/menu/header.js'),
-      'style': path.resolve(__dirname, './src/style.css')
-    }
-  },
-  plugins: [
-    tailwindcss(),
-  ],
   base: '/habit-tracker/',
+  plugins: [tailwindcss()],
   build: {
-    outDir: 'dist',
     rollupOptions: {
       input: {
-        main: resolve(import.meta.dirname, 'index.html'),
-        conta: resolve(import.meta.dirname, 'conta/index.html'),
-        todo: resolve(import.meta.dirname, 'todo/index.html'),
-        categorias: resolve(import.meta.dirname, 'categorias/index.html'),
-        login: resolve(import.meta.dirname, 'login/index.html'),
-        cadastro: resolve(import.meta.dirname, 'cadastro/index.html'),
+        index: resolve(raiz, 'index.html'),
+        habitos: resolve(raiz, 'habitos.html'),
+        perfil: resolve(raiz, 'perfil.html'),
+        feed: resolve(raiz, 'feed.html'),
+        grupos: resolve(raiz, 'grupos.html'),
+        'criar-grupo': resolve(raiz, 'criar-grupo.html'),
+        grupo: resolve(raiz, 'grupo.html'),
+        convite: resolve(raiz, 'convite.html'),
       },
     },
   },
