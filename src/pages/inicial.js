@@ -1,7 +1,14 @@
 import '../styles/base.css';
 import { showMenu } from '../components/navbar.js';
 
-document.querySelector('#menu').innerHTML = showMenu();
+function voltarParaUltimoDestino() {
+  const destino = localStorage.getItem('destinoLogin');
+  localStorage.removeItem('destinoLogin');
+  window.location.href = destino || 'habitos.html';
+}
+
+const menu = showMenu();
+document.querySelector('#menu').appendChild(menu);
 
 function montarLogin() {
   document.querySelector('#app').innerHTML = `
@@ -43,7 +50,7 @@ function montarLogin() {
         const usuarioLogado = usuarios.find(usuario => (usuario.usermail === usermailOrUser || usuario.user === usermailOrUser));
         localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
         alert('Login realizado com sucesso');
-        window.location.href = 'habitos.html';
+        voltarParaUltimoDestino();
         return;
       }
       else if (usuarios.some(usuario => usuario.usermail === usermailOrUser || usuario.user === usermailOrUser)) {
