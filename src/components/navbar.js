@@ -24,7 +24,7 @@ function lerSessao() {
 
 function criarMenu(nome, linkEntrada) {
   const elementoMenu = document.createElement('header');
-  elementoMenu.className = 'bg-brand-gray text-white fixed top-0 left-0 h-screen w-64 flex flex-col py-8 px-6 shadow-md z-50';
+  elementoMenu.className = 'bg-brand-gray text-white h-screen w-64 flex flex-col py-8 px-6 shadow-md shrink-0';
 
   const logo = document.createElement('div');
   logo.className = 'text-xl font-bold tracking-widest mb-10';
