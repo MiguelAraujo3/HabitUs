@@ -24,6 +24,7 @@ export default defineConfig({
         categorias: resolve(import.meta.dirname, 'categorias/index.html'),
         login: resolve(import.meta.dirname, 'login/index.html'),
         cadastro: resolve(import.meta.dirname, 'cadastro/index.html'),
+        habitos: resolve(import.meta.dirname, 'habitos/index.html'),
       },
     },
   },
