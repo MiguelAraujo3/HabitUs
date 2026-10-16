@@ -1,5 +1,5 @@
 import '../styles/base.css';
-import { showMenu } from '../components/navbar.js';
+import { criarNavbar } from '../components/navbar.js';
 
 function voltarParaUltimoDestino() {
   const destino = localStorage.getItem('destinoLogin');
@@ -7,7 +7,7 @@ function voltarParaUltimoDestino() {
   window.location.href = destino || 'habitos.html';
 }
 
-const menu = showMenu();
+const menu = criarNavbar();
 document.querySelector('#menu').appendChild(menu);
 
 function montarLogin() {
