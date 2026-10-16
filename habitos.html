@@ -298,58 +298,9 @@
     }
   </style>
 </head>
-<body>
-  <main class="pagina" id="pagina-habitos">
-
-    <!-- Cabeçalho + data + botão -->
-    <header class="topo">
-      <div>
-        <h1>Hoje</h1>
-        <p class="data-hoje" id="data-hoje"></p>
-      </div>
-      <button type="button" class="btn-novo" id="btn-novo-habito">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Novo hábito
-      </button>
-    </header>
-
-    <!-- Progresso do dia -->
-    <section class="progresso" aria-labelledby="progresso-rotulo">
-      <p class="progresso-rotulo" id="progresso-rotulo">Progresso de hoje</p>
-      <p class="progresso-texto" id="progresso-texto" aria-live="polite">0 de 0 feitos</p>
-      <div class="barra" id="progresso-trilho" role="progressbar" aria-labelledby="progresso-rotulo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="barra-preenchida" id="progresso-barra"></div>
-      </div>
-    </section>
-
-    <!-- Contêiner da lista -->
-    <section class="cartao" id="cartao-lista" aria-label="Hábitos de hoje" hidden>
-      <ul class="lista" id="lista-habitos"></ul>
-    </section>
-
-    <!-- Estado vazio (nenhum hábito cadastrado) -->
-    <section class="estado-vazio" id="estado-vazio" hidden>
-      <div class="estado-vazio-icone">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-      </div>
-      <h2>Nenhum hábito ainda</h2>
-      <p>Crie o seu primeiro hábito e comece a construir uma sequência.</p>
-      <button type="button" class="btn-novo" id="btn-novo-habito-vazio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Novo hábito
-      </button>
-    </section>
-
-    <!-- Hábitos que não são de hoje -->
-    <section class="nao-hoje" id="secao-nao-hoje" hidden>
-      <button type="button" class="nao-hoje-toggle" id="nao-hoje-toggle" aria-expanded="true" aria-controls="lista-nao-hoje">
-        <span id="nao-hoje-titulo">Não é hoje (0)</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
-      </button>
-      <div class="cartao" id="lista-nao-hoje"></div>
-    </section>
-
-    <!-- A janela (modal) do formulário é criada pelo JavaScript -->
+<body class="flex flex-col h-screen bg-brand-ice font-sans overflow-hidden">
+  <div id="menu"></div>
+  <main id="app" class="flex-1 flex items-center justify-center w-full p-4">
   </main>
 
   <script type="module" src="habitos.js"></script>

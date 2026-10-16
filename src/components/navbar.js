@@ -1,17 +1,17 @@
 // Menu lateral — montado com createElement/appendChild.
-// As páginas fazem: const menu = showMenu(); menuPai.appendChild(menu);
+// As páginas fazem: const menu = criarNavbar(); menuPai.appendChild(menu);
 
-export function showMenu() {
+export function criarNavbar() {
   const usuarioLogado = lerSessao();
 
   let nome = 'Cadastro/Login';
-  let linkLogin = 'index.html';
+  let linkEntrada = 'index.html';
   if (usuarioLogado && usuarioLogado !== null) {
     nome = `Olá, ${usuarioLogado.username.split(' ')[0]}`;
-    linkLogin = 'perfil.html';
+    linkEntrada = 'perfil.html';
   }
 
-  return criarMenu(nome, linkLogin);
+  return criarMenu(nome, linkEntrada);
 }
 
 function lerSessao() {
@@ -22,9 +22,9 @@ function lerSessao() {
   }
 }
 
-function criarMenu(nome, linkLogin) {
+function criarMenu(nome, linkEntrada) {
   const elementoMenu = document.createElement('header');
-  elementoMenu.className = 'bg-brand-gray text-white fixed top-0 left-0 h-screen w-64 flex flex-col py-8 px-6 shadow-md z-50';
+  elementoMenu.className = 'bg-brand-gray text-white h-screen w-64 flex flex-col py-8 px-6 shadow-md shrink-0';
 
   const logo = document.createElement('div');
   logo.className = 'text-xl font-bold tracking-widest mb-10';
@@ -38,7 +38,7 @@ function criarMenu(nome, linkLogin) {
     { texto: 'Hábitos', destino: 'habitos.html' },
     { texto: 'Feed', destino: 'feed.html' },
     { texto: 'Grupos', destino: 'grupos.html' },
-    { texto: 'Criar Grupo', destino: 'criar-grupo.html' },
+    { texto: 'Perfil', destino: 'perfil.html' },
   ];
 
   for (const link of links) {
@@ -52,7 +52,7 @@ function criarMenu(nome, linkLogin) {
   elementoMenu.appendChild(navegacao);
 
   const entrada = document.createElement('a');
-  entrada.href = linkLogin;
+  entrada.href = linkEntrada;
   entrada.className = 'mt-auto text-sm font-medium hover:text-brand-ice transition-colors';
   entrada.textContent = nome;
   elementoMenu.appendChild(entrada);
