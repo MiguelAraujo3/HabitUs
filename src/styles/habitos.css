@@ -1,4 +1,4 @@
- :root {
+:root {
       --bg: #f7f7f5;
       --card: #ffffff;
       --ink: #111111;
@@ -285,4 +285,46 @@
       .pagina { padding: 24px 16px 48px; }
       .topo { flex-direction: column; }
       .btn-novo { width: 100%; justify-content: center; }
+    }
+
+    /* Menu lateral (montado pelo navbar.js dentro de #menu)
+       Fixo à esquerda, com a mesma largura do padding-left do body (16rem).
+       Garante o posicionamento mesmo que as classes do Tailwind não carreguem. */
+    #menu > header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      width: 16rem;
+      height: 100vh;
+      padding: 2rem 1.5rem;
+      background: var(--color-brand-gray, #2b2b2b);
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+    }
+    #menu > header > div {
+      margin-bottom: 2.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+    }
+    #menu > header nav {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      font-size: .875rem;
+      font-weight: 500;
+    }
+    #menu > header a {
+      color: inherit;
+      text-decoration: none;
+      transition: color .15s ease;
+    }
+    #menu > header a:hover { color: var(--color-brand-ice, #dff4f8); }
+    #menu > header > a {
+      margin-top: auto;
+      font-size: .875rem;
+      font-weight: 500;
     }

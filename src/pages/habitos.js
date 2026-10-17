@@ -1,10 +1,10 @@
 import '../style.css'; // Tailwind + cores "brand-*" usadas pelo menu lateral
 import '../styles/formulario-habito.css';
-import { showMenu } from '../components/navbar.js';
+import { criarNavbar } from '../components/navbar.js';
 import * as repoHabitos from '../data/habitos.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { paraChave, hoje } from '../utils/datas.js';
-import { calcularSequencia } from '../utils/sequencia.js';
+import { calcularSequencia } from '../rules/streak.js';
 
 const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -178,7 +178,7 @@ function renderData() {
 
 function renderProgresso(deHoje) {
   const total = deHoje.length;
-  const feitos = deHoje.filter(feitoHoje).length;
+  const feitos = deHoje.reduce((soma, h) => soma + (feitoHoje(h) ? 1 : 0), 0);
   const pct = total ? Math.round((feitos / total) * 100) : 0;
   $('progresso-texto').textContent = `${feitos} de ${total} feitos`;
   $('progresso-barra').style.width = `${pct}%`;
@@ -412,8 +412,13 @@ function abrirFormulario() {
 // ---------- Inicialização ----------
 
 async function iniciar() {
-  // Menu lateral (o navbar devolve um elemento, não uma string)
-  $('menu').appendChild(showMenu());
+  // Menu lateral (o navbar devolve um elemento, não uma string).
+  // Se o menu falhar, a página continua funcionando e o erro aparece no console.
+  try {
+    $('menu').appendChild(criarNavbar());
+  } catch (erro) {
+    console.error('Não foi possível montar o menu:', erro);
+  }
 
   $('btn-novo-habito').addEventListener('click', abrirFormulario);
   $('btn-novo-habito-vazio').addEventListener('click', abrirFormulario);
