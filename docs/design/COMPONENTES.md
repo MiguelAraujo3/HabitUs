@@ -462,3 +462,524 @@ Não há componente dedicado; o item de lista é um `<li>` inline:
 |---|---|
 | Cartão de item de lista | `NÃO ENCONTRADO` como componente compartilhado. Usa-se `Card` (ui.tsx:278) e itens `<li>` inline (ex.: `Layout.tsx` `TodayColumn`). |
 | Tamanhos de botão | `NÃO ENCONTRADO` — apenas `min-h-[50px]` fixo. |
+
+---
+
+## A) Classes personalizadas — `referencia-design/src/index.css`
+
+Origem: `referencia-design/src/index.css` (linhas 1-129). Cópia literal das regras e seletores.
+
+### html / body / seleção / foco (index.css:37-68)
+
+**html:**
+```css
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+```
+
+**body:**
+```css
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+```
+
+**::selection:**
+```css
+::selection {
+  background: var(--color-lime);
+  color: var(--color-black);
+}
+```
+
+**button, a, input, textarea, select, summary:**
+```css
+button,
+a,
+input,
+textarea,
+select,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+```
+
+**:focus-visible:**
+```css
+:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 2px;
+}
+```
+
+### Utilitárias customizadas (index.css:69-118)
+
+**.tnum** (index.css:69-71):
+```css
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+```
+
+**.no-scrollbar** (index.css:72-77):
+```css
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+```
+
+**.press** (index.css:78-87):
+```css
+.press {
+  transition:
+    transform 120ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+.press:active:not(:disabled) {
+  transform: scale(0.98);
+}
+```
+
+### Keyframes (index.css:88-103)
+
+**@keyframes sheet-up:**
+```css
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+```
+
+**@keyframes fade-in:**
+```css
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+```
+
+**@keyframes pulse-soft:**
+```css
+@keyframes pulse-soft {
+  50% {
+    opacity: 0.5;
+  }
+}
+```
+
+**.anim-sheet** (index.css:109-111):
+```css
+.anim-sheet {
+  animation: sheet-up 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+```
+
+**.anim-fade** (index.css:112-114):
+```css
+.anim-fade {
+  animation: fade-in 200ms ease;
+}
+```
+
+**.skeleton** (index.css:115-118):
+```css
+.skeleton {
+  background: var(--color-surface-2);
+  animation: pulse-soft 1.4s ease-in-out infinite;
+}
+```
+
+### Redução de movimento (index.css:119-129)
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+}
+```
+
+---
+
+## B) Componentes de Grupos.tsx, GrupoAdmin.tsx e lib.tsx
+
+### BigTitle (já documentado na seção 9 — `ui.tsx:266-276`)
+Não repetido conforme regra de não alterar seções existentes.
+
+### SectionTitle (já documentado na seção 9 — `ui.tsx:282-289`)
+Não repetido conforme regra de não alterar seções existentes.
+
+### Fieldset / legend — `GrupoCriar` (Grupos.tsx:104, 110-125) e `PostarConclusao` (Grupos.tsx:312-328)
+
+**Estrutura HTML (Categoria, Grupos.tsx:104):**
+```html
+<fieldset>
+  <legend className="mb-2 text-[15px] font-medium">Categoria</legend>
+  <CategoryGrid value={cat} onChange={setCat} error={errs.cat} />
+</fieldset>
+```
+
+**Estrutura HTML (Atividades e pontos, Grupos.tsx:110-125):**
+```html
+<fieldset>
+  <legend className="mb-2 text-[15px] font-medium">Atividades e pontos</legend>
+  <ul className="space-y-2">
+    {acts.map((a, i) => (
+      <li key={a.id} className="rounded-[14px] bg-surface p-3">
+        <div className="flex items-center gap-2">
+          <input aria-label={`Nome da atividade ${i + 1}`} value={a.name} onChange={(e) => upd(i, { name: e.target.value })} className={inputCls} placeholder="Ex.: Treino de 30 min" />
+          {acts.length > 1 && <button type="button" onClick={() => setActs(acts.filter((_, k) => k !== i))} aria-label={`Remover atividade ${i + 1}`} className="press flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 hover:bg-danger-tint hover:text-danger"><Trash2 size={18} /></button>}
+        </div>
+        <div className="mt-2 flex items-center justify-between"><span className="text-[14px] text-ink-2">Pontos por conclusão</span><Stepper label="pontos" value={a.points} min={1} max={10} onChange={(n) => upd(i, { points: n })} /></div>
+      </li>
+    ))}
+  </ul>
+  {errs.acts && <p className="mt-1.5 text-[13px] font-medium text-danger">{errs.acts}</p>}
+  <button type="button" onClick={() => setActs([...acts, { id: `n${acts.length + 1}${Date.now()}`, name: '', points: 3 }])} className={btn('ghost', 'mt-2 min-h-11 w-full')}>
+    <Plus size={18} aria-hidden />Adicionar atividade
+  </button>
+</fieldset>
+```
+
+**Estrutura HTML (Atividade, PostarConclusao, Grupos.tsx:312-328):**
+```html
+<fieldset>
+  <legend className="mb-2 text-[15px] font-medium">Atividade</legend>
+  <div role="radiogroup" className="space-y-2">
+    {g.activities.map((a) => {
+      const off = done(a)
+      const on = aid === a.id
+      return (
+        <button key={a.id} type="button" role="radio" aria-checked={on} aria-disabled={off} disabled={off} onClick={() => setAid(a.id)} className={cx('press flex min-h-14 w-full items-center gap-3 rounded-[12px] border px-4 py-2 text-left disabled:opacity-60', on ? 'border-action bg-action-tint ring-1 ring-action' : 'border-line bg-surface')}>
+          <span className={cx('flex size-5 shrink-0 items-center justify-center rounded-full border-2', on ? 'border-action' : 'border-line')}>{on && <span className="size-2.5 rounded-full bg-action" />}</span>
+          <span className="min-w-0 flex-1"><b className="block text-[16px] font-medium">{a.name}</b>{off && <span className="text-[13px] text-ink-2">Já feita hoje, volte amanhã</span>}</span>
+          <span className="tnum rounded-full bg-surface-2 px-2.5 py-1 text-[13px] font-semibold">+{a.points}</span>
+        </button>
+      )
+    })}
+  </div>
+  {errs.aid && <p className="mt-1.5 text-[13px] font-medium text-danger">{errs.aid}</p>}
+</fieldset>
+```
+
+**className literais do legend:** `mb-2 text-[15px] font-medium`
+
+### Summary de erros — `ErrorSummary` (já documentado na seção 4 — `ui.tsx:94-102`)
+Não repetido conforme regra de não alterar seções existentes.
+
+### CategoryGrid (já documentado na seção anterior — `ui.tsx:115-144`)
+Não repetido conforme regra de não alterar seções existentes.
+
+### Cartão de grupo na lista — `GruposLista` (Grupos.tsx:38-47)
+
+**Estrutura HTML:**
+```html
+<li key={g.id}>
+  <Link to={`/grupos/${g.id}`} className="flex items-center gap-3 p-4 hover:bg-surface-2">
+    <div className="min-w-0 flex-1 space-y-1.5">
+      <p className="truncate text-[17px] leading-[22px] font-semibold">{g.name}</p>
+      <div className="flex flex-wrap items-center gap-2"><CategoryChip cat={g.cat} /><StatusBadge status={s.key} /></div>
+      <p className="text-[13px] text-ink-2">{nameJoin(g.members.length)} · {s.key === 'nao-iniciado' ? `Começa em ${fmtDate(g.start)}` : s.key === 'encerrado' ? `Encerrado em ${fmtDate(g.end)}` : `Até ${fmtDate(g.end)}`}</p>
+    </div>
+    {pos && s.key !== 'nao-iniciado' && <div className="text-center"><p className="tnum text-[26px] leading-7 font-bold">{pos}º</p><p className="text-[11px] font-medium text-ink-2">{s.key === 'encerrado' ? 'final' : 'posição'}</p></div>}
+    <ChevronRight size={18} className="shrink-0 text-ink-2" aria-hidden />
+  </Link>
+</li>
+```
+
+**className literais:**
+- `<li>`: (sem classe própria)
+- `<Link>`: `flex items-center gap-3 p-4 hover:bg-surface-2`
+- Conteúdo: `min-w-0 flex-1 space-y-1.5`
+- Nome (`<p>`): `truncate text-[17px] leading-[22px] font-semibold`
+- Chips: `flex flex-wrap items-center gap-2`
+- Meta (`<p>`): `text-[13px] text-ink-2`
+- Posição: `text-center` — interno: `tnum text-[26px] leading-7 font-bold` (posição) e `text-[11px] font-medium text-ink-2` (rótulo)
+- Chevron: `shrink-0 text-ink-2` (com `size={18}`)
+
+### Linha de ranking — `GrupoPagina` tab ranking (Grupos.tsx:205-212)
+
+**Estrutura HTML:**
+```html
+<li key={r.user.id} className={cx('relative flex items-center gap-3 px-4 py-3', you && 'bg-action-tint')}>
+  {you && <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-action" />}
+  <span className={cx('tnum w-9 text-center', r.pos <= 3 ? 'text-[20px] font-bold' : 'text-[16px] font-medium text-ink-2')}><span className="sr-only">Posição </span>{r.pos}º</span>
+  <Avatar name={r.user.name} size={38} />
+  <Link to={you ? '/perfil' : `/u/${r.user.username}`} className="min-w-0 flex-1 truncate text-[16px] font-semibold hover:underline">{r.user.name}{you && <span className="ml-2 rounded-full bg-action px-2 py-0.5 align-middle text-[11px] font-semibold text-white">Você</span>}</Link>
+  <span className="tnum text-[17px] font-bold">{r.points}<span className="ml-1 text-[12px] font-medium text-ink-2">pts</span></span>
+</li>
+```
+
+**className literais:**
+- `<li>` base: `relative flex items-center gap-3 px-4 py-3`
+- Você (ativo): `bg-action-tint`
+- Marca lateral "você": `absolute inset-y-0 left-0 w-1 bg-action`
+- Posição (`<span>`): `tnum w-9 text-center` — top 3: `text-[20px] font-bold` — outros: `text-[16px] font-medium text-ink-2`
+- Sr-only: `sr-only`
+- Avatar: (usado via componente `Avatar`, size={38})
+- Nome (`<Link>`): `min-w-0 flex-1 truncate text-[16px] font-semibold hover:underline`
+- Selo "Você": `ml-2 rounded-full bg-action px-2 py-0.5 align-middle text-[11px] font-semibold text-white`
+- Pontos: `tnum text-[17px] font-bold` — sufixo pts: `ml-1 text-[12px] font-medium text-ink-2`
+
+### Caixa do link de convite — `GrupoPagina` (Grupos.tsx:174-178)
+
+**Estrutura HTML:**
+```html
+<div className="mt-4 flex items-center gap-2 rounded-[12px] bg-surface p-2 pl-3.5">
+  <span className="min-w-0 flex-1 truncate text-[14px] text-ink-2">{link.replace(/^https?:\/\//, '')}</span>
+  <button onClick={copy} className={btn('secondary', 'min-h-10 px-3.5 text-[14px]')}><Copy size={15} aria-hidden />Copiar</button>
+</div>
+```
+
+**className literais:**
+- Caixa: `mt-4 flex items-center gap-2 rounded-[12px] bg-surface p-2 pl-3.5`
+- Link (span): `min-w-0 flex-1 truncate text-[14px] text-ink-2`
+- Botão Copiar: `btn('secondary', 'min-h-10 px-3.5 text-[14px]')` → base do btn secondary + `min-h-10 px-3.5 text-[14px]`
+
+### Linha de membro — `GrupoPagina` tab membros (Grupos.tsx:237-243) e `GrupoGerenciar` (GrupoAdmin.tsx:91-95)
+
+**Estrutura HTML (membros do grupo, Grupos.tsx:237-243):**
+```html
+<li key={u.id} className="flex items-center gap-3 px-4 py-3">
+  <Avatar name={u.name} size={40} />
+  <Link to={you ? '/perfil' : `/u/${u.username}`} className="min-w-0 flex-1 leading-5"><b className="block truncate text-[16px] font-semibold">{u.name}{you && ' (você)'}</b><span className="text-[13px] text-ink-2">@{u.username}</span></Link>
+  {g.ownerId === u.id && <span className="inline-flex items-center gap-1 rounded-full bg-black px-2.5 py-1 text-xs font-semibold text-white"><Crown size={12} aria-hidden />Dono</span>}
+  {owner && !you && !closed && <button onClick={() => setRm(u.id)} className="press min-h-11 rounded-full px-3 text-[14px] font-semibold text-danger hover:bg-danger-tint">Remover</button>}
+</li>
+```
+
+**Estrutura HTML (gerenciar membros, GrupoAdmin.tsx:91-95):**
+```html
+<li key={u.id} className="flex items-center gap-3 px-4 py-3">
+  <Avatar name={u.name} size={38} />
+  <div className="min-w-0 flex-1 leading-5"><b className="block truncate text-[16px] font-semibold">{u.name}</b><span className="text-[13px] text-ink-2">{own ? 'Dono' : `@${u.username}`}</span></div>
+  {!own && !closed && <button onClick={() => setSheet({ kind: 'member', id: u.id })} className="press min-h-11 rounded-full px-3 text-[14px] font-semibold text-danger hover:bg-danger-tint">Remover</button>}
+</li>
+```
+
+**className literais (membros):**
+- `<li>`: `flex items-center gap-3 px-4 py-3`
+- Avatar: (via componente, size={40} ou {38})
+- Nome (`<b>`): `block truncate text-[16px] font-semibold`
+- Username: `text-[13px] text-ink-2`
+- Selo Dono: `inline-flex items-center gap-1 rounded-full bg-black px-2.5 py-1 text-xs font-semibold text-white`
+- Botão Remover: `press min-h-11 rounded-full px-3 text-[14px] font-semibold text-danger hover:bg-danger-tint`
+
+### Linha de atividade com selo "Feito hoje" — `GrupoPagina` tab atividades (Grupos.tsx:221-225)
+
+**Estrutura HTML:**
+```html
+<li key={a.id} className="flex items-center gap-3 px-4 py-3.5">
+  <span className="min-w-0 flex-1 text-[16px] font-medium">{a.name}</span>
+  {doneToday(a) && <span className="inline-flex items-center gap-1 rounded-full bg-lime px-2.5 py-1 text-xs font-semibold text-black"><Check size={12} strokeWidth={3} aria-hidden />Feito hoje</span>}
+  <span className="tnum rounded-full bg-surface-2 px-2.5 py-1 text-[13px] font-semibold">+{a.points} pts</span>
+</li>
+```
+
+**className literais:**
+- `<li>`: `flex items-center gap-3 px-4 py-3.5`
+- Nome: `min-w-0 flex-1 text-[16px] font-medium`
+- Selo "Feito hoje": `inline-flex items-center gap-1 rounded-full bg-lime px-2.5 py-1 text-xs font-semibold text-black`
+- Ícone Check: `size={12} strokeWidth={3}`
+- Pontos: `tnum rounded-full bg-surface-2 px-2.5 py-1 text-[13px] font-semibold`
+
+### PostCard — `lib.tsx:57-102`
+
+**Estrutura HTML:**
+```html
+<article className="rounded-[14px] bg-surface">
+  <div className="flex items-center gap-3 p-4 pb-3">
+    <Link to={u.id === me?.id ? '/perfil' : `/u/${u.username}`}><Avatar name={u.name} /></Link>
+    <div className="min-w-0 flex-1 leading-5">
+      <Link to={u.id === me?.id ? '/perfil' : `/u/${u.username}`} className="block truncate text-[16px] font-semibold hover:underline">{u.name}</Link>
+      <p className="truncate text-[13px] text-ink-2">@{u.username} · {post.ago}</p>
+    </div>
+    {onDelete && (
+      <button onClick={onDelete} aria-label="Excluir postagem" className="press flex size-11 items-center justify-center rounded-full text-ink-2 hover:bg-danger-tint hover:text-danger"><Trash2 size={19} /></button>
+    )}
+  </div>
+  <div className="flex flex-wrap items-center gap-2 px-4">
+    {g && act ? (
+      <>
+        <Link to={`/grupos/${g.id}`} className="inline-flex items-center rounded-full bg-black px-2.5 py-1 text-xs font-semibold text-white">{g.name}</Link>
+        <span className="rounded-full bg-lime px-2.5 py-1 text-xs font-semibold text-black">{act.name} · +{post.points} pts</span>
+      </>
+    ) : (
+      post.cat && (<><CategoryChip cat={post.cat} />{post.habit && <span className="text-[13px] text-ink-2">{post.habit}</span>}</>)
+    )}
+  </div>
+  {detail ? (
+    <p className="px-4 pt-3 text-[17px] leading-6">{post.text}</p>
+  ) : (
+    <Link to={`/post/${post.id}`} className="block px-4 pt-3 text-[17px] leading-6">{post.text}</Link>
+  )}
+  {post.img && <img src={post.img} alt={`Foto de ${u.name}: ${post.text.slice(0, 60)}`} loading="lazy" className="mt-3 aspect-[4/3] w-full bg-surface-2 object-cover" />}
+  <div className="flex items-center gap-1 p-2">
+    <button onClick={() => toggleLike(post.id)} aria-pressed={post.liked} className={cx('press flex min-h-11 items-center gap-2 rounded-full px-3.5 text-[15px] font-medium hover:bg-surface-2', post.liked ? 'text-coral-ink' : 'text-ink-2')}>
+      <Heart size={20} aria-hidden fill={post.liked ? 'currentColor' : 'none'} />
+      <span className="tnum">{post.likes}</span><span className="sr-only">{post.liked ? 'Descurtir' : 'Curtir'}</span><span aria-hidden>Curtir</span>
+    </button>
+    <Link to={`/post/${post.id}`} className="press flex min-h-11 items-center gap-2 rounded-full px-3.5 text-[15px] font-medium text-ink-2 hover:bg-surface-2">
+      <MessageCircle size={20} aria-hidden /><span className="tnum">{post.comments.length}</span>Comentar
+    </Link>
+  </div>
+</article>
+```
+
+**className literais do PostCard:**
+- `<article>`: `rounded-[14px] bg-surface`
+- Cabeçalho: `flex items-center gap-3 p-4 pb-3`
+- Avatar: (via componente, sem size explícito → padrão 40)
+- Nome (`<Link>`): `block truncate text-[16px] font-semibold hover:underline`
+- Meta (`<p>`): `truncate text-[13px] text-ink-2`
+- Botão excluir: `press flex size-11 items-center justify-center rounded-full text-ink-2 hover:bg-danger-tint hover:text-danger`
+- Linha grupo/atividade: `flex flex-wrap items-center gap-2 px-4`
+- Link grupo: `inline-flex items-center rounded-full bg-black px-2.5 py-1 text-xs font-semibold text-white`
+- Selo atividade: `rounded-full bg-lime px-2.5 py-1 text-xs font-semibold text-black`
+- CategoryChip: (via componente)
+- Habit: `text-[13px] text-ink-2`
+- Texto (detail): `px-4 pt-3 text-[17px] leading-6`
+- Texto (Link): `block px-4 pt-3 text-[17px] leading-6`
+- Imagem: `mt-3 aspect-[4/3] w-full bg-surface-2 object-cover`
+- Barra inferior: `flex items-center gap-1 p-2`
+- Botão curtir: `press flex min-h-11 items-center gap-2 rounded-full px-3.5 text-[15px] font-medium hover:bg-surface-2` — liked: `text-coral-ink` — não liked: `text-ink-2`
+- Heart: `size={20}`
+- Contagem curtidas: `tnum`
+- Sr-only: `sr-only`
+- Botão comentar: `press flex min-h-11 items-center gap-2 rounded-full px-3.5 text-[15px] font-medium text-ink-2 hover:bg-surface-2`
+- MessageCircle: `size={20}`
+- Contagem comentários: `tnum`
+
+### Cartão centralizado da página de convite — `Convite` (GrupoAdmin.tsx:171-183)
+
+**Estrutura HTML:**
+```html
+<div className="flex min-h-dvh flex-col items-center justify-center px-4 py-10">
+  <Link to={me ? '/hoje' : '/login'} className="mb-8"><Logo size={22} /></Link>
+  <div className="w-full max-w-[420px] rounded-[22px] bg-surface p-6 text-center shadow-[0_2px_12px_rgb(0_0_0/0.06)]">
+    <span className={`mx-auto flex size-16 items-center justify-center rounded-full ${s.tone}`}><Icon size={30} aria-hidden /></span>
+    <h1 className="mt-5 text-[26px] leading-8 font-bold tracking-[-0.02em]">{s.title}</h1>
+    <p className="mt-2 text-[16px] leading-[22px] text-ink-2">{s.text}</p>
+    {showMeta && g && (
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[14px] bg-surface-2 p-3 text-[13px] text-ink-2">
+        <CategoryChip cat={g.cat} /><span>{g.members.length} membros</span><span>{fmtDate(g.start)} – {fmtDate(g.end)}</span>
+      </div>
+    )}
+    <div className="mt-6 flex flex-col gap-2">{s.cta}</div>
+  </div>
+</div>
+```
+
+**className literais:**
+- Wrapper: `flex min-h-dvh flex-col items-center justify-center px-4 py-10`
+- Logo link: `mb-8`
+- Cartão central: `w-full max-w-[420px] rounded-[22px] bg-surface p-6 text-center shadow-[0_2px_12px_rgb(0_0_0/0.06)]`
+- Ícone circular: `mx-auto flex size-16 items-center justify-center rounded-full ${s.tone}` (dinâmico via template literal)
+- Ícone (Icon): `size={30}`
+- Título (`<h1>`): `mt-5 text-[26px] leading-8 font-bold tracking-[-0.02em]`
+- Texto (`<p>`): `mt-2 text-[16px] leading-[22px] text-ink-2`
+- Meta box: `mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[14px] bg-surface-2 p-3 text-[13px] text-ink-2`
+- CTA: `mt-6 flex flex-col gap-2`
+
+**Tones possíveis (GrupoAdmin.tsx:154-166):**
+- inválido: `bg-surface-2 text-ink-2`
+- não logado: `bg-lime text-black`
+- bloqueado: `bg-danger-tint text-danger`
+- já membro: `bg-action-tint text-action`
+- encerrado: `bg-surface-2 text-closed`
+- entrar/voltar: `bg-lime text-black`
+
+---
+
+## C) Dados de categoria — `CATEGORIES` (`referencia-design/src/app/data.ts:30-42`)
+
+**Arquivo:** `referencia-design/src/app/data.ts:30-42`
+**Interface `Category` (data.ts:23-28):** `id: string`, `label: string`, `family: Family`, `icon: LucideIcon`
+**Tipo `Family` (data.ts:21):** `'coral' | 'lime' | 'blue' | 'violet' | 'cyan' | 'gray'`
+
+**Lista literal de CATEGORIES:**
+
+| id | label | família | ícone |
+|---|---|---|---|
+| `saude` | Saúde | `coral` | `Heart` |
+| `esportes` | Esportes e exercícios | `lime` | `Dumbbell` |
+| `estudos` | Estudos | `blue` | `GraduationCap` |
+| `leitura` | Leitura | `violet` | `BookOpen` |
+| `alimentacao` | Alimentação | `coral` | `Apple` |
+| `sono` | Sono | `blue` | `Moon` |
+| `bem-estar` | Bem-estar mental | `violet` | `Flower2` |
+| `financas` | Finanças | `lime` | `Wallet` |
+| `organizacao` | Organização e produtividade | `cyan` | `ListChecks` |
+| `hobbies` | Hobbies e criatividade | `cyan` | `Palette` |
+| `outros` | Outros | `gray` | `Shapes` |
+
+**Código literal (data.ts:30-42):**
+```js
+export const CATEGORIES: Category[] = [
+  { id: 'saude', label: 'Saúde', family: 'coral', icon: Heart },
+  { id: 'esportes', label: 'Esportes e exercícios', family: 'lime', icon: Dumbbell },
+  { id: 'estudos', label: 'Estudos', family: 'blue', icon: GraduationCap },
+  { id: 'leitura', label: 'Leitura', family: 'violet', icon: BookOpen },
+  { id: 'alimentacao', label: 'Alimentação', family: 'coral', icon: Apple },
+  { id: 'sono', label: 'Sono', family: 'blue', icon: Moon },
+  { id: 'bem-estar', label: 'Bem-estar mental', family: 'violet', icon: Flower2 },
+  { id: 'financas', label: 'Finanças', family: 'lime', icon: Wallet },
+  { id: 'organizacao', label: 'Organização e produtividade', family: 'cyan', icon: ListChecks },
+  { id: 'hobbies', label: 'Hobbies e criatividade', family: 'cyan', icon: Palette },
+  { id: 'outros', label: 'Outros', family: 'gray', icon: Shapes },
+]
+```
+
+**`catOf` (data.ts:43):**
+```js
+export const catOf = (id: string) => CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[10]
+```
+
+**FAMILY (cores, replicado de `ui.tsx:8-15`):**
+- `coral`: `bg-[#fde8e8] text-coral-ink`
+- `lime`: `bg-[#eef9cf] text-[#3f5a00]`
+- `blue`: `bg-[#e3ecff] text-[#1e40af]`
+- `violet`: `bg-[#f1e6fa] text-violet-ink`
+- `cyan`: `bg-[#ddf4f8] text-[#0e5a68]`
+- `gray`: `bg-[#ecece9] text-[#4a4a47]`
+
+---
+
+## Itens solicitados não encontrados
+
+| Item solicitado | Situação |
+|---|---|
+| BigTitle | `NÃO ENCONTRADO` como seção nova — já documentado anteriormente em `ui.tsx:266-276` (seção 9 deste documento). |
+| SectionTitle | `NÃO ENCONTRADO` como seção nova — já documentado anteriormente em `ui.tsx:282-289` (seção 9 deste documento). |
+| Summary de erros | `NÃO ENCONTRADO` como seção nova — já documentado anteriormente em `ui.tsx:94-102` (seção 4 deste documento). |
+| CategoryGrid | `NÃO ENCONTRADO` como seção nova — já documentado anteriormente em `ui.tsx:115-144` (seção anterior deste documento). |
