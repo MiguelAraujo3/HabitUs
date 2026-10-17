@@ -60,3 +60,23 @@
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .press:active:not(:disabled) { transform: none; }
 }
+
+html { -webkit-text-size-adjust: 100%; scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--color-lime); color: var(--color-black); }
+button, a, input, textarea, select, summary { -webkit-tap-highlight-color: transparent; }
+
+.tnum { font-variant-numeric: tabular-nums; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
