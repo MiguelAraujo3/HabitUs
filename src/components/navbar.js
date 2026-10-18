@@ -1,25 +1,41 @@
 // Menu lateral — montado com createElement/appendChild.
 // As páginas fazem: const menu = criarNavbar(); menuPai.appendChild(menu);
+import {
+  obterUsuarioAtual,
+  encerrarSessao,
+} from '../data/index.js';
 
-export function criarNavbar() {
-  const usuarioLogado = lerSessao();
+const BASE = import.meta.env.BASE_URL;
 
-  let nome = 'Cadastro/Login';
-  let linkEntrada = 'index.html';
-  if (usuarioLogado && usuarioLogado !== null) {
-    nome = `Olá, ${usuarioLogado.username.split(' ')[0]}`;
-    linkEntrada = 'perfil.html';
+export async function criarNavbar() {
+  const usuario = await obterUsuarioAtual();
+
+  const nome = usuario? `Olá, ${usuario.name.split(' ')[0]}`: 'Cadastro/Login';
+
+  const linkEntrada = usuario ? 'perfil.html' : 'index.html';
+  const menu = criarMenu(nome, linkEntrada);
+
+  if (usuario) {
+    const sair = document.createElement('button');
+    sair.type = 'button';
+    sair.textContent = 'Sair';
+
+    sair.addEventListener('click', async () => {
+      sair.disabled = true;
+
+      try {
+        await encerrarSessao();
+        window.location.href = `${BASE}index.html`;
+      } catch {
+        sair.disabled = false;
+        sair.textContent = 'Tentar sair novamente';
+      }
+    });
+
+    menu.appendChild(sair);
   }
 
-  return criarMenu(nome, linkEntrada);
-}
-
-function lerSessao() {
-  try {
-    return JSON.parse(localStorage.getItem('usuarioLogado'));
-  } catch (erro) {
-    return null;
-  }
+  return menu;
 }
 
 function criarMenu(nome, linkEntrada) {
@@ -43,7 +59,7 @@ function criarMenu(nome, linkEntrada) {
 
   for (const link of links) {
     const ancora = document.createElement('a');
-    ancora.href = link.destino;
+    ancora.href = `${BASE}${link.destino}`;
     ancora.className = 'hover:text-brand-ice transition-colors';
     ancora.textContent = link.texto;
     navegacao.appendChild(ancora);
@@ -52,7 +68,7 @@ function criarMenu(nome, linkEntrada) {
   elementoMenu.appendChild(navegacao);
 
   const entrada = document.createElement('a');
-  entrada.href = linkEntrada;
+  entrada.href = `${BASE}${linkEntrada}`;
   entrada.className = 'mt-auto text-sm font-medium hover:text-brand-ice transition-colors';
   entrada.textContent = nome;
   elementoMenu.appendChild(entrada);

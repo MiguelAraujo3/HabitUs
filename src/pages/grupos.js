@@ -4,6 +4,6 @@ import { exigirLogin } from '../components/auth.js';
 
 exigirLogin();
 
-const menu = criarNavbar();
+const menu = await criarNavbar();
 document.querySelector('#menu').appendChild(menu);
 document.querySelector('#app').innerHTML = '<h1>Grupos</h1>';
