@@ -5,6 +5,9 @@ import * as repoHabitos from '../data/habitos.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { paraChave, hoje } from '../utils/datas.js';
 import { calcularSequencia } from '../rules/streak.js';
+import { exigirLogin } from '../components/auth.js';
+import { obterUsuarioAtual } from '../data/auth.js';
+
 
 const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -79,14 +82,10 @@ function el(tag, opts = {}, filhos = []) {
   return e;
 }
 
-// Id do usuário logado (mesma chave de sessão que o menu usa)
+let usuarioAtual = null;
+
 function idUsuarioAtual() {
-  try {
-    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-    return usuario && usuario.id !== undefined ? usuario.id : null;
-  } catch (erro) {
-    return null;
-  }
+  return usuarioAtual.id;
 }
 
 // ---------- Estado ----------
@@ -412,10 +411,21 @@ function abrirFormulario() {
 // ---------- Inicialização ----------
 
 async function iniciar() {
+  const autorizado = await exigirLogin();
+
+  if (!autorizado) {
+    return;
+  } 
+
+  usuarioAtual = await obterUsuarioAtual();
+
+  if (!usuarioAtual) {
+    return;
+  }
   // Menu lateral (o navbar devolve um elemento, não uma string).
   // Se o menu falhar, a página continua funcionando e o erro aparece no console.
   try {
-    $('menu').appendChild(criarNavbar());
+    $('menu').appendChild(await criarNavbar());
   } catch (erro) {
     console.error('Não foi possível montar o menu:', erro);
   }

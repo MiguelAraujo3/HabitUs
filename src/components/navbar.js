@@ -19,7 +19,7 @@ export async function criarNavbar() {
     const sair = document.createElement('button');
     sair.type = 'button';
     sair.textContent = 'Sair';
-
+    sair.classList.add('cursor-pointer', 'hover:text-brand-ice');
     sair.addEventListener('click', async () => {
       sair.disabled = true;
 

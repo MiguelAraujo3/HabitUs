@@ -1,14 +1,24 @@
 import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
-import { entrar, createUser } from '../data/index.js';
+import { entrar, createUser, obterUsuarioAtual } from '../data/index.js';
 function voltarParaUltimoDestino() {
   const destino = localStorage.getItem('destinoLogin');
   localStorage.removeItem('destinoLogin');
   window.location.href = destino || 'habitos.html';
 }
 
-const menu = await criarNavbar();
-document.querySelector('#menu').appendChild(menu);
+async function iniciarPagina() {
+  const usuario = await obterUsuarioAtual();
+
+  if (usuario) {
+    window.location.replace(`${import.meta.env.BASE_URL}habitos.html`);
+    return;
+  }
+
+  const menu = await criarNavbar();
+  document.querySelector('#menu').appendChild(menu);
+  montarLogin();
+}
 
 function montarLogin() {
   document.querySelector('#app').innerHTML = `
@@ -180,4 +190,4 @@ function montarCadastro() {
   }
 }
 
-montarLogin();
+await iniciarPagina();
