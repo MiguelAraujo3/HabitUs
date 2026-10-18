@@ -16,7 +16,13 @@
               O que está acontecendo nos hábitos de todo mundo.
             </p>
           </div>
-          <button id="btn-nova-postagem" type="button">Nova postagem</button>
+          <button
+            id="btn-nova-postagem"
+            type="button"
+            class="shrink-0 cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            + Nova postagem
+          </button>
         </header>
 
         <input
@@ -24,11 +30,16 @@
           type="search"
           aria-label="Buscar por nome de usuário"
           placeholder="Buscar por @usuário"
+          class="w-full rounded-lg bg-black/5 px-4 py-2.5 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
         />
 
         <ul id="lista-postagens" class="flex flex-col gap-4"></ul>
 
-        <p id="estado-vazio" hidden>
+        <p
+          id="estado-vazio"
+          hidden
+          class="rounded-xl bg-white p-6 text-center text-sm text-gray-600"
+        >
           Ainda não há postagens. Que tal ser a primeira pessoa a postar?
         </p>
       </div>
