@@ -4,7 +4,7 @@ import { exigirLogin } from '../components/auth.js';
 
 exigirLogin();
 
-const menu = criarNavbar();
+const menu = await criarNavbar();
 document.querySelector('#menu').appendChild(menu);
 
 const parametros = new URLSearchParams(window.location.search);

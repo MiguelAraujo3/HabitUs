@@ -1,6 +1,6 @@
 import '../style.css'; // Tailwind + cores "brand-*" usadas pelo menu lateral
 import '../styles/formulario-habito.css';
-import { showMenu } from '../components/navbar.js';
+import { criarNavbar } from '../components/navbar.js';
 import * as repoHabitos from '../data/habitos.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { paraChave, hoje } from '../utils/datas.js';
@@ -413,7 +413,7 @@ function abrirFormulario() {
 
 async function iniciar() {
   // Menu lateral (o navbar devolve um elemento, não uma string)
-  $('menu').appendChild(showMenu());
+  $('menu').appendChild(await criarNavbar());
 
   $('btn-novo-habito').addEventListener('click', abrirFormulario);
   $('btn-novo-habito-vazio').addEventListener('click', abrirFormulario);
