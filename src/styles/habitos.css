@@ -1,19 +1,3 @@
-:root {
-      --bg: #f7f7f5;
-      --card: #ffffff;
-      --ink: #111111;
-      --muted: #6b6b6b;
-      --line: #ececea;
-      --azul: #2563eb;
-      --azul-escuro: #1d4fd8;
-      --lima: #b8f52a;
-      --lima-suave: #f4fae4;
-      --preto: #050505;
-      --chama-bg: #fde8e6;
-      --chama-ink: #b3261e;
-      --trilho: #e6e6e3;
-    }
-
     * { box-sizing: border-box; }
 
     body {
@@ -60,7 +44,7 @@
       border: 0;
       border-radius: 14px;
       background: var(--azul);
-      color: #fff;
+      color: var(--card);
       font: inherit;
       font-size: 17px;
       font-weight: 600;
@@ -70,20 +54,20 @@
     }
     .btn-novo:hover { background: var(--azul-escuro); }
     .btn-novo:active { transform: scale(.98); }
-    .btn-novo:focus-visible { outline: 3px solid #93b4ff; outline-offset: 2px; }
+    .btn-novo:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
     .btn-novo svg { width: 18px; height: 18px; }
 
     /* Progresso do dia */
     .progresso {
       background: var(--preto);
-      color: #fff;
+      color: var(--card);
       border-radius: 20px;
       padding: 22px 20px 24px;
       margin-bottom: 16px;
     }
-    .progresso-rotulo { margin: 0 0 6px; font-size: 16px; color: #b5b5b5; }
+    .progresso-rotulo { margin: 0 0 6px; font-size: 16px; color: var(--trilho); }
     .progresso-texto { margin: 0 0 16px; font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
-    .barra { height: 8px; border-radius: 999px; background: #333; overflow: hidden; }
+    .barra { height: 8px; border-radius: 999px; background: var(--muted); overflow: hidden; }
     .barra-preenchida {
       height: 100%;
       width: 0;
@@ -131,12 +115,12 @@
       padding: 0;
       transition: background .15s ease, border-color .15s ease, transform .05s ease;
     }
-    .check:hover { background: #eef3ff; }
+    .check:hover { background: var(--bg); }
     .check:active { transform: scale(.94); }
-    .check:focus-visible { outline: 3px solid #93b4ff; outline-offset: 2px; }
+    .check:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
     .check svg { width: 22px; height: 22px; opacity: 0; }
     .habito.feito .check { background: var(--lima); border-color: var(--lima); }
-    .habito.feito .check:hover { background: #a9e620; }
+    .habito.feito .check:hover { background: var(--lima); }
     .habito.feito .check svg { opacity: 1; }
 
     .habito-corpo { flex: 1; min-width: 0; }
@@ -206,8 +190,8 @@
       margin-top: 14px;
       padding: 10px 12px;
       border-radius: 10px;
-      background: #efefed;
-      color: #555;
+      background: var(--line);
+      color: var(--muted);
       font-size: 14px;
     }
 
@@ -254,7 +238,7 @@
       cursor: pointer;
       border-radius: 10px;
     }
-    .nao-hoje-toggle:focus-visible { outline: 3px solid #93b4ff; }
+    .nao-hoje-toggle:focus-visible { outline: 3px solid var(--azul); }
     .nao-hoje-toggle svg { width: 18px; height: 18px; transition: transform .2s ease; }
     .nao-hoje-toggle[aria-expanded="false"] svg { transform: rotate(180deg); }
     .nao-hoje .cartao { margin-top: 10px; }
@@ -300,8 +284,8 @@
       width: 16rem;
       height: 100vh;
       padding: 2rem 1.5rem;
-      background: var(--color-brand-gray, #2b2b2b);
-      color: #fff;
+      background: var(--preto);
+      color: var(--card);
       box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
     }
     #menu > header > div {
@@ -322,7 +306,7 @@
       text-decoration: none;
       transition: color .15s ease;
     }
-    #menu > header a:hover { color: var(--color-brand-ice, #dff4f8); }
+    #menu > header a:hover { color: var(--lima); }
     #menu > header > a {
       margin-top: auto;
       font-size: .875rem;

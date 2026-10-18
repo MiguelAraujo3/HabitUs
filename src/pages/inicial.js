@@ -22,9 +22,9 @@ async function iniciarPagina() {
 
 function montarLogin() {
   document.querySelector('#app').innerHTML = `
-  <div class="bg-brand-dark p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
+  <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
-      <h1 class="text-3xl font-bold text-white tracking-widest mb-2">LOGO</h1>
+      <h1 class="text-3xl font-bold text-brand-dark tracking-widest mb-2">LOGO</h1>
     </div>
 
     <form id="login" class="space-y-5">
@@ -88,9 +88,9 @@ function montarLogin() {
 
 function montarCadastro() {
   document.querySelector('#app').innerHTML = `
-  <div class="bg-brand-dark p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
+  <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
-      <h1 class="text-3xl font-bold text-white tracking-widest mb-2">LOGO</h1>
+      <h1 class="text-3xl font-bold text-brand-dark tracking-widest mb-2">LOGO</h1>
     </div>
 
     <form id="cadastro" class="space-y-4">
