@@ -2,16 +2,18 @@ import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
 import { exigirLogin } from '../components/auth.js';
 
-exigirLogin();
+const autorizado = await exigirLogin();
 
-const menu = await criarNavbar();
-document.querySelector('#menu').appendChild(menu);
+if (autorizado) {
+  const menu = await criarNavbar();
+  document.querySelector('#menu').appendChild(menu);
 
-const parametros = new URLSearchParams(window.location.search);
-const usuario = parametros.get('usuario');
+  const parametros = new URLSearchParams(window.location.search);
+  const usuario = parametros.get('usuario');
 
-let titulo = 'Perfil';
-if (usuario) {
-  titulo = `Perfil de ${usuario}`;
+  let titulo = 'Perfil';
+  if (usuario) {
+    titulo = `Perfil de ${usuario}`;
+  }
+  document.querySelector('#app').innerHTML = `<h1>${titulo}</h1>`;
 }
-document.querySelector('#app').innerHTML = `<h1>${titulo}</h1>`;
