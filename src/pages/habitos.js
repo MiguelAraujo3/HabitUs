@@ -4,9 +4,10 @@ import { criarNavbar } from '../components/navbar.js';
 import * as repoHabitos from '../data/habitos.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { paraChave, hoje } from '../utils/datas.js';
+import { formatarSequencia } from '../utils/sequencia.js';
 import { calcularSequencia } from '../rules/streak.js';
 import { exigirLogin } from '../components/auth.js';
-import { obterUsuarioAtual } from '../data/auth.js';
+import { obterUsuarioAtual } from '../data/index.js';
 
 
 const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -50,10 +51,6 @@ const $ = (id) => document.getElementById(id);
 
 function hojeChave() {
   return paraChave(hoje());
-}
-
-function plural(n, singular, pluralTxt) {
-  return `${n} ${n === 1 ? singular : pluralTxt}`;
 }
 
 function svg(nomeIcone) {
@@ -127,8 +124,10 @@ function sequenciaDe(h) {
   return calcularSequencia(h.frequencia, datas, hojeChave());
 }
 
-function textoSequencia(seq) {
-  return `Sequência: ${plural(seq.atual, 'dia', 'dias')} · Recorde: ${seq.maior}`;
+function textoSequencia(seq, frequencia) {
+  const atual = formatarSequencia(seq.atual, frequencia);
+  const recorde = formatarSequencia(seq.maior, frequencia);
+  return `Sequência: ${atual} · Recorde: ${recorde}`;
 }
 
 // Marca/desmarca a conclusão de hoje (no máximo uma por hábito por dia)
@@ -204,9 +203,13 @@ function criarItem(h) {
   );
   botao.addEventListener('click', () => alternar(h.id));
 
-  const chama = el('span', { classe: 'chama', attrs: { title: 'Sequência atual' } }, [
+  const rotuloSequencia = `Sequência atual: ${formatarSequencia(seq.atual, h.frequencia)}`;
+  const chama = el('span', {
+    classe: 'chama',
+    attrs: { role: 'img', title: rotuloSequencia, 'aria-label': rotuloSequencia },
+  }, [
     svg('chama'),
-    el('span', { texto: String(seq.atual) }),
+    el('span', { texto: String(seq.atual), attrs: { 'aria-hidden': 'true' } }),
   ]);
 
   const linha1 = el('div', { classe: 'habito-linha1' }, [
@@ -218,7 +221,7 @@ function criarItem(h) {
   tag.style.backgroundColor = cat.fundo;
   tag.style.color = cat.texto;
 
-  const textoMeta = (feito ? 'Feito hoje · ' : '') + textoSequencia(seq);
+  const textoMeta = (feito ? 'Feito hoje · ' : '') + textoSequencia(seq, h.frequencia);
   const meta = el('div', { classe: 'habito-meta' }, [tag, el('span', { texto: textoMeta })]);
 
   const corpo = el('div', { classe: 'habito-corpo' }, [linha1, meta]);
@@ -241,7 +244,7 @@ function criarItemNaoHoje(h) {
   return el('div', { classe: 'item-nao-hoje' }, [
     el('div', {}, [
       el('h3', { texto: h.nome }),
-      el('p', { texto: `Dias: ${dias} · ${textoSequencia(sequenciaDe(h))}` }),
+      el('p', { texto: `Dias: ${dias} · ${textoSequencia(sequenciaDe(h), h.frequencia)}` }),
     ]),
     el('span', { texto: 'Não é hoje' }),
   ]);

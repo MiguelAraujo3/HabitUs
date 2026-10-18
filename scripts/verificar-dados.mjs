@@ -1,6 +1,7 @@
 import { CATEGORIAS } from '../src/data/categorias.js';
 import { criarHabito, criarConclusaoHabito, criarGrupo, criarAtividade, criarMembro, criarConclusaoGrupo, criarPostagem, criarComentario, criarCurtida, criarRegistroRecordes, criarTotalUsuario } from '../src/data/modelo.js';
 import { lerLista, salvarLista } from '../src/data/storage.js';
+import { entrar, encerrarSessao, obterUsuarioAtual } from '../src/data/index.js';
 import { hoje, paraChave, deChave, mesmoDia, inicioDaSemana, fimDaSemana, somarDias, diaDaSemana } from '../src/utils/datas.js';
 
 // Mock localStorage para Node (síncrono)
@@ -251,55 +252,166 @@ for (const r of repos) {
 }
 
 // ========== STAGE 4: SEED ==========
-console.log('--- Teste 32-35: Seed (carregarDadosIniciais) ---');
+console.log('--- Seed: autenticacao, vinculos e preservacao ---');
 
 import('../src/data/seed.js').then(async ({ carregarDadosIniciais }) => {
-  // 32. Seed roda primeira vez
+  // Isola o seed dos registros deixados pelos testes de CRUD acima.
+  storageMock._data = {};
   await carregarDadosIniciais();
-  const u1 = lerLista('usuarios');
-  const h1 = lerLista('habitos');
-  const g1 = lerLista('grupos');
-  const p1 = lerLista('postagens');
-  testar('seed: usuarios criados (4)', u1.length === 4, `=${u1.length}`);
-  testar('seed: habitos criados (8)', h1.length === 8, `=${h1.length}`);
-  testar('seed: grupos criados (2)', g1.length === 2, `=${g1.length}`);
-  testar('seed: postagens criadas (6)', p1.length === 6, `=${p1.length}`);
+  const usuarios = lerLista('usuarios');
+  const habitos = lerLista('habitos');
+  const grupos = lerLista('grupos');
+  const atividades = lerLista('atividades');
+  const membros = lerLista('membros');
+  const conclusoesHabito = lerLista('conclusoesHabito');
+  const conclusoesGrupo = lerLista('conclusoesGrupo');
+  const recordes = lerLista('recordes');
+  const totais = lerLista('totais');
+  const postagens = lerLista('postagens');
 
-  // 33. Seed rodando segunda vez NAO duplica
+  testar('seed: usuarios criados (4)', usuarios.length === 4);
+  testar('seed: habitos criados (8)', habitos.length === 8);
+  testar('seed: grupos criados (2)', grupos.length === 2);
+  testar('seed: atividades criadas (6)', atividades.length === 6);
+  testar('seed: membros criados (6)', membros.length === 6);
+  testar('seed: conclusoes de habito criadas (4)', conclusoesHabito.length === 4);
+  testar('seed: conclusoes de grupo criadas (4)', conclusoesGrupo.length === 4);
+  testar('seed: recordes e totais criados (4 cada)', recordes.length === 4 && totais.length === 4);
+  testar('seed: postagens criadas (6)', postagens.length === 6);
+  testar('seed: nao inicia sessao automaticamente', await obterUsuarioAtual() === null);
+
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  testar('seed: usuarios possuem UUIDs unicos', usuarios.every(u => uuid.test(u.id)) && new Set(usuarios.map(u => u.id)).size === 4);
+  testar('seed: usuarios possuem os campos atuais', usuarios.every(u =>
+    typeof u.name === 'string' && typeof u.username === 'string' &&
+    typeof u.profileDescription === 'string' && u.profileDescription.length > 0 &&
+    Number.isFinite(Date.parse(u.createdAt))
+  ));
+  testar('seed: credenciais PBKDF2 com salt e 100 mil iteracoes', usuarios.every(u =>
+    /^[0-9a-f]{64}$/.test(u.passwordHash) && /^[0-9a-f]{32}$/.test(u.salt) &&
+    u.iterations >= 100_000
+  ));
+  testar('seed: cada usuario possui salt proprio', new Set(usuarios.map(u => u.salt)).size === 4);
+  testar('seed: nao armazena senha em texto puro nem campos antigos', usuarios.every(u =>
+    ['password', 'senha', 'nome', 'usuario', 'descricao', 'dataCriacao'].every(campo => !(campo in u))
+  ));
+
+  const contas = [
+    { username: 'ana_silva', email: 'ana@email.com', password: '123456' },
+    { username: 'bruno_costa', email: 'bruno@email.com', password: 'abc123' },
+    { username: 'carla_dias', email: 'carla@email.com', password: 'senha789' },
+    { username: 'daniel_p', email: 'daniel@email.com', password: 'senha000' },
+  ];
+  for (const conta of contas) {
+    const esperado = usuarios.find(u => u.username === conta.username);
+    for (const identificador of [conta.email, conta.username]) {
+      const usuario = await entrar(identificador, conta.password);
+      const atual = await obterUsuarioAtual();
+      testar(`seed: login com ${identificador}`, usuario.id === esperado?.id && atual?.id === esperado?.id);
+      await encerrarSessao();
+    }
+
+    let rejeitouSenha = false;
+    try {
+      await entrar(conta.username, 'senha-incorreta');
+    } catch (erro) {
+      rejeitouSenha = erro.code === 'UNAUTHORIZED';
+    }
+    testar(`seed: rejeita senha incorreta de ${conta.username}`, rejeitouSenha && await obterUsuarioAtual() === null);
+    await encerrarSessao();
+  }
+
+  const idsUsuarios = usuarios.map(u => u.id);
+  const idsGrupos = grupos.map(g => g.id);
+  const idsHabitos = habitos.map(h => h.id);
+  const idsAtividades = atividades.map(a => a.id);
+  testar('seed: habitos vinculados a usuarios existentes', habitos.every(h => idsUsuarios.includes(h.idUsuario)));
+  testar('seed: donos dos grupos existem', grupos.every(g => idsUsuarios.includes(g.idDono)));
+  testar('seed: atividades vinculadas a grupos existentes', atividades.every(a => idsGrupos.includes(a.idGrupo)));
+  testar('seed: membros vinculados a grupos e usuarios existentes', membros.every(m =>
+    idsGrupos.includes(m.idGrupo) && idsUsuarios.includes(m.idUsuario)
+  ));
+  testar('seed: conclusoes de habito vinculadas a habitos existentes', conclusoesHabito.every(c => idsHabitos.includes(c.idHabito)));
+  testar('seed: conclusoes de grupo possuem referencias validas', conclusoesGrupo.every(c =>
+    idsGrupos.includes(c.idGrupo) && idsAtividades.includes(c.idAtividade) &&
+    idsUsuarios.includes(c.idUsuario) && atividades.find(a => a.id === c.idAtividade)?.idGrupo === c.idGrupo
+  ));
+  testar('seed: postagens vinculadas ao usuario dono do habito', postagens.every(p =>
+    idsUsuarios.includes(p.idUsuario) && idsHabitos.includes(p.idHabito) &&
+    habitos.find(h => h.id === p.idHabito)?.idUsuario === p.idUsuario
+  ));
+  for (const [chave, registros] of [['recordes', recordes], ['totais', totais]]) {
+    testar(`seed: ${chave} usam UUID do usuario como ID`, registros.every(r =>
+      idsUsuarios.includes(r.idUsuario) && r.id === r.idUsuario
+    ) && new Set(registros.map(r => r.idUsuario)).size === usuarios.length);
+  }
+
+  const ana = usuarios.find(u => u.username === 'ana_silva');
+  const bruno = usuarios.find(u => u.username === 'bruno_costa');
+  const carla = usuarios.find(u => u.username === 'carla_dias');
+  const daniel = usuarios.find(u => u.username === 'daniel_p');
+  testar('seed: preserva a distribuicao dos habitos entre usuarios',
+    habitos.find(h => h.id === 'h1')?.idUsuario === ana?.id &&
+    habitos.find(h => h.id === 'h3')?.idUsuario === bruno?.id &&
+    habitos.find(h => h.id === 'h5')?.idUsuario === carla?.id &&
+    habitos.find(h => h.id === 'h7')?.idUsuario === daniel?.id
+  );
+  testar('seed: preserva os donos dos grupos',
+    grupos.find(g => g.id === 'g1')?.idDono === ana?.id &&
+    grupos.find(g => g.id === 'g2')?.idDono === bruno?.id
+  );
+  const grupoEncerrado = grupos.find(g => g.encerrado === true);
+  const ranking = grupoEncerrado?.rankingFinal;
+  testar('seed: ranking final usa UUIDs e preserva posicoes', Boolean(ranking) &&
+    Object.keys(ranking).length === 3 && Object.keys(ranking).every(id => idsUsuarios.includes(id)) &&
+    ranking[ana?.id] === 1 && ranking[carla?.id] === 2 && ranking[daniel?.id] === 3
+  );
+
+  const categoriasEsperadas = {
+    h1: 'saude', h2: 'esportes', h3: 'leitura', h4: 'estudos',
+    h5: 'esportes', h6: 'mental', h7: 'financas', h8: 'sono',
+  };
+  testar('seed: categorias dos habitos compativeis com a interface', habitos.every(h => h.categoria === categoriasEsperadas[h.id]));
+
+  // Compara tambem hashes e IDs: repetir o seed nao pode recriar as contas.
+  const baseInicial = JSON.stringify(storageMock._data);
   await carregarDadosIniciais();
-  const u2 = lerLista('usuarios');
-  const h2 = lerLista('habitos');
-  testar('seed: segunda executacao nao duplica usuarios', u2.length === 4, `=${u2.length}`);
-  testar('seed: segunda executacao nao duplica habitos', h2.length === 8, `=${h2.length}`);
+  testar('seed: segunda execucao preserva toda a base', JSON.stringify(storageMock._data) === baseInicial);
 
-  // 34. Todos os ids referenciados existem
-  const todosUsuarios = lerLista('usuarios').map(u => u.id);
-  const todosGrupos = lerLista('grupos').map(g => g.id);
-  const todosHabitos = lerLista('habitos').map(h => h.id);
-  const todosAtividades = lerLista('atividades').map(a => a.id);
+  const colecoes = [
+    'usuarios', 'habitos', 'grupos', 'atividades', 'membros',
+    'conclusoesHabito', 'conclusoesGrupo', 'recordes', 'totais',
+    'postagens', 'comentarios', 'curtidas',
+  ];
+  for (const chave of colecoes) {
+    storageMock._data = {};
+    salvarLista(chave, [{ id: 'registro-existente' }]);
+    const antes = JSON.stringify(storageMock._data);
+    await carregarDadosIniciais();
+    testar(`seed: preserva base com dados apenas em ${chave}`, JSON.stringify(storageMock._data) === antes);
+  }
 
-  let idsValidos = true;
-  // Habitos devem referenciar usuarios existentes
-  for (const h of lerLista('habitos')) {
-    if (!todosUsuarios.includes(h.idUsuario)) { idsValidos = false; break; }
-  }
-  // Atividades devem referenciar grupos existentes
-  for (const a of lerLista('atividades')) {
-    if (!todosGrupos.includes(a.idGrupo)) { idsValidos = false; break; }
-  }
-  // Membros devem referenciar grupos e usuarios existentes
-  for (const m of lerLista('membros')) {
-    if (!todosGrupos.includes(m.idGrupo) || !todosUsuarios.includes(m.idUsuario)) { idsValidos = false; break; }
-  }
-  // ConclusoesGrupo devem referenciar grupo, atividade e usuario existentes
-  for (const cg of lerLista('conclusoesGrupo')) {
-    if (!todosGrupos.includes(cg.idGrupo) || !todosAtividades.includes(cg.idAtividade) || !todosUsuarios.includes(cg.idUsuario)) { idsValidos = false; break; }
-  }
-  testar('seed: todos os ids referenciados existem', idsValidos);
+  storageMock._data = {};
+  salvarLista('usuarios', [{ id: 'u1', nome: 'Conta antiga', usuario: 'antigo', email: 'antigo@email.com', senha: '123456' }]);
+  storageMock.setItem('habitus_auth', JSON.stringify({ userId: 'u1' }));
+  const baseAntiga = JSON.stringify(storageMock._data);
+  await carregarDadosIniciais();
+  testar('seed: preserva usuarios antigos e sessao existente', JSON.stringify(storageMock._data) === baseAntiga);
 
-  // 35. Grupo encerrado tem encerrado=true e rankingFinal preenchido
-  const grupoEncerrado = lerLista('grupos').find(g => g.encerrado === true);
-  testar('seed: grupo encerrado existe e tem rankingFinal', !!grupoEncerrado && !!grupoEncerrado.rankingFinal && Object.keys(grupoEncerrado.rankingFinal).length > 0);
+  for (const texto of ['{invalido', 'null', '{}', '42', '"texto"']) {
+    storageMock._data = {};
+    storageMock.setItem('habitos', texto);
+    const antes = JSON.stringify(storageMock._data);
+    await carregarDadosIniciais();
+    testar(`seed: preserva colecao com formato invalido (${texto})`, JSON.stringify(storageMock._data) === antes);
+  }
+
+  storageMock._data = {};
+  for (const chave of colecoes) salvarLista(chave, []);
+  await carregarDadosIniciais();
+  testar('seed: aceita colecoes existentes quando todas estao vazias',
+    lerLista('usuarios').length === 4 && lerLista('habitos').length === 8 && lerLista('postagens').length === 6
+  );
 
   console.log();
   console.log('========================================');
@@ -307,8 +419,7 @@ import('../src/data/seed.js').then(async ({ carregarDadosIniciais }) => {
   console.log('========================================');
   process.exit(erros > 0 ? 1 : 0);
 }).catch(e => {
-  testar('seed modulo carregou', false, e.message);
-  erros++;
+  testar('seed: verificacao sem erro inesperado', false, e.message);
   console.log();
   console.log('========================================');
   console.log(`RESULTADO: ${erros} erro(s) encontrado(s)`);

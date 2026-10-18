@@ -2,6 +2,8 @@ import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
 import { exigirLogin } from '../components/auth.js';
 import { obterUsuarioAtual, updateUser, getHabitsByUser, getHabitStreak } from '../data/index.js';
+import { obterIniciais } from '../utils/usuario.js';
+import { formatarSequencia } from '../utils/sequencia.js';
 
 
 const autorizado = await exigirLogin();
@@ -127,8 +129,8 @@ if (autorizado) {
   const temRecorde = recordista && recordista.sequencia.longest > 0;
 
   app.querySelector('#maior-sequencia').textContent = temRecorde
-  ? formatarSequencia(recordista.sequencia.longest, recordista)
-  : '0 dias';
+  ? formatarSequencia(recordista.sequencia.longest, recordista.frequencia)
+  : formatarSequencia(0, { tipo: 'diaria' });
 
   app.querySelector('#habito-recordista').textContent = temRecorde
   ? recordista.nome
@@ -147,7 +149,7 @@ if (autorizado) {
 
     const textoSequencia = formatarSequencia(
           habito.sequencia.current,
-          habito
+          habito.frequencia
     );
 
     detalhes.textContent = `Sequência atual: ${textoSequencia}`;
@@ -156,7 +158,7 @@ if (autorizado) {
   listaHabitos.appendChild(item);
 }
 
-  app.querySelector('#perfil-avatar').textContent = usuarioAtual.name.trim().split(/\s+/).slice(0, 2).map((parte) => parte[0]).join('').toUpperCase();
+  app.querySelector('#perfil-avatar').textContent = obterIniciais(usuarioAtual);
   app.querySelector('#perfil-nome').textContent = usuarioAtual.name;
   app.querySelector('#perfil-username').textContent =`@${usuarioAtual.username}`;
   app.querySelector('#perfil-descricao').textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
@@ -197,7 +199,7 @@ if (autorizado) {
       usuarioAtual = await obterUsuarioAtual();
       
       document.getElementById('saudacao-usuario').textContent = `Olá, ${usuarioAtual.name.split(' ')[0]}`
-      app.querySelector('#perfil-avatar').textContent = usuarioAtual.name.trim().split(/\s+/).slice(0, 2).map((parte) => parte[0]).join('').toUpperCase();
+      app.querySelector('#perfil-avatar').textContent = obterIniciais(usuarioAtual);
       app.querySelector('#perfil-nome').textContent = usuarioAtual.name;
       app.querySelector('#perfil-username').textContent = `@${usuarioAtual.username}`;
       app.querySelector('#perfil-descricao').textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
@@ -210,14 +212,4 @@ if (autorizado) {
       botaoSalvar.disabled = false;
     }
   })
-}
-function formatarSequencia(valor, habito) {
-  if (habito.frequencia.tipo === 'vezes-semana') {
-    const meta = habito.frequencia.vezes;
-    const semanas = valor / meta;
-
-    return `${semanas} ${semanas === 1 ? 'semana' : 'semanas'} × ${meta}`;
-  }
-
-  return `${valor} ${valor === 1 ? 'dia' : 'dias'}`;
 }
