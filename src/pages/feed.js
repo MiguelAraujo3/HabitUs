@@ -7,5 +7,4 @@ const autorizado = await exigirLogin();
 if (autorizado) {
   const menu = await criarNavbar();
   document.querySelector('#menu').appendChild(menu);
-  document.querySelector('#app').innerHTML = '<h1>Feed</h1>';
 }
