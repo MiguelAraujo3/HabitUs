@@ -130,3 +130,34 @@ export function calcularMaiorSequencia(completes, frequencia, chaveHoje = chaveD
 export function calcularPontos(atividades) {
   return atividades.reduce((total, atividade) => total + atividade.pontos, 0);
 }
+
+export function calcularDataRecorde(
+  frequencia,
+  conclusoes,
+  chaveHoje = chaveDeHoje()
+) {
+  const datas = [...new Set(conclusoes)]
+    .filter((data) => data <= chaveHoje)
+    .sort();
+
+  const recorde = calcularSequencia(frequencia, datas, chaveHoje).maior;
+
+  if (recorde === 0) {
+    return null;
+  }
+
+  let dataRecorde = null;
+
+  for (const data of datas) {
+    const anteriores = datas.filter((dia) => dia < data);
+
+    const antes = calcularSequencia(frequencia, anteriores, data).atual;
+    const depois = calcularSequencia(frequencia, datas, data).atual;
+
+    if (depois === recorde && antes < recorde) {
+      dataRecorde = data;
+    }
+  }
+
+  return dataRecorde;
+}

@@ -1,6 +1,6 @@
 import { lerLista, salvarLista } from './storage.js'
 import { conferirSenha, gerarHashSenha } from '../utils/crypto.js'
-import { validarCadastro } from '../rules/validation.js';
+import { validarCadastro, validarPerfil } from '../rules/validation.js';
 
 export async function getUserByEmailOrUsername(identifier) {
   const identificador = identifier.trim().toLowerCase();
@@ -71,4 +71,41 @@ export async function getUserById(userId) {
   const usuarios = lerLista('usuarios');
 
   return usuarios.find((usuario) => usuario.id === userId) || null;
+}
+
+export async function updateUser(id, data) {
+  const usuarios = lerLista('usuarios');
+  const indice = usuarios.findIndex((usuario) =>usuario.id===id);
+
+  if (indice === -1 ) {
+    const erro = new Error('Usuário não encontrado.')
+    erro.code = 'NOT_FOUND';
+    throw erro;
+  }
+  const usuario = usuarios[indice];
+
+  const atualizado = {
+    ...usuario,
+    name: data.name !== undefined ? data.name.trim() : usuario.name,
+    username: data.username !== undefined? data.username.trim().toLowerCase(): usuario.username,
+    profileDescription: data.profileDescription !== undefined? data.profileDescription.trim() : usuario.profileDescription,
+  };
+  const mensagem = validarPerfil(atualizado);
+  if (mensagem) {
+    const erro = new Error(mensagem);
+    erro.code = 'VALIDATION_ERROR';
+    throw erro;
+  }
+  const usernameEmUso = usuarios.some((outroUsuario)=> {
+    return outroUsuario.id !== id && outroUsuario.username.toLowerCase() === atualizado.username;
+  });
+  if (usernameEmUso) {
+    const erro = new Error('Esse nome de usuário já está cadastrado.')
+    erro.code = 'ALREADY_EXISTS';
+    throw erro;
+  }
+  usuarios[indice] = atualizado;
+  salvarLista('usuarios', usuarios);
+
+  return atualizado;
 }

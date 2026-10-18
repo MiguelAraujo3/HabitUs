@@ -68,6 +68,7 @@ function criarMenu(nome, linkEntrada) {
   elementoMenu.appendChild(navegacao);
 
   const entrada = document.createElement('a');
+  entrada.id = 'saudacao-usuario';
   entrada.href = `${BASE}${linkEntrada}`;
   entrada.className = 'mt-auto text-sm font-medium hover:text-brand-ice transition-colors';
   entrada.textContent = nome;

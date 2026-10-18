@@ -35,3 +35,9 @@ export async function excluir(id) {
   lista.splice(idx, 1);
   salvarLista('conclusoesHabito', lista);
 }
+
+export async function getCompletionsByHabit(habitId) {
+  const conclusoes = await listar()
+  return conclusoes.filter((conclusao) => conclusao.idHabito === habitId)
+  .sort((a,b) => b.data.localeCompare(a.data));
+}

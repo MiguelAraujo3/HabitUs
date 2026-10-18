@@ -3,6 +3,7 @@ export {
   verifyPassword,
   createUser,
   getUserById,
+  updateUser,
 } from './users.js';
 
 export {
@@ -15,3 +16,15 @@ export {
   entrar,
   obterUsuarioAtual,
  } from './auth.js';
+
+export {
+  getHabitsByUser
+} from './habitos.js'
+
+export {
+  getCompletionsByHabit
+} from './conclusoesHabito.js'
+
+export {
+  getHabitStreak
+} from './consultas.js'
