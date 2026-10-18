@@ -100,6 +100,13 @@ function criarCartaoPostagem(postagem) {
 
   item.appendChild(criarElemento('p', 'text-sm', postagem.texto));
 
+  if (postagem.imagem) {
+    const imagem = criarElemento('img', 'max-h-96 w-full rounded-lg object-cover');
+    imagem.src = postagem.imagem;
+    imagem.alt = `Imagem da postagem de ${postagem.autor.name}`;
+    item.appendChild(imagem);
+  }
+
   return item;
 }
 
