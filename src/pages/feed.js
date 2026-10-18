@@ -28,6 +28,63 @@ async function carregarPostagens() {
   );
 }
 
+function criarElemento(tag, classes, texto) {
+  const elemento = document.createElement(tag);
+  elemento.className = classes;
+  if (texto) {
+    elemento.textContent = texto;
+  }
+  return elemento;
+}
+
+function iniciais(nome) {
+  return nome
+    .trim()
+    .split(' ')
+    .filter((parte) => parte !== '')
+    .slice(0, 2)
+    .map((parte) => parte[0].toUpperCase())
+    .join('');
+}
+
+function criarCartaoPostagem(postagem) {
+  const item = criarElemento('li', 'flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm');
+
+  const cabecalho = criarElemento('div', 'flex items-center gap-3');
+  const avatar = criarElemento(
+    'div',
+    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-800',
+    iniciais(postagem.autor.name)
+  );
+  const quem = criarElemento('div', 'flex flex-col');
+  quem.appendChild(criarElemento('span', 'text-sm font-semibold', postagem.autor.name));
+  quem.appendChild(criarElemento('span', 'text-xs text-gray-500', `@${postagem.autor.username}`));
+  cabecalho.appendChild(avatar);
+  cabecalho.appendChild(quem);
+  item.appendChild(cabecalho);
+
+  const linhaHabito = criarElemento('div', 'flex items-center gap-2 text-xs');
+  if (postagem.habito) {
+  linhaHabito.appendChild(
+    criarElemento('span', 'rounded-full bg-purple-100 px-2 py-0.5 font-medium capitalize text-purple-800', postagem.habito.categoria)
+  );
+    linhaHabito.appendChild(criarElemento('span', 'text-gray-600', postagem.habito.nome));
+  } else {
+    linhaHabito.appendChild(criarElemento('span', 'text-gray-500', 'Hábito removido'));
+  }
+  item.appendChild(linhaHabito);
+
+  item.appendChild(criarElemento('p', 'text-sm', postagem.texto));
+
+  return item;
+}
+
+function mostrarPostagens(postagens) {
+  const cartoes = postagens.map(criarCartaoPostagem);
+  listaPostagens.replaceChildren(...cartoes);
+  atualizarEstadoVazio();
+}
+
 const autorizado = await exigirLogin();
 
 if (autorizado) {
@@ -35,7 +92,5 @@ if (autorizado) {
   document.querySelector('#menu').appendChild(menu);
 
   const postagens = await carregarPostagens();
-  console.log(postagens);
-
-  atualizarEstadoVazio();
+  mostrarPostagens(postagens);
 }
