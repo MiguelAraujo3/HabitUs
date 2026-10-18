@@ -47,6 +47,30 @@ function iniciais(nome) {
     .join('');
 }
 
+function formatarTempo(dataHora) {
+  const segundos = Math.floor((Date.now() - new Date(dataHora)) / 1000);
+  const minutos = Math.floor(segundos / 60);
+  const horas = Math.floor(minutos / 60);
+  const dias = Math.floor(horas / 24);
+
+  if (minutos < 1) {
+    return 'agora';
+  }
+  if (minutos < 60) {
+    return `há ${minutos} min`;
+  }
+  if (horas < 24) {
+    return `há ${horas} h`;
+  }
+  if (dias === 1) {
+    return 'ontem';
+  }
+  if (dias < 7) {
+    return `há ${dias} dias`;
+  }
+  return new Date(dataHora).toLocaleDateString('pt-BR');
+}
+
 function criarCartaoPostagem(postagem) {
   const item = criarElemento('li', 'flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm');
 
@@ -58,7 +82,7 @@ function criarCartaoPostagem(postagem) {
   );
   const quem = criarElemento('div', 'flex flex-col');
   quem.appendChild(criarElemento('span', 'text-sm font-semibold', postagem.autor.name));
-  quem.appendChild(criarElemento('span', 'text-xs text-gray-500', `@${postagem.autor.username}`));
+  quem.appendChild(criarElemento('span', 'text-xs text-gray-500', `@${postagem.autor.username} · ${formatarTempo(postagem.dataHora)}`));
   cabecalho.appendChild(avatar);
   cabecalho.appendChild(quem);
   item.appendChild(cabecalho);
