@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Perfil - Habit Tracker</title>
 </head>
-<body class="flex flex-row h-screen bg-brand-ice font-sans overflow-hidden">
+<body class="flex h-screen flex-row overflow-hidden bg-brand-ice font-sans max-[700px]:h-auto max-[700px]:min-h-screen max-[700px]:flex-col max-[700px]:overflow-auto">
   <div id="menu"></div>
-  <main id="app" class="flex-1 flex items-center justify-center w-full p-4 overflow-y-auto">
+  <main id="app" class="min-w-0 flex-1 overflow-y-auto p-[clamp(20px,5vw,64px)] max-[700px]:overflow-visible max-[700px]:px-3 max-[700px]:py-5">
   </main>
   <script type="module" src="/src/pages/perfil.js"></script>
 </body>

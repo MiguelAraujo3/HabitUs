@@ -7,8 +7,8 @@
   padding: 0;
   border: 0;
   border-radius: 20px;
-  background: #f7f7f5;
-  color: #111;
+  background: var(--bg);
+  color: var(--ink);
   box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
   font-family: inherit;
 }
@@ -27,12 +27,12 @@
   background: transparent;
   font-size: 28px;
   line-height: 1;
-  color: #6b6b6b;
+  color: var(--muted);
   cursor: pointer;
   padding: 0 6px;
   border-radius: 8px;
 }
-.dlg-fechar:hover { color: #111; }
+.dlg-fechar:hover { color: var(--ink); }
 
 .dlg-habito .campo { margin: 0 0 18px; padding: 0; border: 0; min-width: 0; }
 .dlg-habito label,
@@ -48,23 +48,23 @@
 .dlg-habito textarea {
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid #d9d9d6;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--card);
   font: inherit;
   font-size: 16px;
-  color: #111;
+  color: var(--ink);
 }
 .dlg-habito textarea { resize: vertical; min-height: 72px; }
 .dlg-habito input:focus,
 .dlg-habito select:focus,
 .dlg-habito textarea:focus {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--azul);
   outline-offset: 1px;
-  border-color: #2563eb;
+  border-color: var(--azul);
 }
-.dlg-habito .invalido { border-color: #b3261e; }
-.campo-erro { margin: 6px 0 0; font-size: 13px; color: #b3261e; }
+.dlg-habito .invalido { border-color: var(--chama-ink); }
+.campo-erro { margin: 6px 0 0; font-size: 13px; color: var(--chama-ink); }
 
 .opcao-freq {
   display: flex !important;
@@ -72,41 +72,41 @@
   gap: 12px;
   margin: 0 !important;
   padding: 14px 16px;
-  border: 1px solid #2563eb;
+  border: 1px solid var(--azul);
   border-radius: 12px;
-  background: #eaf1ff;
+  background: var(--lima-suave);
   font-size: 16px !important;
   font-weight: 600;
   cursor: pointer;
 }
-.opcao-freq input { accent-color: #2563eb; width: 18px; height: 18px; margin: 0; }
+.opcao-freq input { accent-color: var(--azul); width: 18px; height: 18px; margin: 0; }
 
 .dlg-acoes { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
 .dlg-sec {
   padding: 14px 20px;
-  border: 1px solid #d9d9d6;
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background: #fff;
+  background: var(--card);
   font: inherit;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
 }
-.dlg-sec:hover { background: #f0f0ee; }
+.dlg-sec:hover { background: var(--bg); }
 .dlg-primario {
   flex: 1;
   padding: 14px 22px;
   border: 0;
   border-radius: 14px;
-  background: #2563eb;
-  color: #fff;
+  background: var(--azul);
+  color: var(--card);
   font: inherit;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
 }
-.dlg-primario:hover { background: #1d4fd8; }
+.dlg-primario:hover { background: var(--azul-escuro); }
 .dlg-primario:disabled { opacity: .6; cursor: default; }
 
 /* Descrição do hábito na lista */
-.habito-desc { margin: 10px 0 0; font-size: 14px; line-height: 1.4; color: #6b6b6b; }
+.habito-desc { margin: 10px 0 0; font-size: 14px; line-height: 1.4; color: var(--muted); }

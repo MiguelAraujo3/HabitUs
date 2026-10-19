@@ -1,26 +1,14 @@
-// Guarda de login — impede o acesso a páginas internas sem sessão.
-// A sessão é a mesma chave usada pelo navbar (localStorage 'usuarioLogado').
+import { obterUsuarioAtual } from '../data/index.js';
 
-const CHAVE_SESSAO = 'usuarioLogado';
-const CHAVE_DESTINO = 'destinoLogin';
+export async function exigirLogin() {
+  const usuario = await obterUsuarioAtual();
 
-// sessaoAtual() — devolve o objeto da sessão ou null quando não há sessão.
-function sessaoAtual() {
-  try {
-    return JSON.parse(localStorage.getItem(CHAVE_SESSAO));
-  } catch (erro) {
-    return null;
-  }
-}
-
-// exigirLogin() — chamada no início de cada página interna.
-// Se não houver sessão, guarda para onde voltar e volta para a página de login.
-export function exigirLogin() {
-  if (sessaoAtual()) {
+  if (usuario) {
     return true;
   }
 
-  localStorage.setItem(CHAVE_DESTINO, window.location.href);
-  window.location.href = 'index.html';
+  localStorage.setItem('destinoLogin', window.location.href);
+  window.location.href = `${import.meta.env.BASE_URL}index.html`;
+
   return false;
 }

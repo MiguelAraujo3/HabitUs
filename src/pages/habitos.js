@@ -4,7 +4,11 @@ import { criarNavbar } from '../components/navbar.js';
 import * as repoHabitos from '../data/habitos.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { paraChave, hoje } from '../utils/datas.js';
+import { formatarSequencia } from '../utils/sequencia.js';
 import { calcularSequencia } from '../rules/streak.js';
+import { exigirLogin } from '../components/auth.js';
+import { obterUsuarioAtual } from '../data/index.js';
+
 
 const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -49,10 +53,6 @@ function hojeChave() {
   return paraChave(hoje());
 }
 
-function plural(n, singular, pluralTxt) {
-  return `${n} ${n === 1 ? singular : pluralTxt}`;
-}
-
 function svg(nomeIcone) {
   const s = document.createElementNS(SVG_NS, 'svg');
   s.setAttribute('viewBox', '0 0 24 24');
@@ -79,14 +79,10 @@ function el(tag, opts = {}, filhos = []) {
   return e;
 }
 
-// Id do usuário logado (mesma chave de sessão que o menu usa)
+let usuarioAtual = null;
+
 function idUsuarioAtual() {
-  try {
-    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-    return usuario && usuario.id !== undefined ? usuario.id : null;
-  } catch (erro) {
-    return null;
-  }
+  return usuarioAtual.id;
 }
 
 // ---------- Estado ----------
@@ -128,8 +124,10 @@ function sequenciaDe(h) {
   return calcularSequencia(h.frequencia, datas, hojeChave());
 }
 
-function textoSequencia(seq) {
-  return `Sequência: ${plural(seq.atual, 'dia', 'dias')} · Recorde: ${seq.maior}`;
+function textoSequencia(seq, frequencia) {
+  const atual = formatarSequencia(seq.atual, frequencia);
+  const recorde = formatarSequencia(seq.maior, frequencia);
+  return `Sequência: ${atual} · Recorde: ${recorde}`;
 }
 
 // Marca/desmarca a conclusão de hoje (no máximo uma por hábito por dia)
@@ -205,9 +203,13 @@ function criarItem(h) {
   );
   botao.addEventListener('click', () => alternar(h.id));
 
-  const chama = el('span', { classe: 'chama', attrs: { title: 'Sequência atual' } }, [
+  const rotuloSequencia = `Sequência atual: ${formatarSequencia(seq.atual, h.frequencia)}`;
+  const chama = el('span', {
+    classe: 'chama',
+    attrs: { role: 'img', title: rotuloSequencia, 'aria-label': rotuloSequencia },
+  }, [
     svg('chama'),
-    el('span', { texto: String(seq.atual) }),
+    el('span', { texto: String(seq.atual), attrs: { 'aria-hidden': 'true' } }),
   ]);
 
   const linha1 = el('div', { classe: 'habito-linha1' }, [
@@ -219,7 +221,7 @@ function criarItem(h) {
   tag.style.backgroundColor = cat.fundo;
   tag.style.color = cat.texto;
 
-  const textoMeta = (feito ? 'Feito hoje · ' : '') + textoSequencia(seq);
+  const textoMeta = (feito ? 'Feito hoje · ' : '') + textoSequencia(seq, h.frequencia);
   const meta = el('div', { classe: 'habito-meta' }, [tag, el('span', { texto: textoMeta })]);
 
   const corpo = el('div', { classe: 'habito-corpo' }, [linha1, meta]);
@@ -242,7 +244,7 @@ function criarItemNaoHoje(h) {
   return el('div', { classe: 'item-nao-hoje' }, [
     el('div', {}, [
       el('h3', { texto: h.nome }),
-      el('p', { texto: `Dias: ${dias} · ${textoSequencia(sequenciaDe(h))}` }),
+      el('p', { texto: `Dias: ${dias} · ${textoSequencia(sequenciaDe(h), h.frequencia)}` }),
     ]),
     el('span', { texto: 'Não é hoje' }),
   ]);
@@ -412,10 +414,21 @@ function abrirFormulario() {
 // ---------- Inicialização ----------
 
 async function iniciar() {
+  const autorizado = await exigirLogin();
+
+  if (!autorizado) {
+    return;
+  } 
+
+  usuarioAtual = await obterUsuarioAtual();
+
+  if (!usuarioAtual) {
+    return;
+  }
   // Menu lateral (o navbar devolve um elemento, não uma string).
   // Se o menu falhar, a página continua funcionando e o erro aparece no console.
   try {
-    $('menu').appendChild(criarNavbar());
+    $('menu').appendChild(await criarNavbar());
   } catch (erro) {
     console.error('Não foi possível montar o menu:', erro);
   }

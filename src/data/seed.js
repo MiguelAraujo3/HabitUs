@@ -1,29 +1,32 @@
-import { salvarLista, lerLista } from './storage.js';
+import { salvarLista } from './storage.js';
+import { createUser, updateUser } from './index.js';
 import { hoje, somarDias, paraChave } from '../utils/datas.js';
 
 // ============================================================
 // seed.js - Dados iniciais (Stage S1-05)
-// carregarDadosIniciais() so POPULA quando localStorage estiver vazio.
+// carregarDadosIniciais() so POPULA quando todas as colecoes estiverem vazias.
 // NUNCA sobrescreve dados existentes.
 // Apenas exportada; nao e chamada por nenhuma pagina.
 // ============================================================
 
 const USUARIOS_SEED = [
-  { id: 'u1', nome: 'Ana Silva', usuario: 'ana_silva', email: 'ana@email.com', senha: '123456', descricao: 'Estudante de computacao', dataCriacao: paraChave(hoje()) },
-  { id: 'u2', nome: 'Bruno Costa', usuario: 'bruno_costa', email: 'bruno@email.com', senha: 'abc123', descricao: 'Desenvolvedor front-end', dataCriacao: paraChave(somarDias(hoje(), -30)) },
-  { id: 'u3', nome: 'Carla Dias', usuario: 'carla_dias', email: 'carla@email.com', senha: 'senha789', descricao: 'Professora de educacao fisica', dataCriacao: paraChave(somarDias(hoje(), -60)) },
-  { id: 'u4', nome: 'Daniel Pereira', usuario: 'daniel_p', email: 'daniel@email.com', senha: 'senha000', descricao: 'Designer UX/UI', dataCriacao: paraChave(somarDias(hoje(), -90)) },
+  // Os IDs u1-u4 sao aliases internos; createUser gera os UUIDs persistidos.
+  // As senhas de demonstracao sao usadas apenas como entrada para o cadastro.
+  { id: 'u1', name: 'Ana Silva', username: 'ana_silva', email: 'ana@email.com', password: '123456', profileDescription: 'Estudante de computacao' },
+  { id: 'u2', name: 'Bruno Costa', username: 'bruno_costa', email: 'bruno@email.com', password: 'abc123', profileDescription: 'Desenvolvedor front-end' },
+  { id: 'u3', name: 'Carla Dias', username: 'carla_dias', email: 'carla@email.com', password: 'senha789', profileDescription: 'Professora de educacao fisica' },
+  { id: 'u4', name: 'Daniel Pereira', username: 'daniel_p', email: 'daniel@email.com', password: 'senha000', profileDescription: 'Designer UX/UI' },
 ];
 
 const HABITOS_SEED = [
-  { id: 'h1', idUsuario: 'u1', nome: 'Beber agua', categoria: 'Saude', descricao: '2 litros por dia', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(hoje()), ativo: true },
-  { id: 'h2', idUsuario: 'u1', nome: 'Corrida matinal', categoria: 'Esportes e exercicios', descricao: '5 km manha', frequencia: { tipo: 'dias-semana', dias: [1, 3, 5], vezes: undefined }, dataCriacao: paraChave(somarDias(hoje(), -7)), ativo: true },
-  { id: 'h3', idUsuario: 'u2', nome: 'Leitura', categoria: 'Leitura', descricao: '30 min antes de dormir', frequencia: { tipo: 'vezes-semana', vezes: 4 }, dataCriacao: paraChave(somarDias(hoje(), -14)), ativo: true },
-  { id: 'h4', idUsuario: 'u2', nome: 'Estudar ingles', categoria: 'Estudos', descricao: 'Duolingo diario', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(somarDias(hoje(), -20)), ativo: true },
-  { id: 'h5', idUsuario: 'u3', nome: 'Academia', categoria: 'Esportes e exercicios', descricao: 'Musculacao 3x semana', frequencia: { tipo: 'dias-semana', dias: [2, 4, 6] }, dataCriacao: paraChave(somarDias(hoje(), -10)), ativo: true },
-  { id: 'h6', idUsuario: 'u3', nome: 'Meditar', categoria: 'Bem-estar mental', descricao: '10 min de mindfulness', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(somarDias(hoje(), -5)), ativo: true },
-  { id: 'h7', idUsuario: 'u4', nome: 'Economizar', categoria: 'Financas', descricao: 'Registrar gastos', frequencia: { tipo: 'vezes-semana', vezes: 5 }, dataCriacao: paraChave(somarDias(hoje(), -25)), ativo: true },
-  { id: 'h8', idUsuario: 'u4', nome: 'Dormir cedo', categoria: 'Sono', descricao: 'Na cama as 22h30', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(somarDias(hoje(), -40)), ativo: true },
+  { id: 'h1', idUsuario: 'u1', nome: 'Beber agua', categoria: 'saude', descricao: '2 litros por dia', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(hoje()), ativo: true },
+  { id: 'h2', idUsuario: 'u1', nome: 'Corrida matinal', categoria: 'esportes', descricao: '5 km manha', frequencia: { tipo: 'dias-semana', dias: [1, 3, 5] }, dataCriacao: paraChave(somarDias(hoje(), -7)), ativo: true },
+  { id: 'h3', idUsuario: 'u2', nome: 'Leitura', categoria: 'leitura', descricao: '30 min antes de dormir', frequencia: { tipo: 'vezes-semana', vezes: 4 }, dataCriacao: paraChave(somarDias(hoje(), -14)), ativo: true },
+  { id: 'h4', idUsuario: 'u2', nome: 'Estudar ingles', categoria: 'estudos', descricao: 'Duolingo diario', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(somarDias(hoje(), -20)), ativo: true },
+  { id: 'h5', idUsuario: 'u3', nome: 'Academia', categoria: 'esportes', descricao: 'Musculacao 3x semana', frequencia: { tipo: 'dias-semana', dias: [2, 4, 6] }, dataCriacao: paraChave(somarDias(hoje(), -10)), ativo: true },
+  { id: 'h6', idUsuario: 'u3', nome: 'Meditar', categoria: 'mental', descricao: '10 min de mindfulness', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(somarDias(hoje(), -5)), ativo: true },
+  { id: 'h7', idUsuario: 'u4', nome: 'Economizar', categoria: 'financas', descricao: 'Registrar gastos', frequencia: { tipo: 'vezes-semana', vezes: 5 }, dataCriacao: paraChave(somarDias(hoje(), -25)), ativo: true },
+  { id: 'h8', idUsuario: 'u4', nome: 'Dormir cedo', categoria: 'sono', descricao: 'Na cama as 22h30', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(somarDias(hoje(), -40)), ativo: true },
 ];
 
 const dataHoje = hoje();
@@ -117,40 +120,67 @@ const POSTAGENS_SEED = [
   { id: 'p6', idUsuario: 'u2', idHabito: 'h4', texto: 'Aula de ingles realizada.', imagem: null, dataHora: new Date(somarDias(dataHoje, -6)).toISOString() },
 ];
 
+const COLECOES = [
+  'usuarios', 'habitos', 'grupos', 'atividades', 'membros',
+  'conclusoesHabito', 'conclusoesGrupo', 'recordes', 'totais',
+  'postagens', 'comentarios', 'curtidas',
+];
+
+function baseEstaVazia() {
+  return COLECOES.every((chave) => {
+    const texto = localStorage.getItem(chave);
+    if (texto === null) return true;
+
+    // lerLista trata JSON invalido como []; aqui precisamos preservar esses dados.
+    try {
+      const registros = JSON.parse(texto);
+      return Array.isArray(registros) && registros.length === 0;
+    } catch {
+      return false;
+    }
+  });
+}
+
+function vincularUsuarios(registros, idsUsuarios) {
+  return registros.map((registro) => ({
+    ...registro,
+    idUsuario: idsUsuarios[registro.idUsuario],
+  }));
+}
+
 export async function carregarDadosIniciais() {
-  // So popula se localStorage estiver vazio (chave 'usuarios' ausente ou [])
-  const usuariosExistentes = lerLista('usuarios');
-  if (usuariosExistentes && usuariosExistentes.length > 0) {
-    return; // NUNCA sobrescreve dados existentes
+  if (!baseEstaVazia()) return;
+
+  const idsUsuarios = {};
+  for (const { id, profileDescription, ...dadosCadastro } of USUARIOS_SEED) {
+    const usuario = await createUser(dadosCadastro);
+    await updateUser(usuario.id, { profileDescription });
+    idsUsuarios[id] = usuario.id;
   }
 
-  // 1. Usuarios (gravados direto, sem importar usuarios.js)
-  salvarLista('usuarios', USUARIOS_SEED);
+  const grupos = GRUPOS_SEED.map((grupo) => ({
+    ...grupo,
+    idDono: idsUsuarios[grupo.idDono],
+    rankingFinal: grupo.rankingFinal === null ? null : Object.fromEntries(
+      Object.entries(grupo.rankingFinal).map(([idUsuario, posicao]) => [
+        idsUsuarios[idUsuario], posicao,
+      ])
+    ),
+  }));
 
-  // 2. Habitos
-  salvarLista('habitos', HABITOS_SEED);
+  // Nestas colecoes, o ID do registro tambem e o ID do usuario.
+  const recordes = vincularUsuarios(RECORDES_SEED, idsUsuarios)
+    .map((registro) => ({ ...registro, id: registro.idUsuario }));
+  const totais = vincularUsuarios(TOTAIS_SEED, idsUsuarios)
+    .map((registro) => ({ ...registro, id: registro.idUsuario }));
 
-  // 3. Grupos
-  salvarLista('grupos', GRUPOS_SEED);
-
-  // 4. Atividades
+  salvarLista('habitos', vincularUsuarios(HABITOS_SEED, idsUsuarios));
+  salvarLista('grupos', grupos);
   salvarLista('atividades', ATIVIDADES_SEED);
-
-  // 5. Membros
-  salvarLista('membros', MEMBROS_SEED);
-
-  // 6. Conclusoes de habito
+  salvarLista('membros', vincularUsuarios(MEMBROS_SEED, idsUsuarios));
   salvarLista('conclusoesHabito', CONCLUSIONES_HABITO_SEED);
-
-  // 7. Conclusoes de grupo
-  salvarLista('conclusoesGrupo', CONCLUSIONES_GRUPO_SEED);
-
-  // 8. Recordes
-  salvarLista('recordes', RECORDES_SEED);
-
-  // 9. Totais
-  salvarLista('totais', TOTAIS_SEED);
-
-  // 10. Postagens
-  salvarLista('postagens', POSTAGENS_SEED);
+  salvarLista('conclusoesGrupo', vincularUsuarios(CONCLUSIONES_GRUPO_SEED, idsUsuarios));
+  salvarLista('recordes', recordes);
+  salvarLista('totais', totais);
+  salvarLista('postagens', vincularUsuarios(POSTAGENS_SEED, idsUsuarios));
 }

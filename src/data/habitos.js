@@ -35,3 +35,8 @@ export async function excluir(id) {
   lista.splice(idx, 1);
   salvarLista('habitos', lista);
 }
+export async function getHabitsByUser(userId) {
+  const habitos = await listar();
+  return habitos.filter((habito) => habito.idUsuario === userId) //separa os habitos do usuario
+  .sort((a,b) => b.dataCriacao.localeCompare(a.dataCriacao));//ordena os habitos, do mais recente ao mais antigo
+}

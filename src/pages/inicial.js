@@ -1,20 +1,30 @@
 import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
-
+import { entrar, createUser, obterUsuarioAtual } from '../data/index.js';
 function voltarParaUltimoDestino() {
   const destino = localStorage.getItem('destinoLogin');
   localStorage.removeItem('destinoLogin');
   window.location.href = destino || 'habitos.html';
 }
 
-const menu = criarNavbar();
-document.querySelector('#menu').appendChild(menu);
+async function iniciarPagina() {
+  const usuario = await obterUsuarioAtual();
+
+  if (usuario) {
+    window.location.replace(`${import.meta.env.BASE_URL}habitos.html`);
+    return;
+  }
+
+  const menu = await criarNavbar();
+  document.querySelector('#menu').appendChild(menu);
+  montarLogin();
+}
 
 function montarLogin() {
   document.querySelector('#app').innerHTML = `
-  <div class="bg-brand-dark p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
+  <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
-      <h1 class="text-3xl font-bold text-white tracking-widest mb-2">LOGO</h1>
+      <h1 class="text-3xl font-bold text-brand-dark tracking-widest mb-2">LOGO</h1>
     </div>
 
     <form id="login" class="space-y-5">
@@ -26,6 +36,7 @@ function montarLogin() {
         <label class="block text-sm text-brand-ice mb-1">Senha:</label>
         <input id="passwd" type="password" placeholder="Sua senha" class="w-full px-4 py-2 bg-brand-blue text-white border border-brand-gray rounded-md focus:outline-none focus:ring-2 focus:ring-brand-light-gray placeholder-brand-light-gray transition-colors">
       </div>
+      <p id="erro-login" role="alert" hidden></p>
       <button type="submit" class="w-full py-3 mt-4 bg-brand-gray hover:bg-brand-light-gray text-brand-dark font-bold rounded-md transition-colors duration-300">
         ENTRAR
       </button>
@@ -39,26 +50,31 @@ function montarLogin() {
 
   const loginForm = document.getElementById('login');
   if (loginForm) {
-    loginForm.addEventListener('submit', (event) => {
+    loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const usermailOrUser = document.getElementById('usermailOrUser').value;
-      const passwd = document.getElementById('passwd').value;
+      const identificador = document.getElementById('usermailOrUser').value;
+      const senha = document.getElementById('passwd').value;
+      const erroLogin = document.getElementById('erro-login');
+      const botao = loginForm.querySelector('button[type="submit"]');
 
-      let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      erroLogin.hidden = true;
+      erroLogin.textContent = '';
+      botao.disabled = true;
+     try {
+      await entrar(identificador, senha);
+      voltarParaUltimoDestino();
+    } catch (erro) {
+      const erroEsperado =
+        erro.code === 'VALIDATION_ERROR' ||
+        erro.code === 'UNAUTHORIZED';
 
-      if (usuarios.some(usuario => (usuario.usermail === usermailOrUser || usuario.user === usermailOrUser) && usuario.passwd === passwd)) {
-        const usuarioLogado = usuarios.find(usuario => (usuario.usermail === usermailOrUser || usuario.user === usermailOrUser));
-        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
-        alert('Login realizado com sucesso');
-        voltarParaUltimoDestino();
-        return;
-      }
-      else if (usuarios.some(usuario => usuario.usermail === usermailOrUser || usuario.user === usermailOrUser)) {
-        alert('Senha incorreta');
-        return;
-      }
-      alert('Usuário não cadastrado');
-    });
+      erroLogin.textContent = erroEsperado? erro.message: 'Não foi possível entrar. Tente novamente.';
+
+      erroLogin.hidden = false;
+    } finally {
+      botao.disabled = false;
+    }
+  });
   }
 
   const linkCadastro = document.getElementById('linkCadastro');
@@ -72,9 +88,9 @@ function montarLogin() {
 
 function montarCadastro() {
   document.querySelector('#app').innerHTML = `
-  <div class="bg-brand-dark p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
+  <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
-      <h1 class="text-3xl font-bold text-white tracking-widest mb-2">LOGO</h1>
+      <h1 class="text-3xl font-bold text-brand-dark tracking-widest mb-2">LOGO</h1>
     </div>
 
     <form id="cadastro" class="space-y-4">
@@ -98,6 +114,7 @@ function montarCadastro() {
         <label class="block text-sm text-brand-ice mb-1">Confirmar Senha:</label>
         <input id="confirmpasswd" type="password" placeholder="Confirme a sua senha" class="w-full px-4 py-2 bg-brand-blue text-white border border-brand-gray rounded-md focus:outline-none focus:ring-2 focus:ring-brand-light-gray placeholder-brand-light-gray transition-colors" required>
       </div>
+      <p id="erro-cadastro" role="alert" hidden></p>
       <button type="submit" id="btnEnviar" class="w-full py-3 mt-6 bg-brand-gray hover:bg-brand-light-gray text-brand-dark font-bold rounded-md transition-colors duration-300">
         REGISTAR
       </button>
@@ -110,34 +127,58 @@ function montarCadastro() {
 
   const cadastroForm = document.getElementById('cadastro');
   if (cadastroForm) {
-    cadastroForm.addEventListener('submit', (event) => {
-      event.preventDefault();
+  cadastroForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-      const username = document.getElementById('nameid').value;
-      const usermail = document.getElementById('emailid').value;
-      const user = document.getElementById('userid').value;
-      const passwd = document.getElementById('passwd').value;
-      const confirmpasswd = document.getElementById('confirmpasswd').value;
-      if (passwd !== confirmpasswd) {
-        alert('As senhas não coincidem');
-        return;
-      }
-      let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+    const name = document.getElementById('nameid').value;
+    const email = document.getElementById('emailid').value;
+    const username = document.getElementById('userid').value;
+    const password = document.getElementById('passwd').value;
+    const confirmacao = document.getElementById('confirmpasswd').value;
 
-      if (usuarios.some(usuario => usuario.user === user || usuario.usermail === usermail)) {
-        alert('erro: usuário já cadastrado');
-        return;
-      }
-      else if (usuarios.some(usuario => usuario.usermail === usermail)) {
-        alert('erro: email já cadastrado');
-      }
-      const usuario = { username, usermail, user, passwd };
-      usuarios.push(usuario);
-      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+    const erroCadastro = document.getElementById('erro-cadastro');
+    const botao = document.getElementById('btnEnviar');
 
-      alert('usuário cadastrado com sucesso');
-      montarLogin();
-    });
+    erroCadastro.hidden = true;
+    erroCadastro.textContent = '';
+
+    if (password !== confirmacao) {
+      erroCadastro.textContent = 'As senhas não coincidem.';
+      erroCadastro.hidden = false;
+      return;
+    }
+
+    botao.disabled = true;
+    let contaCriada = false;
+
+    try {
+      const usuario = await createUser({
+        name,
+        username,
+        email,
+        password,
+      });
+
+      contaCriada = true;
+
+      await entrar(usuario.email, password);
+      voltarParaUltimoDestino();
+    } catch (erro) {
+      const erroEsperado =
+        erro.code === 'VALIDATION_ERROR' ||
+        erro.code === 'ALREADY_EXISTS';
+
+      if (contaCriada) {
+        erroCadastro.textContent ='Conta criada, mas não foi possível entrar. Acesse pelo formulário de login.';
+      } else {
+        erroCadastro.textContent = erroEsperado? erro.message: 'Não foi possível cadastrar. Tente novamente.';
+      }
+
+      erroCadastro.hidden = false;
+    } finally {
+      botao.disabled = false;
+    }
+  });
   }
 
   const linkLogin = document.getElementById('linkLogin');
@@ -149,4 +190,4 @@ function montarCadastro() {
   }
 }
 
-montarLogin();
+await iniciarPagina();

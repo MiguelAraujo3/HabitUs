@@ -2,6 +2,10 @@
 // Contrato de todas as funções: recebem uma configuração simples, devolvem o
 // elemento pronto e anexam listeners quando a configuração traz uma ação.
 
+import { obterIniciais } from '../utils/usuario.js';
+
+export { obterIniciais };
+
 export function criarBotao(configuracao) {
   const botao = document.createElement('button');
   botao.textContent = configuracao.texto;
@@ -169,24 +173,6 @@ export function criarMensagemErro(configuracao) {
 export function criarAvatar(configuracao) {
   const avatar = document.createElement('div');
   avatar.className = 'w-10 h-10 rounded-full bg-brand-gray text-brand-dark font-bold flex items-center justify-center text-sm';
-  avatar.textContent = iniciais(configuracao.usuario);
+  avatar.textContent = obterIniciais(configuracao.usuario);
   return avatar;
-}
-
-// iniciais(usuario) — primeira letra de cada palavra do nome, maiúsculas.
-// Aceita o objeto do usuário ou o nome/usuário como texto.
-function iniciais(usuario) {
-  const nome = typeof usuario === 'string' ? usuario : (usuario && usuario.username) || '';
-  const partes = nome.split(' ');
-  const letras = [];
-  for (const parte of partes) {
-    if (letras.length >= 2) {
-      break;
-    }
-    const letra = parte.substring(0, 1);
-    if (letra) {
-      letras.push(letra.toUpperCase());
-    }
-  }
-  return letras.join('');
 }

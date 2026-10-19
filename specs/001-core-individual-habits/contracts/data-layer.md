@@ -163,7 +163,8 @@ export async function getHabitStreak(habitId)
 {
   current: number,        // current streak
   longest: number,        // historical peak
-  unit: string            // 'days' | 'week_equivalents'
+  unit: string,           // 'days' | 'week_equivalents'
+  longestAchievedAt: string | null // YYYY-MM-DD; null sem recorde
 }
 ```
 
