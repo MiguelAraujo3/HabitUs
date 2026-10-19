@@ -14,27 +14,6 @@ export async function criarNavbar() {
 
   const linkEntrada = usuario ? 'perfil.html' : 'index.html';
   const menu = criarMenu(nome, linkEntrada);
-
-  if (usuario) {
-    const sair = document.createElement('button');
-    sair.type = 'button';
-    sair.textContent = 'Sair';
-    sair.classList.add('botao-sair');
-    sair.addEventListener('click', async () => {
-      sair.disabled = true;
-
-      try {
-        await encerrarSessao();
-        window.location.href = `${BASE}index.html`;
-      } catch {
-        sair.disabled = false;
-        sair.textContent = 'Tentar sair novamente';
-      }
-    });
-
-    menu.appendChild(sair);
-  }
-
   return menu;
 }
 

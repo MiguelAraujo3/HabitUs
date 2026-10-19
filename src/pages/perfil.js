@@ -1,7 +1,7 @@
 import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
 import { exigirLogin } from '../components/auth.js';
-import { obterUsuarioAtual, updateUser, getHabitsByUser, getHabitStreak } from '../data/index.js';
+import { obterUsuarioAtual, updateUser, getHabitsByUser, encerrarSessao, getHabitStreak } from '../data/index.js';
 import { obterIniciais } from '../utils/usuario.js';
 import { formatarSequencia } from '../utils/sequencia.js';
 
@@ -53,7 +53,22 @@ if (autorizado) {
             <p id="habito-recordista" class="mt-1 text-sm text-brand-light-gray wrap-anywhere"></p>
         </div>
         </div>
-        <button id="editar-perfil" type="button" class="cursor-pointer rounded-[10px] border border-(--line) bg-brand-dark px-5 py-2.75 text-sm font-semibold text-white transition-colors hover:bg-[#303030]">Editar perfil</button>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button
+            id="editar-perfil"
+            type="button"
+            class="cursor-pointer rounded-[10px] border border-(--line) bg-brand-dark px-5 py-2.75 text-sm font-semibold text-white transition-colors hover:bg-[#303030]"
+          >
+            Editar perfil
+          </button>
+          <button
+            id="sair-perfil"
+            type="button"
+            class="cursor-pointer rounded-[10px] border border-transparent bg-(--chama-ink) px-5 py-2.75 text-sm font-semibold text-white hover:brightness-90 disabled:opacity-60"
+          >
+            Sair
+          </button>
+        </div>        
         <form id="form-perfil" class="mt-7 border-t border-(--line) pt-7" hidden>
           <h3 class="text-xl font-bold">Editar meus dados</h3>
           <p class="mt-1.5 mb-6 text-sm text-brand-light-gray">Deixe seu perfil com a sua cara.</p>
@@ -132,9 +147,8 @@ if (autorizado) {
   ? formatarSequencia(recordista.sequencia.longest, recordista.frequencia)
   : formatarSequencia(0, { tipo: 'diaria' });
 
-  app.querySelector('#habito-recordista').textContent = temRecorde
-  ? recordista.nome
-  : 'Conclua um hábito para começar.';
+  app.querySelector('#habito-recordista').textContent = 
+  temRecorde ? recordista.nome  : 'Conclua um hábito para começar.';
   const listaHabitos = app.querySelector('#lista-habitos');
   app.querySelector('#habitos-vazios').hidden = habitosComSequencia.length > 0;
   for (const habito of habitosComSequencia) {
@@ -165,6 +179,18 @@ if (autorizado) {
 
   const formulario = app.querySelector('#form-perfil');
   const botaoEditar = app.querySelector('#editar-perfil');
+  const botaoSair = app.querySelector('#sair-perfil');
+  botaoSair.addEventListener('click', async () => {
+    botaoSair.disabled = true;
+
+    try {
+      await encerrarSessao();
+      window.location.href = `${import.meta.env.BASE_URL}index.html`;
+    } catch {
+      botaoSair.disabled = false;
+      botaoSair.textContent = 'Tentar sair novamente'
+    }
+  })
 
   botaoEditar.addEventListener('click', () => {
     formulario.elements.name.value = usuarioAtual.name;

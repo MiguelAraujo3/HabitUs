@@ -68,19 +68,3 @@
 #menu > header { background: var(--preto); color: var(--card); }
 #menu > header a:hover,
 #menu > header button:hover { color: var(--lima); }
-
-#menu > header .botao-sair {
-  background: var(--chama-ink);
-  color: var(--card);
-  padding: .75rem 1rem;
-  margin-top: 1rem;
-  border: 0;
-  border-radius: .5rem;
-  cursor: pointer;
-}
-
-#menu > header .botao-sair:hover {
-  background: var(--chama-ink);
-  color: var(--card);
-  filter: brightness(.9);
-}
