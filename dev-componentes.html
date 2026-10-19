@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev — Componentes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    :root {
+      --color-bg: #f7f7f5;
+      --color-surface: #ffffff;
+      --color-surface-2: #f0f0ee;
+      --color-line: #d7d7d3;
+      --color-ink: #171716;
+      --color-ink-2: #62625f;
+      --color-black: #050505;
+      --color-action: #2563eb;
+      --color-action-press: #1d4fc4;
+      --color-action-tint: #eaf0ff;
+      --color-lime: #b7f52a;
+      --color-coral: #f56f72;
+      --color-coral-ink: #9f252b;
+      --color-violet: #a855d6;
+      --color-violet-ink: #743394;
+      --color-cyan: #35b8d0;
+      --color-ok: #167a4a;
+      --color-warn: #f3c846;
+      --color-warn-ink: #6b5200;
+      --color-closed: #6b6b68;
+      --color-danger: #b42318;
+      --color-danger-tint: #fdecea;
+    }
+    body { background: var(--color-bg); color: var(--color-ink); font-family: 'Inter', sans-serif; font-size: 17px; line-height: 24px; }
+    .press { transition: transform 120ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease; }
+    .press:active:not(:disabled) { transform: scale(0.98); }
+    @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse-soft { 50% { opacity: 0.5; } }
+    .anim-sheet { animation: sheet-up 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .anim-fade { animation: fade-in 200ms ease; }
+    .tnum { font-variant-numeric: tabular-nums; }
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+  <header class="sticky top-0 z-20 -mx-4 flex min-h-14 items-center gap-1 border-b border-line/70 bg-bg/92 px-2 backdrop-blur-lg md:mx-0 md:rounded-b-[14px] md:px-2">
+    <button class="press flex min-h-11 items-center gap-1 rounded-full px-3 text-[16px] font-medium text-action hover:bg-action-tint" aria-label="Voltar">
+      <span class="hidden sm:inline">Voltar</span>
+    </button>
+    <h1 class="flex-1 truncate text-center text-[17px] leading-[22px] font-semibold">Dev — Componentes</h1>
+    <div class="flex min-w-11 justify-end"></div>
+  </header>
+
+  <main class="mx-auto max-w-[680px] flex-1 pb-28 md:pb-16 p-4">
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Botões (todas variantes e tamanhos)</h2>
+      <div id="botoes" class="flex flex-wrap gap-3"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Chips de categoria</h2>
+      <div id="chips" class="flex flex-wrap gap-2"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Selos de status</h2>
+      <div id="selos" class="flex flex-wrap gap-2"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Avatar</h2>
+      <div id="avatares" class="flex gap-4 items-center"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Stepper</h2>
+      <div id="stepper" class="flex gap-6 items-center"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Abas (Segmented)</h2>
+      <div id="abas" class="mb-4"></div>
+      <p class="text-[13px] text-ink-2">Valor selecionado: <span id="abas-valor" class="font-semibold text-action"></span></p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Janela (Sheet)</h2>
+      <div class="mb-3">
+        <button id="abrir-janela" class="press inline-flex min-h-[50px] items-center justify-center gap-2 rounded-[12px] px-5 text-[16px] font-semibold bg-action text-white hover:bg-action-press">Abrir janela</button>
+      </div>
+      <div id="janela" class="hidden fixed inset-0 z-50"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Estado vazio</h2>
+      <div id="vazio"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Avisos (3 tons)</h2>
+      <div id="avisos" class="flex flex-col gap-3"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Cabeçalho de página</h2>
+      <div id="cabecalho"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Campo com erro</h2>
+      <div id="campo"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Logo</h2>
+      <div id="logo"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Título grande</h2>
+      <div id="titulo-grande"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Título de seção</h2>
+      <div id="titulo-secao"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Resumo de erros</h2>
+      <div id="resumo-erros"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Grade de categorias</h2>
+      <div id="grade-categorias"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Cartão</h2>
+      <div id="cartao"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Linha de ranking</h2>
+      <div id="linha-ranking"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Linha de membro</h2>
+      <div id="linha-membro"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Linha de atividade</h2>
+      <div id="linha-atividade"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Cartão de grupo</h2>
+      <div id="cartao-grupo"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Cartão de postagem</h2>
+      <div id="cartao-postagem"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-4 text-[22px] leading-7 font-bold tracking-[-0.01em]">Caixa de link de convite</h2>
+      <div id="caixa-link"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import {
+      criarBotao, criarCampo, inputCls, criarChipCategoria, criarSeloStatus, criarAvatar,
+      criarStepper, criarAbas, criarJanela, criarJanelaCorpo, criarJanelaAcoes,
+      criarVazio, criarAviso, criarCartao, criarCabecalhoPagina, criarTituloGrande,
+      criarTituloSecao, criarResumoErros, criarGradeCategorias, criarLogo, criarCaixaLink,
+      criarLinhaRanking, criarLinhaMembro, criarLinhaAtividade, criarCartaoGrupo,
+      criarCartaoPostagem,
+    } from './src/components/grupos.js';
+
+    const core = { bg: '#f7f7f5', surface: '#ffffff' };
+
+    // ---------- Botões ----------
+    const botoesEl = document.getElementById('botoes');
+    const variantes = ['primary', 'secondary', 'ghost', 'danger', 'dangerSolid', 'black'];
+    const tamanhos = ['padrao', 'm', 's'];
+    for (const v of variantes) {
+      const linha = document.createElement('div');
+      linha.className = 'flex flex-wrap items-center gap-3 mb-2';
+      const rotulo = document.createElement('span');
+      rotulo.className = 'text-xs font-medium text-ink-2 w-20 shrink-0';
+      rotulo.textContent = v;
+      linha.appendChild(rotulo);
+      for (const t of tamanhos) {
+        const btn = criarBotao(v.charAt(0).toUpperCase() + v.slice(1), { variante: v, tamanho: t });
+        btn.textContent = `${v} ${t}`;
+        linha.appendChild(btn);
+      }
+      botoesEl.appendChild(linha);
+    }
+
+    // ---------- Chips ----------
+    const chipsEl = document.getElementById('chips');
+    const cats = [
+      { id: 'saude', label: 'Saúde', familia: 'coral' },
+      { id: 'esportes', label: 'Esportes', familia: 'lime' },
+      { id: 'estudos', label: 'Estudos', familia: 'blue' },
+      { id: 'leitura', label: 'Leitura', familia: 'violet' },
+      { id: 'alimentacao', label: 'Alimentação', familia: 'coral' },
+      { id: 'sono', label: 'Sono', familia: 'blue' },
+      { id: 'bem-estar', label: 'Bem-estar', familia: 'violet' },
+      { id: 'financas', label: 'Finanças', familia: 'lime' },
+      { id: 'organizacao', label: 'Organização', familia: 'cyan' },
+      { id: 'hobbies', label: 'Hobbies', familia: 'cyan' },
+      { id: 'outros', label: 'Outros', familia: 'gray' },
+    ];
+    for (const c of cats) {
+      chipsEl.appendChild(criarChipCategoria({ cat: c.id }));
+    }
+
+    // ---------- Selos ----------
+    const selosEl = document.getElementById('selos');
+    for (const s of ['andamento', 'nao-iniciado', 'encerrado']) {
+      selosEl.appendChild(criarSeloStatus({ status: s }));
+    }
+
+    // ---------- Avatares ----------
+    const avataresEl = document.getElementById('avatares');
+    for (const nome of ['Marina Duarte', 'Rafael Lima', 'Beatriz Nogueira']) {
+      avataresEl.appendChild(criarAvatar(nome, 40));
+    }
+
+    // ---------- Stepper ----------
+    const stepperEl = document.getElementById('stepper');
+    let valorStepper = 3;
+    const atualizarStepper = () => {
+      output.textContent = `${valorStepper} pts`;
+      btnMenos.disabled = valorStepper <= 1;
+      btnMais.disabled = valorStepper >= 10;
+    };
+    const stepper = criarStepper({ value: 3, min: 1, max: 10, label: 'pontos', suffix: ' pts' });
+    const btnMenos = stepper.querySelector('button:first-child');
+    const btnMais = stepper.querySelector('button:last-child');
+    const output = stepper.querySelector('output');
+    btnMenos.addEventListener('click', () => { valorStepper--; atualizarStepper(); });
+    btnMais.addEventListener('click', () => { valorStepper++; atualizarStepper(); });
+    stepperEl.appendChild(stepper);
+
+    // ---------- Abas ----------
+    const abasEl = document.getElementById('abas');
+    const abasValor = document.getElementById('abas-valor');
+    let abaAtual = 'feed';
+    const opcoes = [
+      { id: 'feed', label: 'Feed' },
+      { id: 'ranking', label: 'Ranking' },
+      { id: 'atividades', label: 'Atividades' },
+      { id: 'membros', label: 'Membros' },
+    ];
+    const abas = criarAbas({ options: opcoes, value: abaAtual, label: 'Seções', scroll: true, onChange: (v) => { abaAtual = v; abasValor.textContent = v; } });
+    abasEl.appendChild(abas);
+    abasValor.textContent = abaAtual;
+
+    // ---------- Janela ----------
+    let janelaAberta = false;
+    const janelaContainer = document.getElementById('janela');
+    const btnAbrir = document.getElementById('abrir-janela');
+    btnAbrir.addEventListener('click', () => {
+      if (janelaAberta) return;
+      janelaAberta = true;
+      btnAbrir.disabled = true;
+      const janela = criarJanela({
+        open: true,
+        title: 'Título da janela',
+        onClose: () => {
+          janelaContainer.innerHTML = '';
+          janelaAberta = false;
+          btnAbrir.disabled = false;
+        },
+      });
+      const corpo = criarJanelaCorpo();
+      const p1 = document.createElement('p');
+      p1.className = 'text-[16px] leading-[22px] text-ink-2';
+      p1.textContent = 'Este é o corpo da janela (Sheet).';
+      corpo.appendChild(p1);
+      janela.appendChild(corpo);
+
+      const acoes = criarJanelaAcoes();
+      const btnOk = criarBotao('OK', { variante: 'primary', tamanho: 'm' });
+      btnOk.addEventListener('click', () => janela.fechar());
+      const btnCancelar = criarBotao('Cancelar', { variante: 'ghost', tamanho: 'm' });
+      btnCancelar.addEventListener('click', () => janela.fechar());
+      acoes.appendChild(btnOk);
+      acoes.appendChild(btnCancelar);
+      janela.appendChild(acoes);
+
+      janelaContainer.appendChild(janela);
+      janelaContainer.classList.remove('hidden');
+    });
+
+    // ---------- Vazio ----------
+    const vazioEl = document.getElementById('vazio');
+    const vazio = criarVazio({ icon: 'Users', title: 'Nenhum grupo ainda', text: 'Você ainda não está em nenhum grupo.', action: criarBotao('Criar grupo', { variante: 'primary' }) });
+    vazioEl.appendChild(vazio);
+
+    // ---------- Avisos ----------
+    const avisosEl = document.getElementById('avisos');
+    avisosEl.appendChild(criarAviso({ tone: 'info', icon: 'Info', children: 'Aviso informativo.' }));
+    avisosEl.appendChild(criarAviso({ tone: 'warn', icon: 'Clock', children: 'Aviso de alerta.' }));
+    avisosEl.appendChild(criarAviso({ tone: 'danger', icon: 'AlertCircle', children: 'Aviso de erro.' }));
+
+    // ---------- Cabeçalho ----------
+    const cabecalhoEl = document.getElementById('cabecalho');
+    const cabecalho = criarCabecalhoPagina({ title: 'Grupos', back: '/grupos.html' });
+    cabecalhoEl.appendChild(cabecalho);
+
+    // ---------- Campo com erro ----------
+    const campoEl = document.getElementById('campo');
+    const input = document.createElement('input');
+    input.id = 'campo-teste';
+    input.value = '';
+    input.className = inputCls;
+    input.placeholder = 'Ex.: Nome do campo';
+    const campo = criarCampo({ id: 'campo-teste', label: 'Nome do campo', error: 'Este campo é obrigatório.', hint: 'Dica de preenchimento', children: input });
+    campoEl.appendChild(campo);
+
+    // ---------- Logo ----------
+    const logoEl = document.getElementById('logo');
+    logoEl.appendChild(criarLogo({ size: 32 }));
+
+    // ---------- Título grande ----------
+    const tgEl = document.getElementById('titulo-grande');
+    tgEl.appendChild(criarTituloGrande({ title: 'Título grande', sub: 'Subtítulo opcional' }));
+
+    // ---------- Título de seção ----------
+    const tsEl = document.getElementById('titulo-secao');
+    tsEl.appendChild(criarTituloSecao({ children: 'Título da seção' }));
+
+    // ---------- Resumo de erros ----------
+    const reEl = document.getElementById('resumo-erros');
+    reEl.appendChild(criarResumoErros({ errors: ['Campo A inválido.', 'Campo B obrigatório.'] }));
+
+    // ---------- Grade de categorias ----------
+    const gcEl = document.getElementById('grade-categorias');
+    let catSelecionada = 'saude';
+    const grade = criarGradeCategorias({ value: catSelecionada, onChange: (v) => { catSelecionada = v; }, error: 'Escolha uma categoria.' });
+    gcEl.appendChild(grade);
+
+    // ---------- Cartão ----------
+    const cartaoEl = document.getElementById('cartao');
+    const cartao = criarCartao({ className: 'p-6' });
+    const cartaoTexto = document.createElement('p');
+    cartaoTexto.textContent = 'Conteúdo do cartão genérico.';
+    cartao.appendChild(cartaoTexto);
+    cartaoEl.appendChild(cartao);
+
+    // ---------- Linha de ranking ----------
+    const lrEl = document.getElementById('linha-ranking');
+    const ranking = criarLinhaRanking({ pos: 1, user: { name: 'Marina Duarte', username: 'marinaduarte' }, points: 42, you: true });
+    lrEl.appendChild(ranking);
+
+    // ---------- Linha de membro ----------
+    const lmEl = document.getElementById('linha-membro');
+    const membro = criarLinhaMembro({ u: { name: 'Rafael Lima', username: 'rafalima' }, you: false, owner: true, closed: false, onRemove: () => alert('remover') });
+    lmEl.appendChild(membro);
+
+    // ---------- Linha de atividade ----------
+    const laEl = document.getElementById('linha-atividade');
+    const atividade = criarLinhaAtividade({ a: { name: 'Treino de 30 min', points: 5 }, doneToday: true });
+    laEl.appendChild(atividade);
+
+    // ---------- Cartão de grupo ----------
+    const cgEl = document.getElementById('cartao-grupo');
+    const grupo = { id: 'g1', name: 'Movimento 30 Dias', cat: 'esportes', members: [{ userId: 'u-rafa' }, { userId: 'u-bia' }] };
+    const cartaoGrupo = criarCartaoGrupo({ g: grupo, pos: 1, statusKey: 'andamento', onClick: (g) => alert(`abrir ${g.name}`) });
+    cgEl.appendChild(cartaoGrupo);
+
+    // ---------- Cartão de postagem ----------
+    const cpEl = document.getElementById('cartao-postagem');
+    const postagem = criarCartaoPostagem({
+      post: { id: 'p1', text: 'Treino concluído!', ago: 'há 25 min', likes: 8, liked: false, comments: [], points: 5, cat: 'esportes', habit: 'Treino' },
+      user: { id: 'u-rafa', name: 'Rafael Lima', username: 'rafalima' },
+    });
+    cpEl.appendChild(postagem);
+
+    // ---------- Caixa de link ----------
+    const clEl = document.getElementById('caixa-link');
+    const caixaLink = criarCaixaLink({ link: 'https://app.habitus.dev/convite/abc123', onCopy: () => alert('copiado') });
+    clEl.appendChild(caixaLink);
+  </script>
+</body>
+</html>
