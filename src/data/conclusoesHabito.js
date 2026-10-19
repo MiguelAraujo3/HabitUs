@@ -41,3 +41,12 @@ export async function getCompletionsByHabit(habitId) {
   return conclusoes.filter((conclusao) => conclusao.idHabito === habitId)
   .sort((a,b) => b.data.localeCompare(a.data));
 }
+
+// Remove todas as conclusões de um hábito (usado quando o hábito é excluído)
+export async function excluirPorHabito(idHabito) {
+  const lista = await listar();
+  const restantes = lista.filter(c => c.idHabito !== idHabito);
+  if (restantes.length !== lista.length) {
+    salvarLista('conclusoesHabito', restantes);
+  }
+}
