@@ -131,6 +131,28 @@ function criarDialogoPostagem() {
   topo.appendChild(botaoFechar);
 
   conteudo.appendChild(topo);
+
+  const form = criarElemento('form', 'flex flex-col gap-4');
+  form.noValidate = true;
+
+  const rotuloHabito = criarElemento('label', 'text-sm font-medium', 'Hábito');
+  rotuloHabito.htmlFor = 'campo-habito';
+  const selectHabito = criarElemento('select', 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm');
+  selectHabito.id = 'campo-habito';
+
+  const rotuloTexto = criarElemento('label', 'text-sm font-medium', 'Texto');
+  rotuloTexto.htmlFor = 'campo-texto';
+  const campoTexto = criarElemento('textarea', 'w-full resize-y rounded-lg border border-gray-300 px-3 py-2 text-sm');
+  campoTexto.id = 'campo-texto';
+  campoTexto.rows = 4;
+  campoTexto.placeholder = 'Como foi hoje?';
+
+  const botaoPublicar = criarElemento('button', 'cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700', 'Publicar');
+  botaoPublicar.type = 'submit';
+
+  form.append(rotuloHabito, selectHabito, rotuloTexto, campoTexto, botaoPublicar);
+  conteudo.appendChild(form);
+
   d.appendChild(conteudo);
 
   d.addEventListener('click', (evento) => {
@@ -139,14 +161,32 @@ function criarDialogoPostagem() {
     }
   });
 
+    d.preparar = async () => {
+    const usuario = await obterUsuarioAtual();
+    const habitos = await getHabitsByUser(usuario.id);
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Selecione um hábito';
+
+    const opcoes = habitos.map((habito) => {
+      const opcao = document.createElement('option');
+      opcao.value = habito.id;
+      opcao.textContent = habito.nome;
+      return opcao;
+    });
+    selectHabito.replaceChildren(placeholder, ...opcoes);
+  };
+
   document.body.appendChild(d);
   return d;
 }
 
-function abrirDialogoPostagem() {
+async function abrirDialogoPostagem() {
   if (!dialogo) {
     dialogo = criarDialogoPostagem();
   }
+  await dialogo.preparar();
   dialogo.showModal();
 }
 
