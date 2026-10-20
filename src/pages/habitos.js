@@ -34,7 +34,8 @@ const CATEGORIAS = {
 // Classes do Tailwind reaproveitadas (strings fixas, sem dados do usuário)
 const CLASSE_CAMPO =
   'w-full rounded-xl border border-(--line) bg-white px-4 py-3 text-base text-brand-dark ' +
-  'focus:border-brand-blue focus:outline-2 focus:outline-brand-blue aria-invalid:border-(--chama-ink)';
+  'focus:border-brand-blue focus:outline-2 focus:outline-brand-blue aria-invalid:border-(--chama-ink) ' +
+  'disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500';
 const CLASSE_ERRO = 'mt-1.5 text-sm text-(--chama-ink)';
 const CLASSE_BTN_PRIMARIO =
   'flex-1 cursor-pointer rounded-xl bg-brand-blue px-5 py-3 text-base font-semibold text-white ' +
@@ -122,6 +123,12 @@ function textoSequencia(seq, frequencia) {
   return `Sequência: ${atual} · Recorde: ${recorde}`;
 }
 
+// Recorde do hábito (o mesmo "Recorde" mostrado no cartão), calculado das conclusões.
+// Regra da edição: com recorde maior que zero, só a descrição pode mudar.
+function recordeDe(h) {
+  return sequenciaDe(h).maior;
+}
+
 // Valida os campos do formulário. Devolve { campo: mensagem } (vazio = tudo certo).
 function validarCampos({ nome, categoria, descricao }) {
   const erros = {};
@@ -186,14 +193,24 @@ async function buscarHabitoDoUsuario(id) {
   return habito;
 }
 
-// Edita só nome, categoria e descrição (a frequência não muda)
+// Edita nome, categoria e descrição (a frequência nunca muda).
+// Se o hábito já tem recorde, só a descrição é alterada. A conferência usa os dados salvos,
+// não o que a tela mostra, porque a janela pode estar desatualizada ou ter sido adulterada.
 async function salvarEdicao(id, { nome, categoria, descricao }) {
-  await buscarHabitoDoUsuario(id);
-  const atualizado = await repoHabitos.atualizar(id, {
-    nome,
-    categoria: chaveCategoria(categoria),
-    descricao,
-  });
+  const habito = await buscarHabitoDoUsuario(id);
+  const conclusoesDoHabito = await repoConclusoes.getCompletionsByHabit(id);
+  const datas = conclusoesDoHabito.map((c) => c.data);
+  const recorde = calcularSequencia(habito.frequencia, datas, hojeChave()).maior;
+
+  const alteracoes =
+    recorde > 0
+      ? { descricao }
+      : {
+          nome: nome ?? habito.nome,
+          categoria: chaveCategoria(categoria ?? habito.categoria),
+          descricao,
+        };
+  const atualizado = await repoHabitos.atualizar(id, alteracoes);
   if (!atualizado) throw new Error('Hábito não encontrado.');
   habitos = habitos.map((h) => (h.id === id ? atualizado : h));
   renderizar();
@@ -433,6 +450,8 @@ function criarFormulario() {
         </label>
       </fieldset>
 
+      <p id="aviso-recorde" class="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" hidden></p>
+
       <p id="erro-geral" class="${CLASSE_ERRO}" role="alert" hidden></p>
 
       <div class="mt-1 flex justify-end gap-3">
@@ -458,7 +477,9 @@ function criarFormulario() {
   const botaoSalvar = d.querySelector('#btn-salvar-habito');
   const titulo = d.querySelector('#dlg-titulo');
   const grupoFrequencia = d.querySelector('#grupo-frequencia');
+  const avisoRecorde = d.querySelector('#aviso-recorde');
   const campos = { nome: campoNome, categoria: select, descricao: campoDescricao };
+  let apenasDescricao = false; // true quando o hábito em edição já tem recorde
 
   function mostrarErro(chave, mensagem) {
     const p = d.querySelector(`#erro-${chave}`);
@@ -487,13 +508,20 @@ function criarFormulario() {
     ev.preventDefault();
     limparErros();
 
-    const dados = {
+    const descricao = campoDescricao.value.trim();
+    const dados = apenasDescricao
+      ? { descricao } // com recorde, nome e categoria não entram na alteração
+      : { nome: campoNome.value.trim(), categoria: select.value, descricao };
+
+    const erros = validarCampos({
       nome: campoNome.value.trim(),
       categoria: select.value,
-      descricao: campoDescricao.value.trim(),
-    };
-
-    const erros = validarCampos(dados);
+      descricao,
+    });
+    if (apenasDescricao) {
+      delete erros.nome;
+      delete erros.categoria;
+    }
     const chavesComErro = Object.keys(erros);
     if (chavesComErro.length > 0) {
       for (const chave of chavesComErro) mostrarErro(chave, erros[chave]);
@@ -534,8 +562,19 @@ function criarFormulario() {
       select.value = chaveCategoria(habito.categoria);
       campoDescricao.value = habito.descricao || '';
     }
+
+    // Regra: com recorde maior que zero, só a descrição pode ser editada
+    const recorde = habito ? recordeDe(habito) : 0;
+    apenasDescricao = recorde > 0;
+    campoNome.disabled = apenasDescricao;
+    select.disabled = apenasDescricao;
+    avisoRecorde.hidden = !apenasDescricao;
+    avisoRecorde.textContent = apenasDescricao
+      ? `Este hábito já tem recorde (${formatarSequencia(recorde, habito.frequencia)}). ` +
+        'Por isso só a descrição pode ser editada.'
+      : '';
   };
-  d.focarNome = () => campoNome.focus();
+  d.focarNome = () => (apenasDescricao ? campoDescricao : campoNome).focus();
 
   return d;
 }
