@@ -1,7 +1,7 @@
 import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
 import { exigirLogin } from '../components/auth.js';
-import { getUserById } from '../data/index.js';
+import { getUserById, obterUsuarioAtual, getHabitsByUser } from '../data/index.js';
 import * as repoPostagens from '../data/postagens.js';
 import * as repoHabitos from '../data/habitos.js';
 
@@ -116,6 +116,40 @@ function mostrarPostagens(postagens) {
   atualizarEstadoVazio();
 }
 
+let dialogo = null;
+
+function criarDialogoPostagem() {
+  const d = criarElemento('dialog', 'm-auto w-full max-w-md rounded-xl bg-white p-0 shadow-2xl backdrop:bg-black/45');
+  const conteudo = criarElemento('div', 'p-6');
+
+  const topo = criarElemento('div', 'mb-4 flex items-center justify-between');
+  topo.appendChild(criarElemento('h2', 'text-xl font-bold', 'Nova postagem'));
+
+  const botaoFechar = criarElemento('button', 'cursor-pointer text-2xl leading-none text-gray-500 hover:text-black', '×');
+  botaoFechar.type = 'button';
+  botaoFechar.addEventListener('click', () => d.close());
+  topo.appendChild(botaoFechar);
+
+  conteudo.appendChild(topo);
+  d.appendChild(conteudo);
+
+  d.addEventListener('click', (evento) => {
+    if (evento.target === d) {
+      d.close();
+    }
+  });
+
+  document.body.appendChild(d);
+  return d;
+}
+
+function abrirDialogoPostagem() {
+  if (!dialogo) {
+    dialogo = criarDialogoPostagem();
+  }
+  dialogo.showModal();
+}
+
 const autorizado = await exigirLogin();
 
 if (autorizado) {
@@ -124,4 +158,5 @@ if (autorizado) {
 
   const postagens = await carregarPostagens();
   mostrarPostagens(postagens);
+  document.querySelector('#btn-nova-postagem').addEventListener('click', abrirDialogoPostagem);
 }
