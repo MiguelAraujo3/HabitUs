@@ -5,6 +5,7 @@ import { obterUsuarioAtual, updateUser, getHabitsByUser, encerrarSessao, getHabi
 import { obterIniciais } from '../utils/usuario.js';
 import { formatarSequencia } from '../utils/sequencia.js';
 import { getPostsByUser } from '../data/index.js';
+import { criarCartaoPostagem } from '../components/postagem.js'
 
 
 const autorizado = await exigirLogin();
@@ -133,7 +134,20 @@ if (autorizado) {
     </section>
   `;
   app.querySelector('#total-habitos').textContent = habitosAtivos.length;
-  app.querySelector('#postagens-vazias').hidden = postagens.length > 0;
+  function redenrizarPostagens() {
+    const lista = app.querySelector('#lista-postagens-perfil');
+    const cartoes = postagens.map(postagem => {
+      const habito = habitos.find(
+        habito => habito.id === postagem.idHabito
+      );
+      return criarCartaoPostagem({...postagem,
+        autor: usuarioAtual,
+        habito
+      });
+    });
+    lista.replaceChildren(...cartoes);
+    app.querySelector('#postagens-vazias').hidden = postagens.length > 0;
+  }
   const recordista = habitosComSequencia.reduce((melhor, habito) => {
   if (!melhor) {
     return habito;
@@ -191,7 +205,7 @@ if (autorizado) {
   app.querySelector('#perfil-nome').textContent = usuarioAtual.name;
   app.querySelector('#perfil-username').textContent =`@${usuarioAtual.username}`;
   app.querySelector('#perfil-descricao').textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
-
+  redenrizarPostagens();
   const formulario = app.querySelector('#form-perfil');
   const botaoEditar = app.querySelector('#editar-perfil');
   const botaoSair = app.querySelector('#sair-perfil');

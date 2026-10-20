@@ -1,13 +1,6 @@
 import { obterIniciais } from "../utils/usuario.js";
+import { criarElemento } from "./ui.js";
 
-function criarElemento(tag, classes, texto) {
-  const elemento = document.createElement(tag);
-  elemento.className = classes;
-  if (texto) {
-    elemento.textContent = texto;
-  }
-  return elemento;
-}
 function formatarTempo(dataHora) {
   const segundos = Math.floor((Date.now() - new Date(dataHora)) / 1000);
   const minutos = Math.floor(segundos / 60);
@@ -32,14 +25,14 @@ function formatarTempo(dataHora) {
   return new Date(dataHora).toLocaleDateString('pt-BR');
 }
 
-function criarCartaoPostagem(postagem) {
+export function criarCartaoPostagem(postagem) {
   const item = criarElemento('li', 'flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm');
 
   const cabecalho = criarElemento('div', 'flex items-center gap-3');
   const avatar = criarElemento(
     'div',
     'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-800',
-    iniciais(postagem.autor.name)
+    obterIniciais(postagem.autor)
   );
   const quem = criarElemento('div', 'flex flex-col');
   quem.appendChild(criarElemento('span', 'text-sm font-semibold', postagem.autor.name));
