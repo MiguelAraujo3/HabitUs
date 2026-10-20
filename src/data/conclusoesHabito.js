@@ -1,5 +1,6 @@
 import { lerLista, salvarLista } from './storage.js';
 import { criarConclusaoHabito } from './modelo.js';
+import { hoje, paraChave } from '../utils/datas.js';
 
 export async function criar(dados) {
   const conclusao = criarConclusaoHabito(dados);
@@ -49,4 +50,25 @@ export async function excluirPorHabito(idHabito) {
   if (restantes.length !== lista.length) {
     salvarLista('conclusoesHabito', restantes);
   }
+}
+
+// Marca ou desmarca o hábito HOJE. Lê e grava a lista de uma vez só, então não sobra mais de
+// uma conclusão por hábito no mesmo dia (nem se houver duplicatas antigas: todas são removidas).
+// Devolve { marcado, conclusao }: marcado = true se agora está feito; conclusao = a criada
+// (ao marcar) ou a removida (ao desmarcar).
+export async function alternarConclusaoHoje(idHabito) {
+  const chave = paraChave(hoje());
+  const lista = await lerLista('conclusoesHabito');
+  const doDia = lista.filter((c) => c.idHabito === idHabito && c.data === chave);
+
+  if (doDia.length > 0) {
+    const restantes = lista.filter((c) => !(c.idHabito === idHabito && c.data === chave));
+    salvarLista('conclusoesHabito', restantes);
+    return { marcado: false, conclusao: doDia[0] };
+  }
+
+  const conclusao = criarConclusaoHabito({ idHabito, data: chave });
+  lista.push(conclusao);
+  salvarLista('conclusoesHabito', lista);
+  return { marcado: true, conclusao };
 }
