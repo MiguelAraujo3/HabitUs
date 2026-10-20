@@ -12,6 +12,12 @@ export async function criar(dados) {
 export async function listar() {
   return lerLista('postagens');
 }
+export async function getPostsByUser(userId) {
+  const postagens = await listar()
+
+  return postagens.filter(postagem => postagem.idUsuario === userId)
+  .sort((a, b) => new Date(b.dataHora)-new Date(a.dataHora));
+}
 
 export async function buscarPorId(id) {
   const lista = await listar();

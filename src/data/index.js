@@ -28,3 +28,7 @@ export {
 export {
   getHabitStreak
 } from './consultas.js'
+
+export {
+  getPostsByUser
+} from './postagens.js'

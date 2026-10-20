@@ -4,6 +4,7 @@ import { exigirLogin } from '../components/auth.js';
 import { obterUsuarioAtual, updateUser, getHabitsByUser, encerrarSessao, getHabitStreak } from '../data/index.js';
 import { obterIniciais } from '../utils/usuario.js';
 import { formatarSequencia } from '../utils/sequencia.js';
+import { getPostsByUser } from '../data/index.js';
 
 
 const autorizado = await exigirLogin();
@@ -11,6 +12,7 @@ const autorizado = await exigirLogin();
 if (autorizado) {
   let  usuarioAtual = await obterUsuarioAtual();
   const habitos = await getHabitsByUser(usuarioAtual.id);
+  const postagens = await getPostsByUser(usuarioAtual.id);
   const habitosAtivos = habitos.filter((habito) => habito.ativo);
   const habitosComSequencia = [];
   for (const habito of habitos) {
@@ -115,10 +117,23 @@ if (autorizado) {
           </p>
           <ul id="lista-habitos" class="space-y-3"></ul>
         </section>
+      
+        <section class="mt-8 border-t border-(--line) pt-6" aria-labelledby="titulo-postagens">
+          <h3 id="titulo-postagens" class="mb-4 text-xl font-bold">
+            Postagens
+          </h3>
+
+          <p id="postagens-vazias" class="text-sm text-brand-light-gray" hidden>
+            Você ainda não publicou nenhuma postagem.
+          </p>
+
+          <ul id="lista-postagens-perfil" class="space-y-4"></ul>
+        </section>
       </div>
     </section>
   `;
   app.querySelector('#total-habitos').textContent = habitosAtivos.length;
+  app.querySelector('#postagens-vazias').hidden = postagens.length > 0;
   const recordista = habitosComSequencia.reduce((melhor, habito) => {
   if (!melhor) {
     return habito;
