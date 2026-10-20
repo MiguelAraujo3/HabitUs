@@ -9,6 +9,7 @@ import { criarElemento } from '../components/ui.js';
 
 const listaPostagens = document.querySelector('#lista-postagens');
 const estadoVazio = document.querySelector('#estado-vazio');
+const telaFeed = listaPostagens.parentElement;
 
 function atualizarEstadoVazio() {
   const temPostagens = listaPostagens.children.length > 0;
@@ -36,22 +37,22 @@ function mostrarPostagens(postagens) {
   atualizarEstadoVazio();
 }
 
-let dialogo = null;
+let telaPostagem = null;
 
-function criarDialogoPostagem() {
-  const d = criarElemento('dialog', 'm-auto w-full max-w-md rounded-xl bg-white p-0 shadow-2xl backdrop:bg-black/45');
-  const conteudo = criarElemento('div', 'p-6');
+function criarTelaPostagem() {
+  const tela = criarElemento('section', 'mx-auto flex w-full max-w-2xl flex-col gap-4');
+  tela.hidden = true;
 
-  const topo = criarElemento('div', 'mb-4 flex items-center justify-between');
-  topo.appendChild(criarElemento('h2', 'text-xl font-bold', 'Nova postagem'));
+  // Barra do topo: ← Voltar + título
+  const topo = criarElemento('div', 'relative flex items-center justify-center rounded-xl bg-white px-4 py-3 shadow-sm');
+  const botaoVoltar = criarElemento('button', 'absolute left-4 cursor-pointer text-base font-medium text-blue-600 hover:underline', '← Voltar');
+  botaoVoltar.type = 'button';
+  botaoVoltar.addEventListener('click', fecharTelaPostagem);
+  topo.appendChild(botaoVoltar);
+  topo.appendChild(criarElemento('h2', 'text-sm font-semibold', 'Nova postagem'));
+  tela.appendChild(topo);
 
-  const botaoFechar = criarElemento('button', 'cursor-pointer text-2xl leading-none text-gray-500 hover:text-black', '×');
-  botaoFechar.type = 'button';
-  botaoFechar.addEventListener('click', () => d.close());
-  topo.appendChild(botaoFechar);
-
-  conteudo.appendChild(topo);
-
+  // Formulário
   const form = criarElemento('form', 'flex flex-col gap-4');
   form.noValidate = true;
 
@@ -59,24 +60,28 @@ function criarDialogoPostagem() {
   rotuloHabito.htmlFor = 'campo-habito';
   const selectHabito = criarElemento('select', 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm');
   selectHabito.id = 'campo-habito';
+  const erroHabito = criarElemento('p', 'text-sm text-red-700');
+  erroHabito.hidden = true;
 
   const rotuloTexto = criarElemento('label', 'text-sm font-medium', 'Texto');
   rotuloTexto.htmlFor = 'campo-texto';
-  const campoTexto = criarElemento('textarea', 'w-full resize-y rounded-lg border border-gray-300 px-3 py-2 text-sm');
+  const campoTexto = criarElemento('textarea', 'w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm');
   campoTexto.id = 'campo-texto';
-  campoTexto.rows = 4;
+  campoTexto.rows = 5;
   campoTexto.placeholder = 'Como foi hoje?';
-
-  const botaoPublicar = criarElemento('button', 'cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700', 'Publicar');
-  botaoPublicar.type = 'submit';
-
-  const erroHabito = criarElemento('p', 'text-sm text-red-700');
   const erroTexto = criarElemento('p', 'text-sm text-red-700');
-  erroHabito.hidden = true;
   erroTexto.hidden = true;
 
-  form.append(rotuloHabito, selectHabito, erroHabito, rotuloTexto, campoTexto, erroTexto, botaoPublicar);
-  conteudo.appendChild(form);
+  const aviso = criarElemento('p', 'rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900', 'Postar não marca o hábito como cumprido. Para registrar, vá em ');
+  const linkAviso = criarElemento('a', 'underline', 'Hábitos');
+  linkAviso.href = `${import.meta.env.BASE_URL}habitos.html`;
+  aviso.append(linkAviso, '.');
+
+  const botaoPublicar = criarElemento('button', 'w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700', 'Publicar');
+  botaoPublicar.type = 'submit';
+
+  form.append(rotuloHabito, selectHabito, erroHabito, rotuloTexto, campoTexto, erroTexto, aviso, botaoPublicar);
+  tela.appendChild(form);
 
   // Some o erro assim que a pessoa corrige o campo
   selectHabito.addEventListener('change', () => {
@@ -113,7 +118,7 @@ function criarDialogoPostagem() {
     try {
       const usuario = await obterUsuarioAtual();
       await repoPostagens.criar({ idUsuario: usuario.id, idHabito, texto, imagem: null });
-      d.close();
+      fecharTelaPostagem();
       mostrarPostagens(await carregarPostagens());
     } catch (erro) {
       console.error(erro);
@@ -124,19 +129,12 @@ function criarDialogoPostagem() {
     }
   });
 
-  d.appendChild(conteudo);
-
-  d.addEventListener('click', (evento) => {
-    if (evento.target === d) {
-      d.close();
-    }
-  });
-
-    d.preparar = async () => {
+  // Roda a cada abertura: limpa o formulário e recarrega os hábitos da pessoa
+  tela.preparar = async () => {
     form.reset();
     erroHabito.hidden = true;
     erroTexto.hidden = true;
-    
+
     const usuario = await obterUsuarioAtual();
     const habitos = await getHabitsByUser(usuario.id);
 
@@ -153,16 +151,22 @@ function criarDialogoPostagem() {
     selectHabito.replaceChildren(placeholder, ...opcoes);
   };
 
-  document.body.appendChild(d);
-  return d;
+  document.querySelector('#app').appendChild(tela);
+  return tela;
 }
 
-async function abrirDialogoPostagem() {
-  if (!dialogo) {
-    dialogo = criarDialogoPostagem();
+async function abrirTelaPostagem() {
+  if (!telaPostagem) {
+    telaPostagem = criarTelaPostagem();
   }
-  await dialogo.preparar();
-  dialogo.showModal();
+  await telaPostagem.preparar();
+  telaFeed.hidden = true;
+  telaPostagem.hidden = false;
+}
+
+function fecharTelaPostagem() {
+  telaPostagem.hidden = true;
+  telaFeed.hidden = false;
 }
 
 const autorizado = await exigirLogin();
@@ -175,5 +179,5 @@ if (autorizado) {
 
   const postagens = await carregarPostagens();
   mostrarPostagens(postagens);
-  document.querySelector('#btn-nova-postagem').addEventListener('click', abrirDialogoPostagem);
+    document.querySelector('#btn-nova-postagem').addEventListener('click', abrirTelaPostagem);
 }
