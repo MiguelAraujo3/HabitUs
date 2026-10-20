@@ -9,10 +9,10 @@
 <body class="flex h-screen overflow-hidden bg-bg font-sans">
   <div id="menu" class="hidden shrink-0 md:block"></div>
   <main id="app" class="no-scrollbar min-w-0 flex-1 overflow-y-auto">
-    <div class="mx-auto flex max-w-[1060px] justify-center gap-8 px-4 md:px-6 lg:px-8">
-      <div id="conteudo" class="min-w-0 max-w-[680px] flex-1 pb-28 md:pb-16"></div>
+    <div class="layout-com-painel">
+      <div id="conteudo" class="layout-com-painel__conteudo pb-28 md:pb-16"></div>
       <!-- Painel lateral "Hábitos de hoje" (só em telas grandes) -->
-      <aside id="painel-habitos" class="hidden w-72 shrink-0 self-start pt-6 lg:sticky lg:top-0 lg:block"></aside>
+      <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
     </div>
   </main>
   <script type="module" src="/src/pages/grupo.js"></script>

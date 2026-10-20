@@ -1,8 +1,8 @@
 // Painel lateral "Hábitos de hoje": marca e desmarca os hábitos do dia em qualquer página.
 // A página só precisa de um ponto de montagem no HTML:
-//   <aside id="painel-habitos" class="hidden lg:block ..."></aside>
+//   <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
 // e de chamar montarPainelHabitos() (veja src/pages/painel-habitos.js).
-// Quem controla a posição e quando o painel aparece é o HTML da página (classes do aside).
+// A posição e a visibilidade ficam no layout compartilhado em styles/base.css.
 import { obterUsuarioAtual } from '../data/index.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { carregarHabitosDoUsuario } from '../data/consultas.js';

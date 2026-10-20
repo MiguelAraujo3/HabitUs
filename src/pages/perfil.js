@@ -32,7 +32,7 @@ if (autorizado) {
   const app = document.querySelector('#app');
 
   app.innerHTML = `
-    <section class="mx-auto max-w-205 overflow-hidden rounded-3xl border border-(--line) bg-white shadow-[0_12px_40px_#00000006] max-[700px]:rounded-[18px]" aria-labelledby="titulo-perfil">
+    <section class="w-full overflow-hidden rounded-3xl border border-(--line) bg-white shadow-[0_12px_40px_#00000006] max-[700px]:rounded-[18px]" aria-labelledby="titulo-perfil">
       <div class="min-h-35 bg-(--lima) px-9 py-7 text-[11px] font-extrabold tracking-[.16em] max-[700px]:min-h-30 max-[700px]:px-5 max-[700px]:py-6">
         <span>HABITUS · SEU ESPAÇO</span>
       </div>
