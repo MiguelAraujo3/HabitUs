@@ -150,8 +150,59 @@ function criarDialogoPostagem() {
   const botaoPublicar = criarElemento('button', 'cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700', 'Publicar');
   botaoPublicar.type = 'submit';
 
-  form.append(rotuloHabito, selectHabito, rotuloTexto, campoTexto, botaoPublicar);
+  const erroHabito = criarElemento('p', 'text-sm text-red-700');
+  const erroTexto = criarElemento('p', 'text-sm text-red-700');
+  erroHabito.hidden = true;
+  erroTexto.hidden = true;
+
+  form.append(rotuloHabito, selectHabito, erroHabito, rotuloTexto, campoTexto, erroTexto, botaoPublicar);
   conteudo.appendChild(form);
+
+  // Some o erro assim que a pessoa corrige o campo
+  selectHabito.addEventListener('change', () => {
+    erroHabito.hidden = true;
+  });
+  campoTexto.addEventListener('input', () => {
+    erroTexto.hidden = true;
+  });
+
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    erroHabito.hidden = true;
+    erroTexto.hidden = true;
+
+    const idHabito = selectHabito.value;
+    const texto = campoTexto.value.trim();
+    let valido = true;
+
+    if (!idHabito) {
+      erroHabito.textContent = 'Escolha um hábito.';
+      erroHabito.hidden = false;
+      valido = false;
+    }
+    if (!texto) {
+      erroTexto.textContent = 'Escreva o texto da postagem.';
+      erroTexto.hidden = false;
+      valido = false;
+    }
+    if (!valido) {
+      return;
+    }
+
+    botaoPublicar.disabled = true;
+    try {
+      const usuario = await obterUsuarioAtual();
+      await repoPostagens.criar({ idUsuario: usuario.id, idHabito, texto, imagem: null });
+      d.close();
+      mostrarPostagens(await carregarPostagens());
+    } catch (erro) {
+      console.error(erro);
+      erroTexto.textContent = 'Não foi possível publicar. Tente novamente.';
+      erroTexto.hidden = false;
+    } finally {
+      botaoPublicar.disabled = false;
+    }
+  });
 
   d.appendChild(conteudo);
 
@@ -162,6 +213,10 @@ function criarDialogoPostagem() {
   });
 
     d.preparar = async () => {
+    form.reset();
+    erroHabito.hidden = true;
+    erroTexto.hidden = true;
+    
     const usuario = await obterUsuarioAtual();
     const habitos = await getHabitsByUser(usuario.id);
 
