@@ -1,5 +1,4 @@
 import '../styles/base.css';
-import { criarNavbar } from '../components/navbar.js';
 import { entrar, createUser, obterUsuarioAtual } from '../data/index.js';
 function voltarParaUltimoDestino() {
   const destino = localStorage.getItem('destinoLogin');
@@ -15,8 +14,7 @@ async function iniciarPagina() {
     return;
   }
 
-  const menu = await criarNavbar();
-  document.querySelector('#menu').appendChild(menu);
+  // Tela de autenticação (login/cadastro): sem navegação principal.
   montarLogin();
 }
 

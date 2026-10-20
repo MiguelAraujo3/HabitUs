@@ -169,7 +169,9 @@ const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
-  document.querySelector('#menu').appendChild(menu);
+  if (menu) {
+    document.querySelector('#menu').appendChild(menu);
+  }
 
   const postagens = await carregarPostagens();
   mostrarPostagens(postagens);

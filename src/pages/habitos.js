@@ -667,21 +667,6 @@ function abrirConfirmacao(habito) {
 
 // ---------- Inicialização ----------
 
-// Em telas pequenas o menu vira uma faixa no topo (mesmo ajuste usado em perfil.js)
-function ajustarMenuMobile(menu) {
-  menu.classList.add(
-    'max-[700px]:w-full',
-    'max-[700px]:h-auto',
-    'max-[700px]:px-5',
-    'max-[700px]:py-4',
-    'max-[700px]:gap-4'
-  );
-  menu.querySelector('div')?.classList.add('max-[700px]:mb-0');
-  menu
-    .querySelector('nav')
-    ?.classList.add('max-[700px]:flex-row', 'max-[700px]:flex-wrap', 'max-[700px]:gap-4');
-}
-
 async function iniciar() {
   const autorizado = await exigirLogin();
   if (!autorizado) return;
@@ -693,8 +678,9 @@ async function iniciar() {
   // Se o menu falhar, a página continua funcionando e o erro aparece no console.
   try {
     const menu = await criarNavbar();
-    ajustarMenuMobile(menu);
-    $('menu').appendChild(menu);
+    if (menu) {
+      $('menu').appendChild(menu);
+    }
   } catch (erro) {
     console.error('Não foi possível montar o menu:', erro);
   }
