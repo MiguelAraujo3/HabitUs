@@ -19,7 +19,7 @@ const PAGINAS_DE_AUTENTICACAO = ['index.html'];
 // Itens do menu. Os ícones saem do catálogo SVG de ./icones.js (traço Lucide).
 // "tambemEm" marca páginas filhas que mantêm o item em destaque (ex.: grupo).
 const ITENS = [
-  { texto: 'Hoje', destino: 'habitos.html', icone: 'Home' },
+  { texto: 'Hábitos', destino: 'habitos.html', icone: 'Home' },
   { texto: 'Feed', destino: 'feed.html', icone: 'Newspaper' },
   { texto: 'Grupos', destino: 'grupos.html', icone: 'Users', tambemEm: ['grupo.html', 'criar-grupo.html'] },
   { texto: 'Perfil', destino: 'perfil.html', icone: 'UserRound' },
