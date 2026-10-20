@@ -60,8 +60,11 @@
           <button type="submit" class="press inline-flex items-center justify-center gap-2 rounded-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-45 bg-action text-white hover:bg-action-press min-h-[50px] w-full px-5 text-[16px]">Criar grupo</button>
         </form>
       </div>
+      <!-- Painel lateral "Hábitos de hoje" (só em telas grandes) -->
+      <aside id="painel-habitos" class="hidden w-72 shrink-0 self-start pt-6 lg:sticky lg:top-0 lg:block"></aside>
     </div>
   </main>
   <script type="module" src="/src/pages/criar-grupo.js"></script>
+  <script type="module" src="/src/pages/painel-habitos.js"></script>
 </body>
 </html>
