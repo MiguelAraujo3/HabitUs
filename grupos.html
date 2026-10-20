@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Grupos - Habit Tracker</title>
 </head>
-<body class="flex flex-row h-screen bg-brand-ice font-sans overflow-hidden">
-  <div id="menu"></div>
-  <main id="app" class="flex-1 flex items-center justify-center w-full p-4 overflow-y-auto">
+<body class="flex h-screen overflow-hidden bg-bg font-sans">
+  <div id="menu" class="hidden shrink-0 md:block"></div>
+  <main id="app" class="no-scrollbar min-w-0 flex-1 overflow-y-auto">
+    <div class="mx-auto flex max-w-[1060px] justify-center gap-8 px-4 md:px-6 lg:px-8">
+      <div id="conteudo" class="min-w-0 max-w-[680px] flex-1 pb-28 md:pb-16"></div>
+    </div>
   </main>
   <script type="module" src="/src/pages/grupos.js"></script>
 </body>
