@@ -146,7 +146,7 @@ Abra o endereço informado no terminal, mantendo o caminho `/HabitUs/`.
 
 ### Publicação
 
-O projeto está configurado para publicação no GitHub Pages com a base `/HabitUs/`. O workflow em [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) instala as dependências, gera o build e publica o conteúdo de `dist/` a cada push na branch `develop`.
+O projeto está configurado para publicação no GitHub Pages com a base `/HabitUs/`. O workflow em [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) instala as dependências, gera o build e publica o conteúdo de `dist/` a cada push na branch `master`. As alterações são desenvolvidas na `develop` e integradas à `master` por pull request.
 
 ## Informações de contato
 
