@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/images/logo.png" alt="Logo do HabitUs" width="320">
+  <img src="docs/images/logo-readme.svg" alt="Logo do HabitUs" width="420">
 </p>
 
 # HabitUs — Cada hábito conta uma história
