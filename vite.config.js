@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 const raiz = import.meta.dirname;
 
 export default defineConfig({
-  base: '/habit-tracker/',
+  base: '/HabitUs/',
   plugins: [tailwindcss()],
   build: {
     rollupOptions: {

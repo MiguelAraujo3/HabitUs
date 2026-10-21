@@ -483,7 +483,7 @@ if (autorizado) {
 
   function montarPagina() {
     const conteudo = document.querySelector('#conteudo');
-    document.title = `${GRUPO.nome} - Habit Tracker`;
+    document.title = `${GRUPO.nome} - HabitUs`;
 
     conteudo.appendChild(criarCabecalhoPagina({
       titulo: GRUPO.nome,
