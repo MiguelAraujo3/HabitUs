@@ -66,10 +66,10 @@ function criarMenuLateral(usuario) {
   elementoMenu.className =
     'hidden md:flex h-screen w-64 shrink-0 flex-col bg-white px-6 py-8 shadow-md';
 
-  // LOGO — estrutura e área no topo do menu mantidas como antes.
-  const logo = document.createElement('div');
-  logo.className = 'mb-10 text-xl font-bold tracking-widest text-brand-dark';
-  logo.textContent = 'LOGO';
+  const logo = document.createElement('img');
+  logo.className = 'mb-10 block h-auto w-full';
+  logo.src = `${BASE}images/logo.png`;
+  logo.alt = 'HabitUs';
   elementoMenu.appendChild(logo);
 
   const navegacao = document.createElement('nav');
