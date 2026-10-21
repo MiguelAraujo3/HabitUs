@@ -1,0 +1,94 @@
+/* Estilo das telas de Grupos (design HabitUs). Acrescenta tokens e utilitarios
+   por cima do base.css do time, sem alterar esse arquivo. */
+@import "./base.css";
+
+/* Tokens de design — variáveis CSS usadas pelos componentes.
+   As classes utilitárias já nascem mobile-first (Tailwind); telas maiores
+   usam os prefixos sm:, md:, lg:... quando necessário. */
+@theme inline {
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-xl: 1rem;
+
+  /* design HabitUs (Figma Make) */
+  --color-bg: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f0ee;
+  --color-line: #d7d7d3;
+  --color-ink: #171716;
+  --color-ink-2: #62625f;
+  --color-black: #050505;
+  --color-action: #2563eb;
+  --color-action-press: #1d4fc4;
+  --color-action-tint: #eaf0ff;
+  --color-lime: #b7f52a;
+  --color-coral: #f56f72;
+  --color-coral-ink: #9f252b;
+  --color-violet: #a855d6;
+  --color-violet-ink: #743394;
+  --color-cyan: #35b8d0;
+  --color-ok: #167a4a;
+  --color-warn: #f3c846;
+  --color-warn-ink: #6b5200;
+  --color-closed: #6b6b68;
+  --color-danger: #b42318;
+  --color-danger-tint: #fdecea;
+
+  --shadow-soft: 0 2px 12px rgb(0 0 0 / 0.06);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Fundação mobile-first: estilos base pensados para telas pequenas. */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--color-lime);
+    color: var(--color-black);
+  }
+  button, a, input, textarea, select, summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-action);
+    outline-offset: 2px;
+  }
+}
+
+.tnum { font-variant-numeric: tabular-nums; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+.press {
+  transition: transform 120ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+.press:active:not(:disabled) { transform: scale(0.98); }
+
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulse-soft { 50% { opacity: 0.5; } }
+
+.anim-sheet { animation: sheet-up 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.anim-fade { animation: fade-in 200ms ease; }
+.skeleton { background: var(--color-surface-2); animation: pulse-soft 1.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .press:active:not(:disabled) { transform: none; }
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="%BASE_URL%images/favicon.png">
+  <link rel="stylesheet" href="./src/styles/base.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grupos - HabitUs</title>
+</head>
+<body class="flex h-screen overflow-hidden bg-bg font-sans">
+  <div id="menu" class="hidden shrink-0 md:block"></div>
+  <main id="app" class="no-scrollbar min-w-0 flex-1 overflow-y-auto">
+    <div class="layout-com-painel">
+      <div id="conteudo" class="layout-com-painel__conteudo pb-28 md:pb-16"></div>
+      <!-- Painel lateral "Hábitos de hoje" (só em telas grandes) -->
+      <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
+    </div>
+  </main>
+  <script type="module" src="/src/pages/grupos.js"></script>
+  <script type="module" src="/src/pages/painel-habitos.js"></script>
+</body>
+</html>

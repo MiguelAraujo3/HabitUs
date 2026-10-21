@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+      --bg: #f7f7f5;
+      --card: #ffffff;
+      --ink: #111111;
+      --muted: #6b6b6b;
+      --line: #ececea;
+      --azul: #2563eb;
+      --azul-escuro: #1d4fd8;
+      --lima: #b8f52a;
+      --lima-suave: #f4fae4;
+      --preto: #050505;
+      --chama-bg: #fde8e6;
+      --chama-ink: #b3261e;
+      --trilho: #e6e6e3;
+    }
+
+@theme inline {
+  --color-brand-dark: var(--preto);
+  --color-brand-blue: var(--azul);
+  --color-brand-gray: var(--preto);
+  --color-brand-light-gray: var(--muted);
+  --color-brand-ice: var(--bg);
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  [hidden] { display: none !important; }
+
+  :focus-visible {
+    outline: 2px solid var(--azul);
+    outline-offset: 3px;
+  }
+}
+
+.auth-card {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.auth-card label { color: var(--ink); }
+.auth-card input {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--line);
+  --tw-ring-color: var(--azul);
+}
+.auth-card input::placeholder { color: var(--muted); }
+.auth-card a { color: var(--azul); }
+.auth-card a:hover { color: var(--azul-escuro); }
+.auth-card button[type="submit"] {
+  background: var(--azul);
+  color: var(--card);
+}
+.auth-card button[type="submit"]:hover { background: var(--azul-escuro); }
+.auth-card button:disabled { opacity: .6; cursor: wait; }
+#erro-login, #erro-cadastro { color: var(--chama-ink); }

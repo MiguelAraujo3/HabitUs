@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="%BASE_URL%images/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/styles/base.css">
+    <title>Feed - HabitUs</title>
+  </head>
+  <body class="flex flex-row h-screen bg-brand-ice font-sans overflow-hidden">
+    <div id="menu"></div>
+    <!-- O scroll fica neste wrapper, para a barra de rolagem aparecer à direita do painel -->
+    <div class="min-w-0 flex-1 overflow-y-auto">
+    <div class="layout-com-painel">
+    <main id="app" class="layout-com-painel__conteudo pt-6 pb-28 md:pb-16">
+      <div class="flex w-full flex-col gap-4">
+        <header class="flex items-start justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold">Feed</h1>
+            <p class="text-sm">
+              O que está acontecendo nos hábitos de todo mundo.
+            </p>
+          </div>
+          <button
+            id="btn-nova-postagem"
+            type="button"
+            class="shrink-0 cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            + Nova postagem
+          </button>
+        </header>
+
+        <input
+          id="campo-busca"
+          type="search"
+          aria-label="Buscar por nome de usuário"
+          placeholder="Buscar por @usuário"
+          class="w-full rounded-lg bg-black/5 px-4 py-2.5 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        />
+
+        <ul id="lista-postagens" class="flex flex-col gap-4"></ul>
+
+        <p
+          id="estado-vazio"
+          hidden
+          class="rounded-xl bg-white p-6 text-center text-sm text-gray-600"
+        >
+          Ainda não há postagens. Que tal ser a primeira pessoa a postar?
+        </p>
+      </div>
+    </main>
+    <!-- Painel lateral "Hábitos de hoje" (só em telas grandes); fica fixo no topo ao rolar -->
+    <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
+    </div>
+    </div>
+    <script type="module" src="/src/pages/feed.js"></script>
+    <script type="module" src="/src/pages/painel-habitos.js"></script>
+  </body>
+</html>
