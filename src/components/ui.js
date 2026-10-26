@@ -528,18 +528,11 @@ export function criarGradeCategorias({ valor = '', aoMudar } = {}) {
 // Logo e aviso rápido (toast)
 
 export function criarLogo(tamanho = 24) {
-  const raiz = criarElemento('span', 'inline-flex items-center gap-2 font-bold tracking-[-0.03em]');
-  raiz.style.fontSize = `${tamanho}px`;
-  const circuloPreto = criarElemento('span', 'relative inline-flex items-center justify-center rounded-full bg-black');
-  circuloPreto.style.width = `${tamanho * 1.1}px`;
-  circuloPreto.style.height = `${tamanho * 1.1}px`;
-  const circuloLima = criarElemento('span', 'rounded-full bg-lime');
-  circuloLima.style.width = `${tamanho * 0.42}px`;
-  circuloLima.style.height = `${tamanho * 0.42}px`;
-  circuloPreto.appendChild(circuloLima);
-  raiz.appendChild(circuloPreto);
-  raiz.appendChild(document.createTextNode('HabitUs'));
-  return raiz;
+  const logo = criarElemento('img', 'block h-auto max-w-full');
+  logo.src = `${import.meta.env.BASE_URL}images/logo.png`;
+  logo.alt = 'HabitUs';
+  logo.style.width = `${tamanho * 7}px`;
+  return logo;
 }
 
 let temporizadorToast = null;

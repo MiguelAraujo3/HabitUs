@@ -11,7 +11,9 @@ const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
-  document.querySelector('#menu').appendChild(menu);
+  if (menu) {
+    document.querySelector('#menu').appendChild(menu);
+  }
 
   // O formulário está em criar-grupo.html; aqui só entram o que muda na tela:
   // o cabeçalho, a grade de categorias e a lista dinâmica de atividades.

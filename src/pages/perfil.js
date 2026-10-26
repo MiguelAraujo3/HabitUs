@@ -22,10 +22,9 @@ if (autorizado) {
     habitosComSequencia.push({...habito, sequencia,});
   }
   const menu = await criarNavbar();
-  menu.classList.add('max-[700px]:w-full', 'max-[700px]:h-auto', 'max-[700px]:px-5', 'max-[700px]:py-[18px]', 'max-[700px]:gap-[18px]');
-  menu.querySelector('div').classList.add('max-[700px]:mb-0');
-  menu.querySelector('nav').classList.add('max-[700px]:flex-row', 'max-[700px]:flex-wrap', 'max-[700px]:gap-[18px]');
-  document.querySelector('#menu').appendChild(menu);
+  if (menu) {
+    document.querySelector('#menu').appendChild(menu);
+  }
 
   const parametros = new URLSearchParams(window.location.search);
   const usuario = parametros.get('usuario');
@@ -33,7 +32,7 @@ if (autorizado) {
   const app = document.querySelector('#app');
 
   app.innerHTML = `
-    <section class="mx-auto max-w-205 overflow-hidden rounded-3xl border border-(--line) bg-white shadow-[0_12px_40px_#00000006] max-[700px]:rounded-[18px]" aria-labelledby="titulo-perfil">
+    <section class="w-full overflow-hidden rounded-3xl border border-(--line) bg-white shadow-[0_12px_40px_#00000006] max-[700px]:rounded-[18px]" aria-labelledby="titulo-perfil">
       <div class="min-h-35 bg-(--lima) px-9 py-7 text-[11px] font-extrabold tracking-[.16em] max-[700px]:min-h-30 max-[700px]:px-5 max-[700px]:py-6">
         <span>HABITUS · SEU ESPAÇO</span>
       </div>
@@ -253,7 +252,10 @@ if (autorizado) {
       });
       usuarioAtual = await obterUsuarioAtual();
       
-      document.getElementById('saudacao-usuario').textContent = `Olá, ${usuarioAtual.name.split(' ')[0]}`
+      // O cartão do usuário no menu lateral acompanha as alterações do perfil.
+      document.getElementById('usuario-nome')?.replaceChildren(usuarioAtual.name);
+      document.getElementById('usuario-username')?.replaceChildren(`@${usuarioAtual.username}`);
+      document.getElementById('usuario-avatar')?.replaceChildren(obterIniciais(usuarioAtual));
       app.querySelector('#perfil-avatar').textContent = obterIniciais(usuarioAtual);
       app.querySelector('#perfil-nome').textContent = usuarioAtual.name;
       app.querySelector('#perfil-username').textContent = `@${usuarioAtual.username}`;

@@ -64,7 +64,3 @@
 .auth-card button[type="submit"]:hover { background: var(--azul-escuro); }
 .auth-card button:disabled { opacity: .6; cursor: wait; }
 #erro-login, #erro-cadastro { color: var(--chama-ink); }
-
-#menu > header { background: var(--preto); color: var(--card); }
-#menu > header a:hover,
-#menu > header button:hover { color: var(--lima); }

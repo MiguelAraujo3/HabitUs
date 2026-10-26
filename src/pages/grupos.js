@@ -12,7 +12,9 @@ const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
-  document.querySelector('#menu').appendChild(menu);
+  if (menu) {
+    document.querySelector('#menu').appendChild(menu);
+  }
 
   // PROVISÓRIO: grupos de exemplo até a S1-35 ligar a página ao LocalStorage.
   // Datas relativas a hoje, para o status continuar correto.

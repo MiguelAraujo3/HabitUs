@@ -18,7 +18,9 @@ const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
-  document.querySelector('#menu').appendChild(menu);
+  if (menu) {
+    document.querySelector('#menu').appendChild(menu);
+  }
 
   // ---------------------------------------------------------------------------
   // PROVISÓRIO: dados de exemplo até a S1-40 ler o grupo (?id=) no LocalStorage.
@@ -481,7 +483,7 @@ if (autorizado) {
 
   function montarPagina() {
     const conteudo = document.querySelector('#conteudo');
-    document.title = `${GRUPO.nome} - Habit Tracker`;
+    document.title = `${GRUPO.nome} - HabitUs`;
 
     conteudo.appendChild(criarCabecalhoPagina({
       titulo: GRUPO.nome,
