@@ -8,6 +8,7 @@ import { criarCartaoPostagem } from '../components/postagem.js';
 import { criarElemento } from '../components/ui.js';
 
 const listaPostagens = document.querySelector('#lista-postagens');
+/** @type {HTMLElement} */
 const estadoVazio = document.querySelector('#estado-vazio');
 const telaFeed = listaPostagens.parentElement;
 
@@ -19,7 +20,7 @@ function atualizarEstadoVazio() {
 async function carregarPostagens() {
   const postagens = await repoPostagens.listar();
   const ordenadas = [...postagens].sort(
-    (a, b) => new Date(b.dataHora) - new Date(a.dataHora)
+  (a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()
   );
 
   return Promise.all(
