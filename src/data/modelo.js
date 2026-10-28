@@ -17,6 +17,9 @@ export function criarHabito({ idUsuario, nome, categoria, descricao, frequencia,
 }
 
 // Factory: ConclusaoHabito
+/**
+ * @param {{ idHabito: string, data?: string, id?: string }} dados
+ */
 export function criarConclusaoHabito({ idHabito, data, id: _id }) {
   const id = _id ?? crypto.randomUUID();
   return {

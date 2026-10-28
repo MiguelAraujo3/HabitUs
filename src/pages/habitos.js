@@ -4,33 +4,16 @@ import { exigirLogin } from '../components/auth.js';
 import { obterUsuarioAtual } from '../data/index.js';
 import * as repoHabitos from '../data/habitos.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
+import { carregarHabitosDoUsuario } from '../data/consultas.js';
 import { paraChave, hoje } from '../utils/datas.js';
 import { formatarSequencia } from '../utils/sequencia.js';
 import { calcularSequencia } from '../rules/streak.js';
+import { ehDoDia, conclusaoDoDia, contarFeitos } from '../rules/habitosDoDia.js';
+import { el, svg } from '../utils/dom.js';
 
 const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const SVG_NS = 'http://www.w3.org/2000/svg';
 const TAMANHO_MAX_NOME = 60;
 const TAMANHO_MAX_DESCRICAO = 200;
-
-// Ícones (paths 24x24, estilo contorno)
-const ICONES = {
-  check: '<path d="M20 6 9 17l-5-5"/>',
-  chama: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
-  saude: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
-  esportes: '<path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/>',
-  estudos: '<path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
-  leitura: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
-  alimentacao: '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
-  sono: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
-  mental: '<path d="M12 22v-5"/><path d="M9 17h6"/><path d="M12 17c-3 0-5-2-5-5 0-2 1-3 2-4-1-1-1-3 1-4 1.5-1 3-.5 4 .5 1-1 2.5-1.5 4-.5 2 1 2 3 1 4 1 1 2 2 2 4 0 3-2 5-5 5z"/>',
-  financas: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
-  organizacao: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
-  hobbies: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
-  lapis: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
-  lixeira: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
-  outros: '<circle cx="12" cy="12" r="9"/>',
-};
 
 // Lista fixa de categorias (a ordem é a do select do formulário).
 // "cor" são classes do Tailwind (escritas por extenso para o Tailwind encontrá-las).
@@ -51,7 +34,8 @@ const CATEGORIAS = {
 // Classes do Tailwind reaproveitadas (strings fixas, sem dados do usuário)
 const CLASSE_CAMPO =
   'w-full rounded-xl border border-(--line) bg-white px-4 py-3 text-base text-brand-dark ' +
-  'focus:border-brand-blue focus:outline-2 focus:outline-brand-blue aria-invalid:border-(--chama-ink)';
+  'focus:border-brand-blue focus:outline-2 focus:outline-brand-blue aria-invalid:border-(--chama-ink) ' +
+  'disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500';
 const CLASSE_ERRO = 'mt-1.5 text-sm text-(--chama-ink)';
 const CLASSE_BTN_PRIMARIO =
   'flex-1 cursor-pointer rounded-xl bg-brand-blue px-5 py-3 text-base font-semibold text-white ' +
@@ -92,35 +76,6 @@ function hojeChave() {
   return paraChave(hoje());
 }
 
-// Ícone SVG. O conteúdo vem da constante ICONES (nunca de dados do usuário).
-function svg(nomeIcone, classe = '') {
-  const s = document.createElementNS(SVG_NS, 'svg');
-  s.setAttribute('viewBox', '0 0 24 24');
-  s.setAttribute('fill', 'none');
-  s.setAttribute('stroke', 'currentColor');
-  s.setAttribute('stroke-width', nomeIcone === 'check' ? '2.8' : '2');
-  s.setAttribute('stroke-linecap', 'round');
-  s.setAttribute('stroke-linejoin', 'round');
-  s.setAttribute('aria-hidden', 'true');
-  if (classe) s.setAttribute('class', classe);
-  s.innerHTML = ICONES[nomeIcone] || ICONES.outros;
-  return s;
-}
-
-// Cria um elemento: el('h3', { classe, texto, attrs }, [filhos]). O texto entra por textContent.
-function el(tag, opts = {}, filhos = []) {
-  const e = document.createElement(tag);
-  if (opts.classe) e.className = opts.classe;
-  if (opts.texto != null) e.textContent = opts.texto;
-  if (opts.attrs) {
-    for (const [k, v] of Object.entries(opts.attrs)) e.setAttribute(k, v);
-  }
-  for (const f of filhos) {
-    if (f) e.appendChild(f);
-  }
-  return e;
-}
-
 // Categoria válida (um valor estranho gravado no storage cai em "outros")
 function chaveCategoria(categoria) {
   return Object.hasOwn(CATEGORIAS, categoria) ? categoria : 'outros';
@@ -138,28 +93,19 @@ let habitos = [];
 let conclusoes = []; // só as conclusões dos hábitos do usuário
 
 async function carregar() {
-  const idUsuario = idUsuarioAtual();
-  const todos = await repoHabitos.listar();
-  habitos = todos.filter((h) => h.idUsuario === idUsuario && h.ativo !== false);
-
-  const ids = new Set(habitos.map((h) => h.id));
-  const todasConclusoes = await repoConclusoes.listar();
-  conclusoes = todasConclusoes.filter((c) => ids.has(c.idHabito));
+  const dados = await carregarHabitosDoUsuario(idUsuarioAtual());
+  habitos = dados.habitos;
+  conclusoes = dados.conclusoes;
 }
 
 // ---------- Regras ----------
 
 function ehDeHoje(h) {
-  const f = h.frequencia;
-  if (f && f.tipo === 'dias-semana' && f.dias && f.dias.length) {
-    return f.dias.includes(hoje().getDay());
-  }
-  return true;
+  return ehDoDia(h, hoje().getDay());
 }
 
 function conclusaoDeHoje(h) {
-  const chave = hojeChave();
-  return conclusoes.find((c) => c.idHabito === h.id && c.data === chave) || null;
+  return conclusaoDoDia(h, conclusoes, hojeChave());
 }
 
 function feitoHoje(h) {
@@ -175,6 +121,12 @@ function textoSequencia(seq, frequencia) {
   const atual = formatarSequencia(seq.atual, frequencia);
   const recorde = formatarSequencia(seq.maior, frequencia);
   return `Sequência: ${atual} · Recorde: ${recorde}`;
+}
+
+// Recorde do hábito (o mesmo "Recorde" mostrado no cartão), calculado das conclusões.
+// Regra da edição: com recorde maior que zero, só a descrição pode mudar.
+function recordeDe(h) {
+  return sequenciaDe(h).maior;
 }
 
 // Valida os campos do formulário. Devolve { campo: mensagem } (vazio = tudo certo).
@@ -204,22 +156,24 @@ async function alternar(idHabito) {
 
   emAndamento.add(idHabito);
   try {
-    const existente = conclusaoDeHoje(habito);
-    if (existente) {
-      await repoConclusoes.excluir(existente.id);
-      conclusoes = conclusoes.filter((c) => c.id !== existente.id);
-    } else {
-      const nova = await repoConclusoes.criar({ idHabito, data: hojeChave() });
-      conclusoes.push(nova);
-    }
+    // A camada de dados decide se marca ou desmarca e devolve o resultado
+    const resultado = await repoConclusoes.alternarConclusaoHoje(idHabito);
+    const chave = hojeChave();
+    conclusoes = conclusoes.filter((c) => !(c.idHabito === idHabito && c.data === chave));
+    if (resultado.marcado) conclusoes.push(resultado.conclusao);
   } catch (erro) {
     console.error('Não foi possível salvar a alteração:', erro);
   } finally {
     emAndamento.delete(idHabito);
   }
   renderizar();
+  // A lista é redesenhada: devolve o foco ao botão para quem usa o teclado
+  /** @type {HTMLElement | null} */ (document.querySelector(`li[data-id="${CSS.escape(idHabito)}"] button`))?.focus();
 }
 
+/**
+ * @param {{ nome?: string, categoria?: string, descricao: string }} dados
+ */
 async function adicionarHabito({ nome, categoria, descricao }) {
   const habito = await repoHabitos.criar({
     idUsuario: idUsuarioAtual(),
@@ -242,14 +196,28 @@ async function buscarHabitoDoUsuario(id) {
   return habito;
 }
 
-// Edita só nome, categoria e descrição (a frequência não muda)
+// Edita nome, categoria e descrição (a frequência nunca muda).
+// Se o hábito já tem recorde, só a descrição é alterada. A conferência usa os dados salvos,
+// não o que a tela mostra, porque a janela pode estar desatualizada ou ter sido adulterada.
+/**
+ * @param {string} id
+ * @param {{ nome?: string, categoria?: string, descricao: string }} dados
+ */
 async function salvarEdicao(id, { nome, categoria, descricao }) {
-  await buscarHabitoDoUsuario(id);
-  const atualizado = await repoHabitos.atualizar(id, {
-    nome,
-    categoria: chaveCategoria(categoria),
-    descricao,
-  });
+  const habito = await buscarHabitoDoUsuario(id);
+  const conclusoesDoHabito = await repoConclusoes.getCompletionsByHabit(id);
+  const datas = conclusoesDoHabito.map((c) => c.data);
+  const recorde = calcularSequencia(habito.frequencia, datas, hojeChave()).maior;
+
+  const alteracoes =
+    recorde > 0
+      ? { descricao }
+      : {
+          nome: nome ?? habito.nome,
+          categoria: chaveCategoria(categoria ?? habito.categoria),
+          descricao,
+        };
+  const atualizado = await repoHabitos.atualizar(id, alteracoes);
   if (!atualizado) throw new Error('Hábito não encontrado.');
   habitos = habitos.map((h) => (h.id === id ? atualizado : h));
   renderizar();
@@ -285,7 +253,7 @@ function renderData() {
 
 function renderProgresso(deHoje) {
   const total = deHoje.length;
-  const feitos = deHoje.reduce((soma, h) => soma + (feitoHoje(h) ? 1 : 0), 0);
+  const feitos = contarFeitos(deHoje, conclusoes, hojeChave());
   const pct = total ? Math.round((feitos / total) * 100) : 0;
   $('progresso-texto').textContent = `${feitos} de ${total} feitos`;
   $('progresso-barra').style.width = `${pct}%`; // valor dinâmico: precisa ser inline
@@ -490,6 +458,8 @@ function criarFormulario() {
         </label>
       </fieldset>
 
+      <p id="aviso-recorde" class="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" hidden></p>
+
       <p id="erro-geral" class="${CLASSE_ERRO}" role="alert" hidden></p>
 
       <div class="mt-1 flex justify-end gap-3">
@@ -521,8 +491,11 @@ function criarFormulario() {
   const titulo = d.querySelector('#dlg-titulo');
   /** @type {HTMLFieldSetElement} */
   const grupoFrequencia = d.querySelector('#grupo-frequencia');
+  /** @type {HTMLElement} */
+  const avisoRecorde = d.querySelector('#aviso-recorde');
   /** @type {Record<string, HTMLElement>} */
   const campos = { nome: campoNome, categoria: select, descricao: campoDescricao };
+  let apenasDescricao = false; // true quando o hábito em edição já tem recorde
 
   function mostrarErro(chave, mensagem) {
     /** @type {HTMLElement} */
@@ -552,13 +525,20 @@ function criarFormulario() {
     ev.preventDefault();
     limparErros();
 
-    const dados = {
+    const descricao = campoDescricao.value.trim();
+    const dados = apenasDescricao
+      ? { descricao } // com recorde, nome e categoria não entram na alteração
+      : { nome: campoNome.value.trim(), categoria: select.value, descricao };
+
+    const erros = validarCampos({
       nome: campoNome.value.trim(),
       categoria: select.value,
-      descricao: campoDescricao.value.trim(),
-    };
-
-    const erros = validarCampos(dados);
+      descricao,
+    });
+    if (apenasDescricao) {
+      delete erros.nome;
+      delete erros.categoria;
+    }
     const chavesComErro = Object.keys(erros);
     if (chavesComErro.length > 0) {
       for (const chave of chavesComErro) mostrarErro(chave, erros[chave]);
@@ -599,8 +579,19 @@ function criarFormulario() {
       select.value = chaveCategoria(habito.categoria);
       campoDescricao.value = habito.descricao || '';
     }
+
+    // Regra: com recorde maior que zero, só a descrição pode ser editada
+    const recorde = habito ? recordeDe(habito) : 0;
+    apenasDescricao = recorde > 0;
+    campoNome.disabled = apenasDescricao;
+    select.disabled = apenasDescricao;
+    avisoRecorde.hidden = !apenasDescricao;
+    avisoRecorde.textContent = apenasDescricao
+      ? `Este hábito já tem recorde (${formatarSequencia(recorde, habito.frequencia)}). ` +
+        'Por isso só a descrição pode ser editada.'
+      : '';
   };
-  d.focarNome = () => campoNome.focus();
+  d.focarNome = () => (apenasDescricao ? campoDescricao : campoNome).focus();
 
   return d;
 }
@@ -705,6 +696,18 @@ async function iniciar() {
     const aberto = toggle.getAttribute('aria-expanded') === 'true';
     toggle.setAttribute('aria-expanded', String(!aberto));
     $('lista-nao-hoje').hidden = aberto;
+  });
+
+  // Outra aba (ou o painel lateral de outra página) mexeu nos dados: recarrega e redesenha.
+  // O evento "storage" só dispara nas OUTRAS abas; key === null significa localStorage.clear().
+  window.addEventListener('storage', async (ev) => {
+    if (ev.key !== null && ev.key !== 'habitos' && ev.key !== 'conclusoesHabito') return;
+    try {
+      await carregar();
+      renderizar();
+    } catch (erro) {
+      console.error('Não foi possível atualizar a lista:', erro);
+    }
   });
 
   // Se a aba ficar aberta até virar o dia, atualiza ao voltar a ela

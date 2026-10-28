@@ -41,7 +41,7 @@ function mostrarPostagens(postagens) {
 let telaPostagem = null;
 
 function criarTelaPostagem() {
-  const tela = criarElemento('section', 'mx-auto flex w-full max-w-2xl flex-col gap-4');
+  const tela = criarElemento('section', 'flex w-full flex-col gap-4');
   tela.hidden = true;
 
   // Barra do topo: ← Voltar + título

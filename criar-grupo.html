@@ -2,15 +2,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="%BASE_URL%images/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./src/styles/base.css">
-  <title>Criar Grupo - Habit Tracker</title>
+  <title>Criar Grupo - HabitUs</title>
 </head>
 <body class="flex h-screen overflow-hidden bg-bg font-sans">
   <div id="menu" class="hidden shrink-0 md:block"></div>
   <main id="app" class="no-scrollbar min-w-0 flex-1 overflow-y-auto">
-    <div class="mx-auto flex max-w-[1060px] justify-center gap-8 px-4 md:px-6 lg:px-8">
-      <div id="conteudo" class="min-w-0 max-w-[680px] flex-1 pb-28 md:pb-16">
+    <div class="layout-com-painel">
+      <div id="conteudo" class="layout-com-painel__conteudo pb-28 md:pb-16">
         <div id="cabecalho"></div>
 
         <form id="form-grupo" class="mt-5 space-y-6" novalidate>
@@ -60,8 +61,11 @@
           <button type="submit" class="press inline-flex items-center justify-center gap-2 rounded-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-45 bg-action text-white hover:bg-action-press min-h-[50px] w-full px-5 text-[16px]">Criar grupo</button>
         </form>
       </div>
+      <!-- Painel lateral "Hábitos de hoje" (só em telas grandes) -->
+      <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
     </div>
   </main>
   <script type="module" src="/src/pages/criar-grupo.js"></script>
+  <script type="module" src="/src/pages/painel-habitos.js"></script>
 </body>
 </html>
