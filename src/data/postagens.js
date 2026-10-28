@@ -16,7 +16,7 @@ export async function getPostsByUser(userId) {
   const postagens = await listar()
 
   return postagens.filter(postagem => postagem.idUsuario === userId)
-  .sort((a, b) => new Date(b.dataHora)-new Date(a.dataHora));
+  .sort((a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime());
 }
 
 export async function buscarPorId(id) {

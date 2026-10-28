@@ -35,6 +35,7 @@ export async function createUser(userData) {
   }
   const mensagem = validarCadastro(dados)
   if (mensagem) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error(mensagem);
     erro.code = 'VALIDATION_ERROR';
     throw erro;
@@ -43,11 +44,13 @@ export async function createUser(userData) {
   const usuarios = lerLista('usuarios');
 
   if (usuarios.some((usuario)=> usuario.username === dados.username)) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Esse nome de usuário já está cadastrado.')
     erro.code = 'ALREADY_EXISTS'
     throw erro;
   }
   if (usuarios.some((usuario) => usuario.email === dados.email)) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Esse e-mail já está cadastrado.');
     erro.code = 'ALREADY_EXISTS';
     throw erro;
@@ -78,6 +81,7 @@ export async function updateUser(id, data) {
   const indice = usuarios.findIndex((usuario) =>usuario.id===id);
 
   if (indice === -1 ) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Usuário não encontrado.')
     erro.code = 'NOT_FOUND';
     throw erro;
@@ -92,6 +96,7 @@ export async function updateUser(id, data) {
   };
   const mensagem = validarPerfil(atualizado);
   if (mensagem) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error(mensagem);
     erro.code = 'VALIDATION_ERROR';
     throw erro;
@@ -100,6 +105,7 @@ export async function updateUser(id, data) {
     return outroUsuario.id !== id && outroUsuario.username.toLowerCase() === atualizado.username;
   });
   if (usernameEmUso) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Esse nome de usuário já está cadastrado.')
     erro.code = 'ALREADY_EXISTS';
     throw erro;

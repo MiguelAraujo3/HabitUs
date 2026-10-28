@@ -446,6 +446,7 @@ let dialogoExclusao = null;
 let habitoEmEdicao = null; // null = criando; objeto = editando
 
 function criarFormulario() {
+  /** @type {HTMLDialogElement & { preparar?: (habito?: any) => void, focarNome?: () => void }} */
   const d = document.createElement('dialog');
   d.className = CLASSE_MODAL;
   d.setAttribute('aria-labelledby', 'dlg-titulo');
@@ -500,6 +501,7 @@ function criarFormulario() {
   document.body.appendChild(d);
 
   // Opções do select vêm da lista fixa CATEGORIAS
+  /** @type {HTMLSelectElement} */
   const select = d.querySelector('#campo-categoria');
   for (const [chave, cat] of Object.entries(CATEGORIAS)) {
     const op = document.createElement('option');
@@ -508,15 +510,22 @@ function criarFormulario() {
     select.appendChild(op);
   }
 
+  /** @type {HTMLFormElement} */
   const form = d.querySelector('#form-habito');
+  /** @type {HTMLInputElement} */
   const campoNome = d.querySelector('#campo-nome');
+  /** @type {HTMLTextAreaElement} */
   const campoDescricao = d.querySelector('#campo-descricao');
+  /** @type {HTMLButtonElement} */
   const botaoSalvar = d.querySelector('#btn-salvar-habito');
   const titulo = d.querySelector('#dlg-titulo');
+  /** @type {HTMLFieldSetElement} */
   const grupoFrequencia = d.querySelector('#grupo-frequencia');
+  /** @type {Record<string, HTMLElement>} */
   const campos = { nome: campoNome, categoria: select, descricao: campoDescricao };
 
   function mostrarErro(chave, mensagem) {
+    /** @type {HTMLElement} */
     const p = d.querySelector(`#erro-${chave}`);
     p.textContent = mensagem;
     p.hidden = false;
@@ -525,7 +534,7 @@ function criarFormulario() {
 
   function limparErros() {
     d.querySelectorAll('[id^="erro-"]').forEach((p) => {
-      p.hidden = true;
+      /** @type {HTMLElement} */ (p).hidden = true;
       p.textContent = '';
     });
     d.querySelectorAll('[aria-invalid]').forEach((c) => c.removeAttribute('aria-invalid'));
@@ -606,6 +615,7 @@ function abrirFormulario(habito = null) {
 // ---------- Janela (modal) de confirmação da exclusão ----------
 
 function criarConfirmacao() {
+  /** @type {HTMLDialogElement & { preparar?: (habito?: any) => void, focarNome?: () => void }} */
   const d = document.createElement('dialog');
   d.className = `${CLASSE_MODAL} max-w-md`;
   d.setAttribute('aria-labelledby', 'dlg-excluir-titulo');
@@ -624,7 +634,9 @@ function criarConfirmacao() {
   document.body.appendChild(d);
 
   const texto = d.querySelector('#dlg-excluir-texto');
+  /** @type {HTMLElement} */
   const erro = d.querySelector('#erro-excluir');
+  /** @type {HTMLButtonElement} */
   const botao = d.querySelector('#btn-confirmar-exclusao');
   let idAlvo = null;
 

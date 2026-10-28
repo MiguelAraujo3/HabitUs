@@ -50,9 +50,10 @@ function montarLogin() {
   if (loginForm) {
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const identificador = document.getElementById('usermailOrUser').value;
-      const senha = document.getElementById('passwd').value;
+      const identificador = /** @type {HTMLInputElement} */ (document.getElementById('usermailOrUser')).value;
+      const senha = /** @type {HTMLInputElement} */ (document.getElementById('passwd')).value;
       const erroLogin = document.getElementById('erro-login');
+      /** @type {HTMLButtonElement} */
       const botao = loginForm.querySelector('button[type="submit"]');
 
       erroLogin.hidden = true;
@@ -128,14 +129,14 @@ function montarCadastro() {
   cadastroForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const name = document.getElementById('nameid').value;
-    const email = document.getElementById('emailid').value;
-    const username = document.getElementById('userid').value;
-    const password = document.getElementById('passwd').value;
-    const confirmacao = document.getElementById('confirmpasswd').value;
+    const name = /** @type {HTMLInputElement} */ (document.getElementById('nameid')).value;
+    const email = /** @type {HTMLInputElement} */ (document.getElementById('emailid')).value;
+    const username = /** @type {HTMLInputElement} */ (document.getElementById('userid')).value;
+    const password = /** @type {HTMLInputElement} */ (document.getElementById('passwd')).value;
+    const confirmacao = /** @type {HTMLInputElement} */ (document.getElementById('confirmpasswd')).value;
 
     const erroCadastro = document.getElementById('erro-cadastro');
-    const botao = document.getElementById('btnEnviar');
+    const botao = /** @type {HTMLButtonElement} */ (document.getElementById('btnEnviar'));
 
     erroCadastro.hidden = true;
     erroCadastro.textContent = '';

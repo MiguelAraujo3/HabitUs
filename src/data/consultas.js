@@ -6,6 +6,7 @@ export async function getHabitStreak(habitId) {
   const habito = await buscarPorId(habitId);
 
   if (!habito) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Hábito não encontrado');
     erro.code = "NOT_FOUND";
     throw erro;

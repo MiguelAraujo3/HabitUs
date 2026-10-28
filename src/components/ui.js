@@ -108,6 +108,9 @@ export function criarLinkAcao(texto, opcoes = {}) {
 
 export const CLASSE_INPUT = 'w-full min-h-[48px] rounded-[10px] border border-line bg-surface px-3.5 text-[17px] text-ink placeholder:text-[#8a8a86] focus:border-action focus:outline-2 focus:outline-offset-0 focus:outline-action/30';
 
+/**
+ * @param {{ id: string, rotulo: string, controle: HTMLElement, dica?: string, contador?: string }} opcoes
+ */
 export function criarCampo({ id, rotulo, controle, dica, contador }) {
   const raiz = criarElemento('div', 'space-y-1.5');
   const linha = criarElemento('div', 'flex items-baseline justify-between');
@@ -227,6 +230,9 @@ export function criarAvatarIniciais(nome, tamanho = 40) {
 const CLASSE_STEPPER = 'press flex size-11 items-center justify-center rounded-full bg-surface-2 text-ink hover:bg-[#e6e6e3] disabled:opacity-35';
 
 // Devolve { elemento, obterValor }.
+/**
+ * @param {{ rotulo: string, valor: number, min: number, max: number, aoMudar?: (valor: number) => void, sufixo?: string }} opcoes
+ */
 export function criarStepper({ rotulo, valor, min, max, aoMudar, sufixo = '' }) {
   let atual = valor;
   const raiz = criarElemento('div', 'inline-flex items-center gap-1');
@@ -304,7 +310,8 @@ export function criarAbas({ rotulo, opcoes, valor, aoMudar, rolagem = false }) {
 
 // abrirJanela('Título', (fechar) => [nó1, nó2]) abre a janela e devolve { fechar }.
 export function abrirJanela(titulo, construir, aoFechar) {
-  const anterior = document.activeElement;
+  /** @type {HTMLElement | null} */
+  const anterior = /** @type {HTMLElement | null} */ (document.activeElement);
 
   const raiz = criarElemento('div', 'fixed inset-0 z-50 flex items-end justify-center md:items-center');
   const fundo = criarElemento('div', 'anim-fade absolute inset-0 bg-black/40');
@@ -339,7 +346,9 @@ export function abrirJanela(titulo, construir, aoFechar) {
     if (evento.key !== 'Tab') {
       return;
     }
-    const focaveis = [...painel.querySelectorAll('button, a, input, select, textarea')].filter((el) => !el.disabled);
+    const focaveis = /** @type {HTMLElement[]} */ ([...painel.querySelectorAll('button, a, input, select, textarea')]).filter(
+      (el) => !/** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled
+    );
     if (!focaveis.length) {
       return;
     }
@@ -417,6 +426,9 @@ export function criarCartaoSimples(filhos, extra = '') {
 // ---------------------------------------------------------------------------
 // Cabeçalho de página e títulos
 
+/**
+ * @param {{ titulo: string, voltarPara: string, direita?: HTMLElement }} opcoes
+ */
 export function criarCabecalhoPagina({ titulo, voltarPara, direita }) {
   const cabecalho = criarElemento('header', 'sticky top-0 z-20 -mx-4 flex min-h-14 items-center gap-1 border-b border-line/70 bg-bg/92 px-2 backdrop-blur-lg md:mx-0 md:rounded-b-[14px] md:px-2');
 
@@ -443,6 +455,9 @@ export function criarCabecalhoPagina({ titulo, voltarPara, direita }) {
   return cabecalho;
 }
 
+/**
+ * @param {{ titulo: string, subtitulo?: string, direita?: HTMLElement }} opcoes
+ */
 export function criarTituloGrande({ titulo, subtitulo, direita }) {
   const raiz = criarElemento('div', 'flex items-end justify-between gap-3 pt-6 pb-4 md:pt-8');
   const texto = criarElemento('div', 'min-w-0');
@@ -470,6 +485,9 @@ export function criarTituloSecao(texto, direita) {
 // Grade de categorias
 
 // Devolve { elemento, obterValor, definirErro }.
+/**
+ * @param {{ valor?: string, aoMudar?: (valor: string) => void }} [opcoes]
+ */
 export function criarGradeCategorias({ valor = '', aoMudar } = {}) {
   let atual = valor;
   const raiz = criarElemento('div');

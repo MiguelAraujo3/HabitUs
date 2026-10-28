@@ -2,7 +2,7 @@ import { obterIniciais } from "../utils/usuario.js";
 import { criarElemento } from "./ui.js";
 
 function formatarTempo(dataHora) {
-  const segundos = Math.floor((Date.now() - new Date(dataHora)) / 1000);
+  const segundos = Math.floor((Date.now() - new Date(dataHora).getTime()) / 1000);
   const minutos = Math.floor(segundos / 60);
   const horas = Math.floor(minutos / 60);
   const dias = Math.floor(horas / 24);
