@@ -8,7 +8,7 @@
 ## Constitution (Non-Negotiable Principles)
 See `.specify/memory/constitution.md` for full text. Key constraints:
 1. **Simplicity First** — No patterns a 2nd-semester student can't explain
-2. **Technology by Delivery** — Delivery 1: JS + JSON + Vite ONLY
+2. **Technology by Delivery** — Delivery 1: JS/TS + JSON + Vite ONLY
 3. **Data Isolation** — All data access in `src/data/` layer with stable contract for Delivery 2 migration
 4. **Layered Delivery** — Core (login, profile, habits) → Groups → Feed
 5. **Explicit Business Rules** — Streak logic in pure functions (`src/rules/`)
@@ -97,7 +97,7 @@ node tests/test-runner.js  # Run all tests
 ```
 
 ## Common Pitfalls to Avoid
-- ❌ Adding any library beyond Vite in Delivery 1
+- ❌ Adding any library beyond Vite in Delivery 1 (exceptions: Tailwind and TypeScript as a dev tool)
 - ❌ Putting business logic in UI components (use `src/rules/`)
 - ❌ Accessing JSON files directly from pages (use `src/data/index.js`)
 - ❌ Using `Date` without local midnight handling (use `utils/date.js`)
@@ -105,9 +105,10 @@ node tests/test-runner.js  # Run all tests
 - ❌ Changing `src/data/index.js` signatures without updating plan
 
 ## RESTRIÇÕES DA ENTREGA 1
-- **Stack**: JavaScript (ESM), HTML, CSS e JSON, com Vite.
+- **Stack**: JavaScript (ESM) migrando para TypeScript, HTML, CSS e JSON, com Vite.
 - **Persistência**: **Apenas LocalStorage** (sem File System Access API, sem JSON files no `public/data/`).
-- **PROIBIDO**: React, Supabase, TypeScript e jQuery.
+- **PROIBIDO**: React, Supabase e jQuery.
+- **TYPESCRIPT** (aprovado em 2026-10-28): migração gradual em 5 fases — 1. Preparar (`tsc` + `tsconfig.json` com `allowJs`), 2. Verificar JS (`checkJs` + JSDoc), 3. Renomear `.js` para `.ts` (das folhas ao topo), 4. Endurecer (`strict` por etapas), 5. Manter (CI, lint e sem novos `.js`). Rode `npm run typecheck` para verificar os tipos; ele é separado do `npm run build`.
 - **TAILWIND**: já instalado via npm, mantido por enquanto; **NÃO adicionar outras bibliotecas**. Se o professor não aceitar o Tailwind, ele será removido depois, então prefira classes simples e evite `@apply` complexo.
 - **BASE DO VITE**: o site publica em `/habit-tracker/` (GitHub Pages). **Nunca** escrever caminhos absolutos como `/habit-tracker/...` ou `/`; usar `import.meta.env.BASE_URL`.
 - **BRANCH BASE**: `develop`. Todo push na `develop` publica o site; `npm run build` tem que passar sempre.
