@@ -83,7 +83,9 @@ if (autorizado) {
     document.querySelector('#grade-categorias').appendChild(grade.elemento);
 
     // Datas: início é hoje (data local); o fim nunca pode ser antes do início
+    /** @type {HTMLInputElement} */
     const inicio = document.querySelector('#inicio');
+    /** @type {HTMLInputElement} */
     const fim = document.querySelector('#fim');
     inicio.value = paraChave(hoje());
     fim.min = inicio.value;
@@ -99,6 +101,7 @@ if (autorizado) {
     adicionar.addEventListener('click', () => {
       atividades.push(novaAtividade());
       desenharAtividades();
+      /** @type {NodeListOf<HTMLInputElement>} */
       const campos = document.querySelectorAll('#lista-atividades input');
       campos[campos.length - 1].focus();
     });

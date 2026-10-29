@@ -170,7 +170,7 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
     contenedor.replaceChildren(cartao);
 
     if (idParaFoco) {
-      contenedor.querySelector(`li[data-id="${CSS.escape(idParaFoco)}"] button`)?.focus();
+      /** @type {HTMLElement | null} */ (contenedor.querySelector(`li[data-id="${CSS.escape(idParaFoco)}"] button`))?.focus();
     }
   }
 

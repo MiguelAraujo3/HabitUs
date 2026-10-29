@@ -47,7 +47,7 @@ if (autorizado) {
         <div class="rounded-xl border border-(--line) bg-brand-ice p-5">
           <p class="text-sm text-brand-light-gray">Hábitos ativos</p>
           <p id="total-habitos" class="mt-1 text-3xl font-bold"></p>
-         </div>
+        </div>
 
         <div class="rounded-xl border border-(--line) bg-brand-ice p-5">
             <p class="text-sm text-brand-light-gray">Maior sequência</p>
@@ -145,7 +145,7 @@ if (autorizado) {
       });
     });
     lista.replaceChildren(...cartoes);
-    app.querySelector('#postagens-vazias').hidden = postagens.length > 0;
+    /** @type {HTMLElement} */ (app.querySelector('#postagens-vazias')).hidden = postagens.length > 0;
   }
   const recordista = habitosComSequencia.reduce((melhor, habito) => {
   if (!melhor) {
@@ -178,7 +178,7 @@ if (autorizado) {
   app.querySelector('#habito-recordista').textContent = 
   temRecorde ? recordista.nome  : 'Conclua um hábito para começar.';
   const listaHabitos = app.querySelector('#lista-habitos');
-  app.querySelector('#habitos-vazios').hidden = habitosComSequencia.length > 0;
+  /** @type {HTMLElement} */ (app.querySelector('#habitos-vazios')).hidden = habitosComSequencia.length > 0;
   for (const habito of habitosComSequencia) {
     const item = document.createElement('li');
     item.className ='rounded-xl border border-(--line) bg-brand-ice p-4';
@@ -205,8 +205,11 @@ if (autorizado) {
   app.querySelector('#perfil-username').textContent =`@${usuarioAtual.username}`;
   app.querySelector('#perfil-descricao').textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
   redenrizarPostagens();
+  /** @type {HTMLFormElement} */
   const formulario = app.querySelector('#form-perfil');
+  /** @type {HTMLButtonElement} */
   const botaoEditar = app.querySelector('#editar-perfil');
+  /** @type {HTMLButtonElement} */
   const botaoSair = app.querySelector('#sair-perfil');
   botaoSair.addEventListener('click', async () => {
     botaoSair.disabled = true;
@@ -221,14 +224,14 @@ if (autorizado) {
   })
 
   botaoEditar.addEventListener('click', () => {
-    formulario.elements.name.value = usuarioAtual.name;
-    formulario.elements.username.value = usuarioAtual.username;
-    formulario.elements.profileDescription.value = usuarioAtual.profileDescription || '';
+    /** @type {HTMLInputElement} */ (formulario.elements.namedItem('name')).value = usuarioAtual.name;
+    /** @type {HTMLInputElement} */ (formulario.elements.namedItem('username')).value = usuarioAtual.username;
+    /** @type {HTMLTextAreaElement} */ (formulario.elements.namedItem('profileDescription')).value = usuarioAtual.profileDescription || '';
 
     app.querySelector('#mensagem-perfil').textContent = '';
     formulario.hidden = false;
     botaoEditar.hidden = true;
-    formulario.elements.name.focus();
+    /** @type {HTMLInputElement} */ (formulario.elements.namedItem('name')).focus();
   });
   app.querySelector('#cancelar-edicao').addEventListener('click', () => {
     formulario.hidden = true;
@@ -239,6 +242,7 @@ if (autorizado) {
     evento.preventDefault();
 
     const mensagem = app.querySelector('#mensagem-perfil');
+    /** @type {HTMLButtonElement} */
     const botaoSalvar = formulario.querySelector('[type="submit"]');
 
     mensagem.textContent = '';
@@ -246,9 +250,9 @@ if (autorizado) {
 
     try {
       await updateUser(usuarioAtual.id, {
-        name: formulario.elements.name.value,
-        username: formulario.elements.username.value,
-        profileDescription: formulario.elements.profileDescription.value,
+        name: /** @type {HTMLInputElement} */ (formulario.elements.namedItem('name')).value,
+        username: /** @type {HTMLInputElement} */ (formulario.elements.namedItem('username')).value,
+        profileDescription: /** @type {HTMLTextAreaElement} */ (formulario.elements.namedItem('profileDescription')).value,
       });
       usuarioAtual = await obterUsuarioAtual();
       

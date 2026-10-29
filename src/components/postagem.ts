@@ -1,8 +1,26 @@
-import { obterIniciais } from "../utils/usuario.js";
-import { criarElemento } from "./ui.js";
+import { obterIniciais } from '../utils/usuario.js';
+import { criarElemento } from './ui.js';
+import type { Postagem } from '../data/postagens.js';
 
-function formatarTempo(dataHora) {
-  const segundos = Math.floor((Date.now() - new Date(dataHora)) / 1000);
+export interface AutorPostagem {
+  id?: string;
+  name: string;
+  username: string;
+}
+
+export interface HabitoPostagem {
+  id?: string;
+  nome: string;
+  categoria: string;
+}
+
+export interface PostagemComDetalhes extends Postagem {
+  autor: AutorPostagem;
+  habito?: HabitoPostagem | null;
+}
+
+function formatarTempo(dataHora: string): string {
+  const segundos = Math.floor((Date.now() - new Date(dataHora).getTime()) / 1000);
   const minutos = Math.floor(segundos / 60);
   const horas = Math.floor(minutos / 60);
   const dias = Math.floor(horas / 24);
@@ -25,7 +43,7 @@ function formatarTempo(dataHora) {
   return new Date(dataHora).toLocaleDateString('pt-BR');
 }
 
-export function criarCartaoPostagem(postagem) {
+export function criarCartaoPostagem(postagem: PostagemComDetalhes): HTMLLIElement {
   const item = criarElemento('li', 'flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm');
 
   const cabecalho = criarElemento('div', 'flex items-center gap-3');
@@ -36,16 +54,26 @@ export function criarCartaoPostagem(postagem) {
   );
   const quem = criarElemento('div', 'flex flex-col');
   quem.appendChild(criarElemento('span', 'text-sm font-semibold', postagem.autor.name));
-  quem.appendChild(criarElemento('span', 'text-xs text-gray-500', `@${postagem.autor.username} · ${formatarTempo(postagem.dataHora)}`));
+  quem.appendChild(
+    criarElemento(
+      'span',
+      'text-xs text-gray-500',
+      `@${postagem.autor.username} · ${formatarTempo(postagem.dataHora)}`
+    )
+  );
   cabecalho.appendChild(avatar);
   cabecalho.appendChild(quem);
   item.appendChild(cabecalho);
 
   const linhaHabito = criarElemento('div', 'flex items-center gap-2 text-xs');
   if (postagem.habito) {
-  linhaHabito.appendChild(
-    criarElemento('span', 'rounded-full bg-purple-100 px-2 py-0.5 font-medium capitalize text-purple-800', postagem.habito.categoria)
-  );
+    linhaHabito.appendChild(
+      criarElemento(
+        'span',
+        'rounded-full bg-purple-100 px-2 py-0.5 font-medium capitalize text-purple-800',
+        postagem.habito.categoria
+      )
+    );
     linhaHabito.appendChild(criarElemento('span', 'text-gray-600', postagem.habito.nome));
   } else {
     linhaHabito.appendChild(criarElemento('span', 'text-gray-500', 'Hábito removido'));

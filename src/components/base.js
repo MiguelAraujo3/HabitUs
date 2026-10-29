@@ -109,6 +109,7 @@ export function criarAba(configuracao) {
 }
 
 export function criarModal(configuracao) {
+  /** @type {HTMLDivElement & { abrir?: () => void, fechar?: () => void }} */
   const fundo = document.createElement('div');
   fundo.className = 'hidden fixed inset-0 bg-brand-dark';
 
@@ -154,6 +155,7 @@ export function criarModal(configuracao) {
 }
 
 export function criarMensagemErro(configuracao) {
+  /** @type {HTMLDivElement & { mostrar?: () => void, esconder?: () => void }} */
   const mensagem = document.createElement('div');
   mensagem.className = 'w-full px-4 py-2 rounded-md bg-red-500 text-white text-sm';
   mensagem.setAttribute('role', 'alert');

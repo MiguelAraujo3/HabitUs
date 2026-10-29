@@ -4,22 +4,26 @@ import { exigirLogin } from '../components/auth.js';
 import { getUserById, obterUsuarioAtual, getHabitsByUser } from '../data/index.js';
 import * as repoPostagens from '../data/postagens.js';
 import * as repoHabitos from '../data/habitos.js';
-import { criarCartaoPostagem } from '../components/postagem.js';
+import { criarCartaoPostagem, type PostagemComDetalhes } from '../components/postagem.js';
 import { criarElemento } from '../components/ui.js';
 
-const listaPostagens = document.querySelector('#lista-postagens');
-const estadoVazio = document.querySelector('#estado-vazio');
-const telaFeed = listaPostagens.parentElement;
+interface TelaPostagemElement extends HTMLElement {
+  preparar: () => Promise<void>;
+}
 
-function atualizarEstadoVazio() {
+const listaPostagens = document.querySelector<HTMLUListElement>('#lista-postagens')!;
+const estadoVazio = document.querySelector<HTMLElement>('#estado-vazio')!;
+const telaFeed = listaPostagens.parentElement!;
+
+function atualizarEstadoVazio(): void {
   const temPostagens = listaPostagens.children.length > 0;
   estadoVazio.hidden = temPostagens;
 }
 
-async function carregarPostagens() {
+async function carregarPostagens(): Promise<PostagemComDetalhes[]> {
   const postagens = await repoPostagens.listar();
   const ordenadas = [...postagens].sort(
-    (a, b) => new Date(b.dataHora) - new Date(a.dataHora)
+    (a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()
   );
 
   return Promise.all(
@@ -31,16 +35,16 @@ async function carregarPostagens() {
   );
 }
 
-function mostrarPostagens(postagens) {
+function mostrarPostagens(postagens: PostagemComDetalhes[]): void {
   const cartoes = postagens.map(criarCartaoPostagem);
   listaPostagens.replaceChildren(...cartoes);
   atualizarEstadoVazio();
 }
 
-let telaPostagem = null;
+let telaPostagem: TelaPostagemElement | null = null;
 
-function criarTelaPostagem() {
-  const tela = criarElemento('section', 'flex w-full flex-col gap-4');
+function criarTelaPostagem(): TelaPostagemElement {
+  const tela = criarElemento('section', 'flex w-full flex-col gap-4') as unknown as TelaPostagemElement;
   tela.hidden = true;
 
   // Barra do topo: ← Voltar + título
@@ -91,7 +95,7 @@ function criarTelaPostagem() {
     erroTexto.hidden = true;
   });
 
-  form.addEventListener('submit', async (evento) => {
+  form.addEventListener('submit', async (evento: SubmitEvent) => {
     evento.preventDefault();
     erroHabito.hidden = true;
     erroTexto.hidden = true;
@@ -142,7 +146,7 @@ function criarTelaPostagem() {
     placeholder.value = '';
     placeholder.textContent = 'Selecione um hábito';
 
-    const opcoes = habitos.map((habito) => {
+    const opcoes = habitos.map((habito: { id: string; nome: string }) => {
       const opcao = document.createElement('option');
       opcao.value = habito.id;
       opcao.textContent = habito.nome;
@@ -151,11 +155,11 @@ function criarTelaPostagem() {
     selectHabito.replaceChildren(placeholder, ...opcoes);
   };
 
-  document.querySelector('#app').appendChild(tela);
+  document.querySelector('#app')!.appendChild(tela);
   return tela;
 }
 
-async function abrirTelaPostagem() {
+async function abrirTelaPostagem(): Promise<void> {
   if (!telaPostagem) {
     telaPostagem = criarTelaPostagem();
   }
@@ -164,8 +168,10 @@ async function abrirTelaPostagem() {
   telaPostagem.hidden = false;
 }
 
-function fecharTelaPostagem() {
-  telaPostagem.hidden = true;
+function fecharTelaPostagem(): void {
+  if (telaPostagem) {
+    telaPostagem.hidden = true;
+  }
   telaFeed.hidden = false;
 }
 
@@ -174,10 +180,10 @@ const autorizado = await exigirLogin();
 if (autorizado) {
   const menu = await criarNavbar();
   if (menu) {
-    document.querySelector('#menu').appendChild(menu);
+    document.querySelector('#menu')!.appendChild(menu);
   }
 
   const postagens = await carregarPostagens();
   mostrarPostagens(postagens);
-    document.querySelector('#btn-nova-postagem').addEventListener('click', abrirTelaPostagem);
+  document.querySelector('#btn-nova-postagem')!.addEventListener('click', abrirTelaPostagem);
 }

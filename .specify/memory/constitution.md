@@ -6,7 +6,7 @@
 Prefer the most direct solution; avoid libraries and complex patterns that a second-semester student cannot explain. Every architectural choice must be justifiable in plain language. Complexity must be explicitly justified, not assumed.
 
 ### II. Technology by Delivery
-- **Delivery 1**: Only JavaScript, JSON, and Vite. No backend and no libraries beyond those required by Vite.
+- **Delivery 1**: Only JavaScript/TypeScript, JSON, and Vite. No backend and no libraries beyond those required by Vite (TypeScript is a dev-only tool for type checking, approved on 2026-10-28).
 - **Delivery 2**: Supabase and React will be added. Do not anticipate these technologies in Delivery 1.
 - No technology outside this list may be added without explicit approval.
 
@@ -32,7 +32,7 @@ Implement in short steps, testing each before proceeding. Each commit should rep
 ## Technology Stack
 
 ### Delivery 1 (Current)
-- Language: JavaScript (ES modules)
+- Language: JavaScript (ES modules), migrating gradually to TypeScript
 - Build/Dev: Vite
 - Storage: Local JSON files via data layer
 - Testing: Native `assert` or minimal test runner (no heavy frameworks)
@@ -60,4 +60,6 @@ This constitution supersedes all other practices. Amendments require:
 
 All PRs and reviews must verify compliance with these principles. Complexity must be justified in the PR description. Use `AGENTS.md` for runtime development guidance.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-15 | **Last Amended**: 2026-10-15
+**Version**: 1.1.0 | **Ratified**: 2026-10-15 | **Last Amended**: 2026-10-28
+
+**Amendment 1.1.0 (2026-10-28)**: TypeScript allowed in Delivery 1. Rationale: catch type errors earlier and prepare the codebase for Delivery 2. Migration plan: gradual, in 5 phases (allowJs → checkJs + JSDoc → rename .js to .ts from leaves to top → strict in steps → CI/lint with no new .js files).

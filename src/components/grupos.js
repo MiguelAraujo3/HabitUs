@@ -170,6 +170,10 @@ export function criarLinhaMembro({ nome, usuario, voce, dono, podeRemover, aoRem
 }
 
 // post: { nome, usuario, voce, quando, grupo, atividade, pontos, texto, foto }
+/**
+ * @param {any} post
+ * @param {{ aoExcluir?: () => void }} [opcoes]
+ */
 export function criarCartaoPostagem(post, { aoExcluir } = {}) {
   const cartao = criarElemento('article', 'rounded-[14px] bg-surface');
   const destino = post.voce ? 'perfil.html' : `perfil.html?usuario=${encodeURIComponent(post.usuario)}`;
@@ -291,6 +295,10 @@ export function criarTelaConvite({ iconeNome, tom, titulo, texto, meta, acoes, d
 }
 
 // Botão/link largo usado no cartão do convite.
+/**
+ * @param {string} texto
+ * @param {{ href?: string, variante?: string, aoClicar?: () => void }} [opcoes]
+ */
 export function criarAcaoConvite(texto, { href, variante = 'primary', aoClicar } = {}) {
   if (href) {
     return criarLinkAcao(texto, { href, variante, extra: 'w-full' });

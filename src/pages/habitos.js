@@ -168,9 +168,12 @@ async function alternar(idHabito) {
   }
   renderizar();
   // A lista é redesenhada: devolve o foco ao botão para quem usa o teclado
-  document.querySelector(`li[data-id="${CSS.escape(idHabito)}"] button`)?.focus();
+  /** @type {HTMLElement | null} */ (document.querySelector(`li[data-id="${CSS.escape(idHabito)}"] button`))?.focus();
 }
 
+/**
+ * @param {{ nome?: string, categoria?: string, descricao: string }} dados
+ */
 async function adicionarHabito({ nome, categoria, descricao }) {
   const habito = await repoHabitos.criar({
     idUsuario: idUsuarioAtual(),
@@ -196,6 +199,10 @@ async function buscarHabitoDoUsuario(id) {
 // Edita nome, categoria e descrição (a frequência nunca muda).
 // Se o hábito já tem recorde, só a descrição é alterada. A conferência usa os dados salvos,
 // não o que a tela mostra, porque a janela pode estar desatualizada ou ter sido adulterada.
+/**
+ * @param {string} id
+ * @param {{ nome?: string, categoria?: string, descricao: string }} dados
+ */
 async function salvarEdicao(id, { nome, categoria, descricao }) {
   const habito = await buscarHabitoDoUsuario(id);
   const conclusoesDoHabito = await repoConclusoes.getCompletionsByHabit(id);
@@ -407,6 +414,7 @@ let dialogoExclusao = null;
 let habitoEmEdicao = null; // null = criando; objeto = editando
 
 function criarFormulario() {
+  /** @type {HTMLDialogElement & { preparar?: (habito?: any) => void, focarNome?: () => void }} */
   const d = document.createElement('dialog');
   d.className = CLASSE_MODAL;
   d.setAttribute('aria-labelledby', 'dlg-titulo');
@@ -463,6 +471,7 @@ function criarFormulario() {
   document.body.appendChild(d);
 
   // Opções do select vêm da lista fixa CATEGORIAS
+  /** @type {HTMLSelectElement} */
   const select = d.querySelector('#campo-categoria');
   for (const [chave, cat] of Object.entries(CATEGORIAS)) {
     const op = document.createElement('option');
@@ -471,17 +480,25 @@ function criarFormulario() {
     select.appendChild(op);
   }
 
+  /** @type {HTMLFormElement} */
   const form = d.querySelector('#form-habito');
+  /** @type {HTMLInputElement} */
   const campoNome = d.querySelector('#campo-nome');
+  /** @type {HTMLTextAreaElement} */
   const campoDescricao = d.querySelector('#campo-descricao');
+  /** @type {HTMLButtonElement} */
   const botaoSalvar = d.querySelector('#btn-salvar-habito');
   const titulo = d.querySelector('#dlg-titulo');
+  /** @type {HTMLFieldSetElement} */
   const grupoFrequencia = d.querySelector('#grupo-frequencia');
+  /** @type {HTMLElement} */
   const avisoRecorde = d.querySelector('#aviso-recorde');
+  /** @type {Record<string, HTMLElement>} */
   const campos = { nome: campoNome, categoria: select, descricao: campoDescricao };
   let apenasDescricao = false; // true quando o hábito em edição já tem recorde
 
   function mostrarErro(chave, mensagem) {
+    /** @type {HTMLElement} */
     const p = d.querySelector(`#erro-${chave}`);
     p.textContent = mensagem;
     p.hidden = false;
@@ -490,7 +507,7 @@ function criarFormulario() {
 
   function limparErros() {
     d.querySelectorAll('[id^="erro-"]').forEach((p) => {
-      p.hidden = true;
+      /** @type {HTMLElement} */ (p).hidden = true;
       p.textContent = '';
     });
     d.querySelectorAll('[aria-invalid]').forEach((c) => c.removeAttribute('aria-invalid'));
@@ -589,6 +606,7 @@ function abrirFormulario(habito = null) {
 // ---------- Janela (modal) de confirmação da exclusão ----------
 
 function criarConfirmacao() {
+  /** @type {HTMLDialogElement & { preparar?: (habito?: any) => void, focarNome?: () => void }} */
   const d = document.createElement('dialog');
   d.className = `${CLASSE_MODAL} max-w-md`;
   d.setAttribute('aria-labelledby', 'dlg-excluir-titulo');
@@ -607,7 +625,9 @@ function criarConfirmacao() {
   document.body.appendChild(d);
 
   const texto = d.querySelector('#dlg-excluir-texto');
+  /** @type {HTMLElement} */
   const erro = d.querySelector('#erro-excluir');
+  /** @type {HTMLButtonElement} */
   const botao = d.querySelector('#btn-confirmar-exclusao');
   let idAlvo = null;
 

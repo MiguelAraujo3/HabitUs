@@ -17,6 +17,7 @@ export async function entrar(identifier, password) {
     typeof password !== 'string' || 
     !password
   ) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Informe o usuário ou e-mail e a senha.');
     erro.code = 'VALIDATION_ERROR';
     throw erro;
@@ -24,6 +25,7 @@ export async function entrar(identifier, password) {
   const usuario = await getUserByEmailOrUsername(identifier);
   const senhaCorreta = await verifyPassword(usuario, password);
   if (!senhaCorreta) {
+    /** @type {Error & { code?: string }} */
     const erro = new Error('Usuário ou senha incorretos.');
     erro.code = 'UNAUTHORIZED';
     throw erro;
