@@ -1,11 +1,13 @@
-// O valor semanal soma a meta por semana cumprida; divide pela meta para exibir semanas.
-export function formatarSequencia(valor, frequencia) {
-  if (frequencia.tipo === 'vezes-semana') {
-    const meta = frequencia.vezes || 1; // mesma proteção de calcularSequencia
-    const semanas = valor / meta;
+// A sequência é sempre exibida em DIAS, qualquer que seja a frequência do hábito.
+// Nos hábitos "X vezes por semana", cada semana cumprida soma a meta inteira
+// (meta 4: 1 semana = 4 dias, 2 semanas = 8 dias), então o valor já vem em dias.
+// A frequência em si ("4x por semana") aparece à parte, em rules/frequencia.ts (rotuloFrequencia).
 
-    return `${semanas} ${semanas === 1 ? 'semana' : 'semanas'} × ${meta}`;
-  }
-
+/**
+ * @param {number} valor sequência em dias
+ * @param {unknown} [_frequencia] ignorado; mantido para não quebrar quem ainda chama com 2 argumentos (perfil.js)
+ * @returns {string}
+ */
+export function formatarSequencia(valor, _frequencia) {
   return `${valor} ${valor === 1 ? 'dia' : 'dias'}`;
 }

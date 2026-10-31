@@ -67,7 +67,7 @@ export async function alternarConclusaoHoje(idHabito) {
     return { marcado: false, conclusao: doDia[0] };
   }
 
-  const conclusao = criarConclusaoHabito({ idHabito, data: chave });
+  const conclusao = criarConclusaoHabito({ idHabito, data: chave, id: undefined }); // id: a factory gera
   lista.push(conclusao);
   salvarLista('conclusoesHabito', lista);
   return { marcado: true, conclusao };

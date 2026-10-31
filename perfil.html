@@ -2,23 +2,20 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/png" href="%BASE_URL%images/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./src/styles/base.css">
-  <title>Perfil - HabitUs</title>
+  <title>Perfil - Habit Tracker</title>
 </head>
-<body class="flex h-screen flex-row overflow-hidden bg-brand-ice font-sans max-[767px]:h-auto max-[767px]:min-h-screen max-[767px]:flex-col max-[767px]:overflow-auto">
+<body class="flex h-screen flex-row overflow-hidden bg-brand-ice font-sans max-[700px]:h-auto max-[700px]:min-h-screen max-[700px]:flex-col max-[700px]:overflow-auto">
   <div id="menu"></div>
   <!-- O scroll fica neste wrapper, para a barra de rolagem aparecer à direita do painel -->
-  <div class="min-w-0 flex-1 overflow-y-auto max-[700px]:overflow-visible">
-    <div class="layout-com-painel">
-      <main id="app" class="layout-com-painel__conteudo pt-6 pb-28 md:pb-16">
-      </main>
-      <!-- Painel lateral "Hábitos de hoje" (só em telas grandes); fica fixo no topo ao rolar -->
-      <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
-    </div>
+  <div class="flex min-w-0 flex-1 overflow-y-auto max-[700px]:overflow-visible">
+    <main id="app" class="min-w-0 flex-1 p-[clamp(20px,5vw,64px)] max-[700px]:px-3 max-[700px]:py-5">
+    </main>
+    <!-- Painel lateral "Hábitos de hoje" (só em telas grandes); fica fixo no topo ao rolar -->
+    <aside id="painel-habitos" class="sticky top-0 hidden w-72 shrink-0 self-start pt-[clamp(20px,5vw,64px)] pr-4 lg:block"></aside>
   </div>
   <script type="module" src="/src/pages/perfil.js"></script>
-  <script type="module" src="/src/pages/painel-habitos.js"></script>
+  <script type="module" src="/src/pages/painel-habitos.ts"></script>
 </body>
 </html>

@@ -1,14 +1,16 @@
 // Painel lateral "Hábitos de hoje": marca e desmarca os hábitos do dia em qualquer página.
 // A página só precisa de um ponto de montagem no HTML:
-//   <aside id="painel-habitos" class="layout-com-painel__lateral"></aside>
-// e de chamar montarPainelHabitos() (veja src/pages/painel-habitos.js).
-// A posição e a visibilidade ficam no layout compartilhado em styles/base.css.
+//   <aside id="painel-habitos" class="hidden lg:block ..."></aside>
+// e de carregar src/pages/painel-habitos.ts, que chama montarPainelHabitos().
+// Quem controla a posição e quando o painel aparece é o HTML da página (classes do aside).
 import { obterUsuarioAtual } from '../data/index.js';
 import * as repoConclusoes from '../data/conclusoesHabito.js';
 import { carregarHabitosDoUsuario } from '../data/consultas.js';
 import { calcularSequencia } from '../rules/streak.js';
 import { habitosDoDia, conclusaoDoDia, contarFeitos } from '../rules/habitosDoDia.js';
+import type { ConclusaoHabito, Habito } from '../types/habito.js';
 import { paraChave, hoje } from '../utils/datas.js';
+import { formatarSequencia } from '../utils/sequencia.js';
 import { el, svg } from '../utils/dom.js';
 
 const BASE = import.meta.env.BASE_URL;
@@ -21,26 +23,30 @@ const CLASSE_CHECK_FEITO = `${CLASSE_CHECK} border-lime-400 bg-lime-400`;
 const CLASSE_CHECK_PENDENTE = `${CLASSE_CHECK} border-blue-600 bg-transparent hover:bg-blue-50`;
 const CLASSE_LINK = 'text-xs font-semibold text-blue-600 transition-colors hover:text-blue-800';
 
-function hojeChave() {
+function hojeChave(): string {
   return paraChave(hoje());
 }
 
 // Monta o painel dentro do elemento informado (padrão: #painel-habitos).
 // Não faz nada se a página não tiver o ponto de montagem ou se não houver usuário logado.
-export async function montarPainelHabitos(contenedor = document.getElementById('painel-habitos')) {
-  if (!contenedor) return;
+export async function montarPainelHabitos(
+  elementoPai: HTMLElement | null = document.getElementById('painel-habitos')
+): Promise<void> {
+  if (!elementoPai) return;
+  const raiz: HTMLElement = elementoPai; // fixa o tipo (não nulo) para as funções internas
 
   const usuario = await obterUsuarioAtual();
   if (!usuario) return;
+  const idUsuario: string = usuario.id;
 
-  let habitos = [];
-  let conclusoes = [];
+  let habitos: Habito[] = [];
+  let conclusoes: ConclusaoHabito[] = [];
   let falhouAoCarregar = false;
-  const emAndamento = new Set(); // evita duplo clique marcar e desmarcar de uma vez
+  const emAndamento = new Set<string>(); // evita duplo clique marcar e desmarcar de uma vez
 
-  async function carregar() {
+  async function carregar(): Promise<void> {
     try {
-      const dados = await carregarHabitosDoUsuario(usuario.id);
+      const dados = await carregarHabitosDoUsuario(idUsuario);
       habitos = dados.habitos;
       conclusoes = dados.conclusoes;
       falhouAoCarregar = false;
@@ -50,7 +56,7 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
     }
   }
 
-  async function alternar(idHabito) {
+  async function alternar(idHabito: string): Promise<void> {
     if (emAndamento.has(idHabito)) return;
     emAndamento.add(idHabito);
     try {
@@ -66,7 +72,7 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
     renderizar(idHabito);
   }
 
-  function criarItem(h, chave) {
+  function criarItem(h: Habito, chave: string): HTMLLIElement {
     const feito = conclusaoDoDia(h, conclusoes, chave) !== null;
     const datas = conclusoes.filter((c) => c.idHabito === h.id).map((c) => c.data);
     const sequencia = calcularSequencia(h.frequencia, datas, chave);
@@ -93,7 +99,8 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
       attrs: { title: h.nome },
     });
 
-    const rotuloSequencia = `Sequência atual: ${sequencia.atual}`;
+    // O número da chama é sempre a sequência em dias (nos hábitos semanais, a soma das metas)
+    const rotuloSequencia = `Sequência atual: ${formatarSequencia(sequencia.atual)}`;
     const chama = el(
       'span',
       {
@@ -111,7 +118,7 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
   }
 
   // Redesenha o painel. Se um hábito acabou de ser marcado, devolve o foco ao botão dele.
-  function renderizar(idParaFoco = null) {
+  function renderizar(idParaFoco: string | null = null): void {
     const chave = hojeChave();
     const doDia = habitosDoDia(habitos, hoje().getDay());
     const feitos = contarFeitos(doDia, conclusoes, chave);
@@ -167,10 +174,10 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
     link.href = `${BASE}habitos.html`;
     cartao.appendChild(el('div', { classe: 'mt-3 text-center' }, [link]));
 
-    contenedor.replaceChildren(cartao);
+    raiz.replaceChildren(cartao);
 
     if (idParaFoco) {
-      /** @type {HTMLElement | null} */ (contenedor.querySelector(`li[data-id="${CSS.escape(idParaFoco)}"] button`))?.focus();
+      raiz.querySelector<HTMLButtonElement>(`li[data-id="${CSS.escape(idParaFoco)}"] button`)?.focus();
     }
   }
 
@@ -179,7 +186,7 @@ export async function montarPainelHabitos(contenedor = document.getElementById('
 
   // Outra aba (ou a página Hábitos) mexeu nos dados: recarrega e redesenha.
   // O evento "storage" só dispara nas OUTRAS abas; key === null significa localStorage.clear().
-  window.addEventListener('storage', async (ev) => {
+  window.addEventListener('storage', async (ev: StorageEvent) => {
     if (ev.key !== null && ev.key !== 'habitos' && ev.key !== 'conclusoesHabito') return;
     await carregar();
     renderizar();

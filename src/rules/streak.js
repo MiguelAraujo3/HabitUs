@@ -8,9 +8,11 @@
 // Regras:
 // - diária: soma 1 por dia seguido;
 // - dias da semana: soma 1 por dia escolhido; perde se um dia escolhido passa sem marcação
-//   (dias fora da escala não contam nem quebram);
-// - vezes na semana: ao atingir a meta na semana (domingo a sábado) soma a meta inteira;
-//   perde se a semana termina abaixo da meta;
+//   (dias fora da escala não contam nem quebram). Se os dias foram trocados, a troca vale só
+//   a partir do dia dela: o passado continua sendo calculado com os dias que valiam na época;
+// - vezes na semana: soma 1 a cada dia marcado, até a meta da semana (domingo a sábado);
+//   marcar além da meta não soma. Se a semana termina abaixo da meta, a sequência volta a 0.
+//   O recorde guarda o maior valor já atingido, mesmo que a semana depois tenha falhado;
 // - o dia (ou a semana) em curso nunca quebra a sequência: ainda dá tempo de marcar.
 
 import { hoje, paraChave } from '../utils/datas.js';
@@ -31,9 +33,28 @@ function chaveDeHoje() {
   return paraChave(hoje());
 }
 
-// Diária e dias da semana (diasPrevistos = null significa todos os dias)
-function sequenciaPorDias(datas, diasPrevistos, hojeN) {
-  const agendado = (n) => !diasPrevistos || diasPrevistos.includes(diaDaSemanaDeNum(n));
+// Devolve uma função que diz se um dia (número de dia) é previsto para o hábito.
+// Na frequência "dias da semana", `dias` são os dias de hoje e `historico` guarda os dias
+// antigos, se já foram trocados: [{ ate: 'AAAA-MM-DD', dias: [...] }]. Cada período vale até
+// a data `ate` (inclusive); depois do último, valem os dias atuais.
+function criarAgendamento(frequencia) {
+  const tipo = frequencia ? frequencia.tipo : 'diaria';
+  if (tipo !== 'dias-semana') return () => true; // diária: todo dia é previsto
+
+  const anteriores = (frequencia.historico || [])
+    .map((periodo) => ({ ate: numDia(periodo.ate), dias: periodo.dias }))
+    .sort((a, b) => a.ate - b.ate);
+
+  return (n) => {
+    const periodo = anteriores.find((p) => n <= p.ate);
+    const dias = periodo ? periodo.dias : frequencia.dias;
+    // Sem dias (dado antigo): na prática é todo dia
+    return !dias || dias.length === 0 || dias.includes(diaDaSemanaDeNum(n));
+  };
+}
+
+// Diária e dias da semana: "agendado(n)" diz se o dia n é previsto
+function sequenciaPorDias(datas, agendado, hojeN) {
 
   // Existe algum dia previsto estritamente entre a e b sem marcação?
   const temAgendadoEntre = (a, b) => {
@@ -60,7 +81,9 @@ function sequenciaPorDias(datas, diasPrevistos, hojeN) {
   return { atual: viva ? resultado.atual : 0, maior: resultado.maior };
 }
 
-// "X vezes por semana": semanas de domingo a sábado
+// "X vezes por semana": semanas de domingo a sábado.
+// Cada dia marcado soma 1 na hora (até a meta da semana); marcar além da meta não soma.
+// Semana que termina abaixo da meta zera a sequência, mas o recorde guarda o pico alcançado.
 function sequenciaVezesNaSemana(datas, meta, hojeN) {
   const semanaDe = (n) => n - diaDaSemanaDeNum(n); // número do domingo da semana
   const semanaAtual = semanaDe(hojeN);
@@ -74,14 +97,12 @@ function sequenciaVezesNaSemana(datas, meta, hojeN) {
 
   const resultado = semanas.reduce(
     (acc, s, i) => {
-      let atual = acc.atual;
-      if (i > 0 && s - semanas[i - 1] > 7) atual = 0; // houve semana(s) sem nenhuma marcação
-      if (contagem.get(s) >= meta) {
-        atual += meta; // meta atingida: soma a meta inteira
-      } else if (s < semanaAtual) {
-        atual = 0; // semana terminou abaixo da meta
-      } // semana em curso abaixo da meta: segue pendente
-      return { atual, maior: Math.max(acc.maior, atual) };
+      const marcadas = contagem.get(s);
+      // Houve semana(s) sem nenhuma marcação entre a anterior e esta: a sequência tinha zerado
+      const base = i > 0 && s - semanas[i - 1] > 7 ? 0 : acc.atual;
+      const pico = base + Math.min(marcadas, meta); // soma 1 por marcação, até a meta
+      const falhou = marcadas < meta && s < semanaAtual; // semana terminou abaixo da meta
+      return { atual: falhou ? 0 : pico, maior: Math.max(acc.maior, pico) };
     },
     { atual: 0, maior: 0 }
   );
@@ -92,7 +113,8 @@ function sequenciaVezesNaSemana(datas, meta, hojeN) {
 }
 
 // Ponto de entrada geral: devolve { atual, maior } para qualquer frequência do modelo
-// frequencia: { tipo: 'diaria' | 'dias-semana' | 'vezes-semana', dias?: number[], vezes?: number }
+// frequencia: { tipo: 'diaria' | 'dias-semana' | 'vezes-semana', dias?: number[], vezes?: number,
+//   historico?: { ate: string, dias: number[] }[] }
 export function calcularSequencia(frequencia, completes, chaveHoje = chaveDeHoje()) {
   const hojeN = numDia(chaveHoje);
   const datas = [...new Set(completes.map(numDia))]
@@ -105,8 +127,7 @@ export function calcularSequencia(frequencia, completes, chaveHoje = chaveDeHoje
   if (tipo === 'vezes-semana') {
     return sequenciaVezesNaSemana(datas, frequencia.vezes || 1, hojeN);
   }
-  const dias = tipo === 'dias-semana' && frequencia.dias && frequencia.dias.length ? frequencia.dias : null;
-  return sequenciaPorDias(datas, dias, hojeN);
+  return sequenciaPorDias(datas, criarAgendamento(frequencia), hojeN);
 }
 
 // Atalhos usados pelos testes e por quem só precisa de um dos números
