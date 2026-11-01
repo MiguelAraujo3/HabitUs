@@ -132,7 +132,7 @@ if (autorizado) {
       </div>
     </section>
   `;
-  app.querySelector('#total-habitos').textContent = habitosAtivos.length;
+  app.querySelector('#total-habitos').textContent = String(habitosAtivos.length);
   function redenrizarPostagens() {
     const lista = app.querySelector('#lista-postagens-perfil');
     const cartoes = postagens.map(postagem => {
