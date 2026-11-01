@@ -5,9 +5,17 @@
 
 import {
   obterUsuarioAtual,
+  type PerfilPublico,
 } from '../data/index.js';
 import { icone } from './icones.js';
 import { obterIniciais } from '../utils/usuario.js';
+
+export interface ItemMenu {
+  texto: string;
+  destino: string;
+  icone: string;
+  tambemEm?: string[];
+}
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -18,7 +26,7 @@ const PAGINAS_DE_AUTENTICACAO = ['index.html'];
 
 // Itens do menu. Os ícones saem do catálogo SVG de ./icones.js (traço Lucide).
 // "tambemEm" marca páginas filhas que mantêm o item em destaque (ex.: grupo).
-const ITENS = [
+const ITENS: ItemMenu[] = [
   { texto: 'Hábitos', destino: 'habitos.html', icone: 'Home' },
   { texto: 'Feed', destino: 'feed.html', icone: 'Newspaper' },
   { texto: 'Grupos', destino: 'grupos.html', icone: 'Users', tambemEm: ['grupo.html', 'criar-grupo.html'] },
@@ -43,7 +51,7 @@ const CLASSE_CAIXA_ICONE_INATIVO =
 // Monta a navegação da página atual.
 // Devolve null nas telas de autenticação, para que a barra de navegação
 // nunca apareça nelas.
-export async function criarNavbar() {
+export async function criarNavbar(): Promise<HTMLElement | null> {
   if (ehPaginaDeAutenticacao()) {
     return null;
   }
@@ -61,7 +69,7 @@ export async function criarNavbar() {
 
 // ---------- Menu lateral (desktop) ----------
 
-function criarMenuLateral(usuario) {
+function criarMenuLateral(usuario: PerfilPublico | null): HTMLElement {
   const elementoMenu = document.createElement('header');
   elementoMenu.className =
     'hidden md:flex h-screen w-64 shrink-0 flex-col bg-white px-6 py-8 shadow-md';
@@ -92,7 +100,7 @@ function criarMenuLateral(usuario) {
 
 // Cartão do usuário: avatar com iniciais + nome e @usuário.
 // Clicar no cartão abre a página de perfil.
-function criarCartaoUsuario(usuario) {
+function criarCartaoUsuario(usuario: PerfilPublico): HTMLAnchorElement {
   const cartao = document.createElement('a');
   cartao.id = 'card-usuario';
   cartao.href = `${BASE}perfil.html`;
@@ -129,7 +137,7 @@ function criarCartaoUsuario(usuario) {
 }
 
 // Sem sessão iniciada: convite para entrar na conta.
-function criarLinkEntrada() {
+function criarLinkEntrada(): HTMLAnchorElement {
   const entrada = document.createElement('a');
   entrada.id = 'card-usuario';
   entrada.href = `${BASE}index.html`;
@@ -141,7 +149,7 @@ function criarLinkEntrada() {
   return entrada;
 }
 
-function criarItemLateral(item) {
+function criarItemLateral(item: ItemMenu): HTMLAnchorElement {
   const ativo = ehPaginaAtual(item);
 
   const ancora = document.createElement('a');
@@ -162,7 +170,7 @@ function criarItemLateral(item) {
 
 // ---------- Barra inferior (mobile) ----------
 
-function criarBarraInferior() {
+function criarBarraInferior(): HTMLElement {
   const barra = document.createElement('nav');
   barra.className =
     'fixed bottom-0 left-0 right-0 z-50 flex items-stretch justify-around gap-1 md:hidden ' +
@@ -176,7 +184,7 @@ function criarBarraInferior() {
   return barra;
 }
 
-function criarItemInferior(item) {
+function criarItemInferior(item: ItemMenu): HTMLAnchorElement {
   const ativo = ehPaginaAtual(item);
 
   const ancora = document.createElement('a');
@@ -203,16 +211,16 @@ function criarItemInferior(item) {
 // ---------- Utilidades ----------
 
 // Nome do arquivo da página atual (ex.: "habitos.html").
-function paginaAtual() {
-  return window.location.pathname.split('/').pop();
+function paginaAtual(): string {
+  return window.location.pathname.split('/').pop() || '';
 }
 
-function ehPaginaDeAutenticacao() {
+function ehPaginaDeAutenticacao(): boolean {
   return PAGINAS_DE_AUTENTICACAO.includes(paginaAtual());
 }
 
 // O item fica ativo na própria página e nas páginas filhas declaradas em "tambemEm".
-function ehPaginaAtual(item) {
+function ehPaginaAtual(item: ItemMenu): boolean {
   const pagina = paginaAtual();
   return pagina === item.destino || (item.tambemEm || []).includes(pagina);
 }
