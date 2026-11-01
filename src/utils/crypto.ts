@@ -1,15 +1,22 @@
-//hash vai ser calculado a partir da senha 
+//hash vai ser calculado a partir da senha
 //salt não vai deixar o mesmo hash para mesmas senhas de duas pessoas diferentes
 const ITERACOES = 100_000;
+
+export interface HashSenha {
+  hash: string;
+  salt: string;
+  iterations: number;
+}
+
 //criar hash de senha
-export async function gerarHashSenha(senha) {
+export async function gerarHashSenha(senha: string): Promise<HashSenha> {
   const codificador = new TextEncoder(); //Transforma de texto pra bytes
   const salt = crypto.getRandomValues(new Uint8Array(16)); //gera 16 bytes aleatorios do salt
 
   const chave = await crypto.subtle.importKey( //prepara a senha para o calculo
     'raw', //
     codificador.encode(senha), //a senha convertida em bytes
-    'PBKDF2', //função de derivação de chave que vai ser usada junto com a função hash 
+    'PBKDF2', //função de derivação de chave que vai ser usada junto com a função hash
     false,
     ['deriveBits']
   );
@@ -32,15 +39,19 @@ export async function gerarHashSenha(senha) {
   };
 }
 
-function paraHexadecimal(bytes) {
-  return Array.from(bytes, (byte) =>
-    byte.toString(16).padStart(2, '0')
-  ).join('');
+function paraHexadecimal(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
+
 //verificar se os hashs batem
-export async function conferirSenha(senha, hashSalvo, saltSalvo, iteracoes) {
+export async function conferirSenha(
+  senha: string,
+  hashSalvo: string,
+  saltSalvo: string,
+  iteracoes: number
+): Promise<boolean> {
   const codificador = new TextEncoder();
-  const salt = deHexadecimal(saltSalvo); 
+  const salt = deHexadecimal(saltSalvo);
 
   const chave = await crypto.subtle.importKey(
     'raw',
@@ -76,12 +87,10 @@ export async function conferirSenha(senha, hashSalvo, saltSalvo, iteracoes) {
     }
   }
   return iguais;
-  }
+}
 
-function deHexadecimal(texto) {
+function deHexadecimal(texto: string): Uint8Array<ArrayBuffer> {
   const pares = texto.match(/.{2}/g) || [];
 
-  return new Uint8Array(
-    pares.map((par) => Number.parseInt(par, 16))
-  );
+  return new Uint8Array(pares.map((par) => Number.parseInt(par, 16)));
 }
