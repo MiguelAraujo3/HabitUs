@@ -6,22 +6,37 @@ import {
 } from '../components/ui.js';
 import { criarCartaoGrupo } from '../components/grupos.js';
 import { hoje, paraChave, somarDias } from '../utils/datas.js';
-import { statusDoPeriodo } from '../utils/periodo.js';
+import { statusDoPeriodo, type StatusPeriodo } from '../utils/periodo.js';
+
+interface GrupoProvisorio {
+  id: string;
+  nome: string;
+  categoria: string;
+  dataInicio: string;
+  dataFim: string;
+  quantidadeMembros: number;
+  posicao: number;
+}
+
+interface SecaoGrupo {
+  chave: StatusPeriodo;
+  titulo: string;
+}
 
 const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
   if (menu) {
-    document.querySelector('#menu').appendChild(menu);
+    document.querySelector('#menu')!.appendChild(menu);
   }
 
   // PROVISÓRIO: grupos de exemplo até a S1-35 ligar a página ao LocalStorage.
   // Datas relativas a hoje, para o status continuar correto.
-  function diaRelativo(dias) {
+  function diaRelativo(dias: number): string {
     return paraChave(somarDias(hoje(), dias));
   }
-  const GRUPOS_PROVISORIOS = [
+  const GRUPOS_PROVISORIOS: GrupoProvisorio[] = [
     { id: 'g1', nome: 'Movimento 30 Dias', categoria: 'Esportes e exercícios', dataInicio: diaRelativo(-10), dataFim: diaRelativo(20), quantidadeMembros: 5, posicao: 2 },
     { id: 'g2', nome: 'Maratona de Leitura', categoria: 'Leitura', dataInicio: diaRelativo(-3), dataFim: diaRelativo(27), quantidadeMembros: 3, posicao: 1 },
     { id: 'g3', nome: 'Marmitas da Semana', categoria: 'Alimentação', dataInicio: diaRelativo(4), dataFim: diaRelativo(34), quantidadeMembros: 4, posicao: 1 },
@@ -29,23 +44,23 @@ if (autorizado) {
   ];
   const MOSTRAR_VAZIO = new URLSearchParams(window.location.search).get('vazio') === '1'; // PROVISÓRIO
 
-  const SECOES = [
+  const SECOES: SecaoGrupo[] = [
     { chave: 'andamento', titulo: 'Em andamento' },
     { chave: 'nao-iniciado', titulo: 'Não iniciado' },
     { chave: 'encerrado', titulo: 'Encerrado' },
   ];
 
   // "Entrar com link": aceita o link inteiro ou só o código.
-  function extrairCodigo(texto) {
+  function extrairCodigo(texto: string): string {
     const limpo = texto.trim();
     const achado = limpo.match(/codigo=([^&\s]+)/);
     if (achado) {
       return achado[1];
     }
-    return limpo.split('/').pop();
+    return limpo.split('/').pop() || '';
   }
 
-  function criarSecao(secao, grupos) {
+  function criarSecao(secao: SecaoGrupo, grupos: GrupoProvisorio[]): HTMLElement {
     const bloco = criarElemento('section', 'mb-6');
     bloco.setAttribute('aria-label', secao.titulo);
     bloco.appendChild(criarElemento('h2', 'mb-2 px-1 text-[13px] font-semibold tracking-wide text-ink-2 uppercase', secao.titulo));
@@ -59,7 +74,7 @@ if (autorizado) {
     return bloco;
   }
 
-  function criarFormularioCodigo() {
+  function criarFormularioCodigo(): HTMLFormElement {
     const formulario = criarElemento('form', 'mt-4 flex gap-2');
     const rotulo = criarElemento('label', 'sr-only', 'Código de convite');
     rotulo.htmlFor = 'codigo-convite';
@@ -86,8 +101,8 @@ if (autorizado) {
     return formulario;
   }
 
-  function montarPagina() {
-    const conteudo = document.querySelector('#conteudo');
+  function montarPagina(): void {
+    const conteudo = document.querySelector('#conteudo')!;
     const botaoCriar = criarLinkAcao('Criar grupo', { href: 'criar-grupo.html', tamanho: 'm', iconeNome: 'Plus' });
     conteudo.appendChild(criarTituloGrande({ titulo: 'Grupos', direita: botaoCriar }));
 
