@@ -2,23 +2,75 @@
 // Contrato de todas as funções: recebem uma configuração simples, devolvem o
 // elemento pronto e anexam listeners quando a configuração traz uma ação.
 
-import { obterIniciais } from '../utils/usuario.js';
+import { obterIniciais, type UsuarioIdentificavel } from '../utils/usuario.js';
 
 export { obterIniciais };
 
-export function criarBotao(configuracao) {
+export interface ConfiguracaoBotao {
+  texto: string;
+  aoClicar?: () => void;
+}
+
+export interface ConfiguracaoCartao {
+  titulo: string;
+  texto?: string;
+  acoes?: ConfiguracaoBotao[];
+}
+
+export interface ConfiguracaoItemLista {
+  texto: string;
+  detalhe?: string;
+  acao?: ConfiguracaoBotao;
+}
+
+export interface AbaBase {
+  rotulo: string;
+  selecionada?: boolean;
+  [chave: string]: any;
+}
+
+export interface ConfiguracaoAba {
+  abas: AbaBase[];
+  aoSelecionar: (aba: AbaBase) => void;
+}
+
+export interface ConfiguracaoModal {
+  titulo: string;
+  mensagem?: string;
+  acoes: ConfiguracaoBotao[];
+}
+
+export type ElementoModal = HTMLDivElement & {
+  abrir: () => void;
+  fechar: () => void;
+};
+
+export interface ConfiguracaoMensagemErro {
+  texto?: string;
+}
+
+export type ElementoMensagemErro = HTMLDivElement & {
+  mostrar: () => void;
+  esconder: () => void;
+};
+
+export interface ConfiguracaoAvatar {
+  usuario: string | UsuarioIdentificavel | null | undefined;
+}
+
+export function criarBotao(configuracao: ConfiguracaoBotao): HTMLButtonElement {
   const botao = document.createElement('button');
   botao.textContent = configuracao.texto;
   botao.className = 'w-full py-3 bg-brand-gray hover:bg-brand-light-gray text-brand-dark font-bold rounded-md transition-colors duration-300';
 
   if (configuracao.aoClicar) {
-    botao.addEventListener('click', () => configuracao.aoClicar());
+    botao.addEventListener('click', () => configuracao.aoClicar!());
   }
 
   return botao;
 }
 
-export function criarCartao(configuracao) {
+export function criarCartao(configuracao: ConfiguracaoCartao): HTMLElement {
   const cartao = document.createElement('section');
   cartao.className = 'bg-brand-blue p-6 rounded-xl shadow-2xl w-full border border-brand-gray';
 
@@ -48,7 +100,7 @@ export function criarCartao(configuracao) {
   return cartao;
 }
 
-export function criarItemLista(configuracao) {
+export function criarItemLista(configuracao: ConfiguracaoItemLista): HTMLLIElement {
   const item = document.createElement('li');
   item.className = 'flex items-center justify-between gap-4 py-3 px-2 border-b border-brand-gray';
 
@@ -80,7 +132,7 @@ export function criarItemLista(configuracao) {
   return item;
 }
 
-export function criarAba(configuracao) {
+export function criarAba(configuracao: ConfiguracaoAba): HTMLDivElement {
   const elementoAba = document.createElement('div');
   elementoAba.className = 'flex flex-col gap-2';
 
@@ -108,9 +160,8 @@ export function criarAba(configuracao) {
   return elementoAba;
 }
 
-export function criarModal(configuracao) {
-  /** @type {HTMLDivElement & { abrir?: () => void, fechar?: () => void }} */
-  const fundo = document.createElement('div');
+export function criarModal(configuracao: ConfiguracaoModal): ElementoModal {
+  const fundo = document.createElement('div') as ElementoModal;
   fundo.className = 'hidden fixed inset-0 bg-brand-dark';
 
   const janela = document.createElement('div');
@@ -154,9 +205,8 @@ export function criarModal(configuracao) {
   return fundo;
 }
 
-export function criarMensagemErro(configuracao) {
-  /** @type {HTMLDivElement & { mostrar?: () => void, esconder?: () => void }} */
-  const mensagem = document.createElement('div');
+export function criarMensagemErro(configuracao: ConfiguracaoMensagemErro): ElementoMensagemErro {
+  const mensagem = document.createElement('div') as ElementoMensagemErro;
   mensagem.className = 'w-full px-4 py-2 rounded-md bg-red-500 text-white text-sm';
   mensagem.setAttribute('role', 'alert');
   mensagem.classList.add('hidden');
@@ -172,7 +222,7 @@ export function criarMensagemErro(configuracao) {
   return mensagem;
 }
 
-export function criarAvatar(configuracao) {
+export function criarAvatar(configuracao: ConfiguracaoAvatar): HTMLDivElement {
   const avatar = document.createElement('div');
   avatar.className = 'w-10 h-10 rounded-full bg-brand-gray text-brand-dark font-bold flex items-center justify-center text-sm';
   avatar.textContent = obterIniciais(configuracao.usuario);
