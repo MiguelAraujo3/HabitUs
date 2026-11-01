@@ -1,7 +1,15 @@
 // Aparência de cada categoria (família de cor e ícone) — copiada de data.ts do design.
 // A chave é o mesmo texto de src/data/categorias.js (o grupo guarda o nome da categoria).
 
-export const VISUAL_CATEGORIAS = [
+export type FamiliaCor = 'coral' | 'lime' | 'blue' | 'violet' | 'cyan' | 'gray';
+
+export interface CategoriaVisual {
+  rotulo: string;
+  familia: FamiliaCor;
+  icone: string;
+}
+
+export const VISUAL_CATEGORIAS: CategoriaVisual[] = [
   { rotulo: 'Saúde', familia: 'coral', icone: 'Heart' },
   { rotulo: 'Esportes e exercícios', familia: 'lime', icone: 'Dumbbell' },
   { rotulo: 'Estudos', familia: 'blue', icone: 'GraduationCap' },
@@ -16,7 +24,7 @@ export const VISUAL_CATEGORIAS = [
 ];
 
 // Categoria desconhecida cai em "Outros", como no design.
-export function visualDaCategoria(rotulo) {
+export function visualDaCategoria(rotulo: string): CategoriaVisual {
   const achada = VISUAL_CATEGORIAS.find((c) => c.rotulo === rotulo);
   return achada ?? VISUAL_CATEGORIAS[VISUAL_CATEGORIAS.length - 1];
 }
