@@ -1,12 +1,13 @@
 import '../styles/base.css';
 import { entrar, createUser, obterUsuarioAtual } from '../data/index.js';
-function voltarParaUltimoDestino() {
+
+function voltarParaUltimoDestino(): void {
   const destino = localStorage.getItem('destinoLogin');
   localStorage.removeItem('destinoLogin');
   window.location.href = destino || 'habitos.html';
 }
 
-async function iniciarPagina() {
+async function iniciarPagina(): Promise<void> {
   const usuario = await obterUsuarioAtual();
 
   if (usuario) {
@@ -18,8 +19,8 @@ async function iniciarPagina() {
   montarLogin();
 }
 
-function montarLogin() {
-  document.querySelector('#app').innerHTML = `
+function montarLogin(): void {
+  document.querySelector('#app')!.innerHTML = `
   <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
       <h1 class="mb-2 w-full max-w-64">
@@ -52,30 +53,29 @@ function montarLogin() {
   if (loginForm) {
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const identificador = /** @type {HTMLInputElement} */ (document.getElementById('usermailOrUser')).value;
-      const senha = /** @type {HTMLInputElement} */ (document.getElementById('passwd')).value;
-      const erroLogin = document.getElementById('erro-login');
-      /** @type {HTMLButtonElement} */
-      const botao = loginForm.querySelector('button[type="submit"]');
+      const identificador = (document.getElementById('usermailOrUser') as HTMLInputElement).value;
+      const senha = (document.getElementById('passwd') as HTMLInputElement).value;
+      const erroLogin = document.getElementById('erro-login') as HTMLElement;
+      const botao = loginForm.querySelector('button[type="submit"]') as HTMLButtonElement;
 
       erroLogin.hidden = true;
       erroLogin.textContent = '';
       botao.disabled = true;
-     try {
-      await entrar(identificador, senha);
-      voltarParaUltimoDestino();
-    } catch (erro) {
-      const erroEsperado =
-        erro.code === 'VALIDATION_ERROR' ||
-        erro.code === 'UNAUTHORIZED';
+      try {
+        await entrar(identificador, senha);
+        voltarParaUltimoDestino();
+      } catch (erro: any) {
+        const erroEsperado =
+          erro.code === 'VALIDATION_ERROR' ||
+          erro.code === 'UNAUTHORIZED';
 
-      erroLogin.textContent = erroEsperado? erro.message: 'Não foi possível entrar. Tente novamente.';
+        erroLogin.textContent = erroEsperado ? erro.message : 'Não foi possível entrar. Tente novamente.';
 
-      erroLogin.hidden = false;
-    } finally {
-      botao.disabled = false;
-    }
-  });
+        erroLogin.hidden = false;
+      } finally {
+        botao.disabled = false;
+      }
+    });
   }
 
   const linkCadastro = document.getElementById('linkCadastro');
@@ -87,8 +87,8 @@ function montarLogin() {
   }
 }
 
-function montarCadastro() {
-  document.querySelector('#app').innerHTML = `
+function montarCadastro(): void {
+  document.querySelector('#app')!.innerHTML = `
   <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
       <h1 class="mb-2 w-full max-w-64">
@@ -130,58 +130,58 @@ function montarCadastro() {
 
   const cadastroForm = document.getElementById('cadastro');
   if (cadastroForm) {
-  cadastroForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+    cadastroForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
 
-    const name = /** @type {HTMLInputElement} */ (document.getElementById('nameid')).value;
-    const email = /** @type {HTMLInputElement} */ (document.getElementById('emailid')).value;
-    const username = /** @type {HTMLInputElement} */ (document.getElementById('userid')).value;
-    const password = /** @type {HTMLInputElement} */ (document.getElementById('passwd')).value;
-    const confirmacao = /** @type {HTMLInputElement} */ (document.getElementById('confirmpasswd')).value;
+      const name = (document.getElementById('nameid') as HTMLInputElement).value;
+      const email = (document.getElementById('emailid') as HTMLInputElement).value;
+      const username = (document.getElementById('userid') as HTMLInputElement).value;
+      const password = (document.getElementById('passwd') as HTMLInputElement).value;
+      const confirmacao = (document.getElementById('confirmpasswd') as HTMLInputElement).value;
 
-    const erroCadastro = document.getElementById('erro-cadastro');
-    const botao = /** @type {HTMLButtonElement} */ (document.getElementById('btnEnviar'));
+      const erroCadastro = document.getElementById('erro-cadastro') as HTMLElement;
+      const botao = document.getElementById('btnEnviar') as HTMLButtonElement;
 
-    erroCadastro.hidden = true;
-    erroCadastro.textContent = '';
+      erroCadastro.hidden = true;
+      erroCadastro.textContent = '';
 
-    if (password !== confirmacao) {
-      erroCadastro.textContent = 'As senhas não coincidem.';
-      erroCadastro.hidden = false;
-      return;
-    }
-
-    botao.disabled = true;
-    let contaCriada = false;
-
-    try {
-      const usuario = await createUser({
-        name,
-        username,
-        email,
-        password,
-      });
-
-      contaCriada = true;
-
-      await entrar(usuario.email, password);
-      voltarParaUltimoDestino();
-    } catch (erro) {
-      const erroEsperado =
-        erro.code === 'VALIDATION_ERROR' ||
-        erro.code === 'ALREADY_EXISTS';
-
-      if (contaCriada) {
-        erroCadastro.textContent ='Conta criada, mas não foi possível entrar. Acesse pelo formulário de login.';
-      } else {
-        erroCadastro.textContent = erroEsperado? erro.message: 'Não foi possível cadastrar. Tente novamente.';
+      if (password !== confirmacao) {
+        erroCadastro.textContent = 'As senhas não coincidem.';
+        erroCadastro.hidden = false;
+        return;
       }
 
-      erroCadastro.hidden = false;
-    } finally {
-      botao.disabled = false;
-    }
-  });
+      botao.disabled = true;
+      let contaCriada = false;
+
+      try {
+        const usuario = await createUser({
+          name,
+          username,
+          email,
+          password,
+        });
+
+        contaCriada = true;
+
+        await entrar(usuario.email, password);
+        voltarParaUltimoDestino();
+      } catch (erro: any) {
+        const erroEsperado =
+          erro.code === 'VALIDATION_ERROR' ||
+          erro.code === 'ALREADY_EXISTS';
+
+        if (contaCriada) {
+          erroCadastro.textContent = 'Conta criada, mas não foi possível entrar. Acesse pelo formulário de login.';
+        } else {
+          erroCadastro.textContent = erroEsperado ? erro.message : 'Não foi possível cadastrar. Tente novamente.';
+        }
+
+        erroCadastro.hidden = false;
+      } finally {
+        botao.disabled = false;
+      }
+    });
   }
 
   const linkLogin = document.getElementById('linkLogin');
