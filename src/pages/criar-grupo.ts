@@ -7,12 +7,18 @@ import {
 import { icone } from '../components/icones.js';
 import { hoje, paraChave } from '../utils/datas.js';
 
+interface AtividadeFormulario {
+  id: number;
+  nome: string;
+  pontos: number;
+}
+
 const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
   if (menu) {
-    document.querySelector('#menu').appendChild(menu);
+    document.querySelector('#menu')!.appendChild(menu);
   }
 
   // O formulário está em criar-grupo.html; aqui só entram o que muda na tela:
@@ -21,15 +27,15 @@ if (autorizado) {
 
   const PONTOS_INICIAIS = 3;
   let proximoId = 1;
-  let atividades = [];
+  let atividades: AtividadeFormulario[] = [];
 
-  function novaAtividade() {
+  function novaAtividade(): AtividadeFormulario {
     const atividade = { id: proximoId, nome: '', pontos: PONTOS_INICIAIS };
     proximoId += 1;
     return atividade;
   }
 
-  function criarLinhaAtividade(atividade, indice) {
+  function criarLinhaAtividade(atividade: AtividadeFormulario, indice: number): HTMLLIElement {
     const item = criarElemento('li', 'rounded-[14px] bg-surface p-3');
 
     const topo = criarElemento('div', 'flex items-center gap-2');
@@ -70,23 +76,21 @@ if (autorizado) {
     return item;
   }
 
-  function desenharAtividades() {
-    const lista = document.querySelector('#lista-atividades');
+  function desenharAtividades(): void {
+    const lista = document.querySelector('#lista-atividades')!;
     lista.replaceChildren();
     atividades.forEach((atividade, indice) => lista.appendChild(criarLinhaAtividade(atividade, indice)));
   }
 
-  function iniciar() {
-    document.querySelector('#cabecalho').appendChild(criarCabecalhoPagina({ titulo: 'Criar grupo', voltarPara: 'grupos.html' }));
+  function iniciar(): void {
+    document.querySelector('#cabecalho')!.appendChild(criarCabecalhoPagina({ titulo: 'Criar grupo', voltarPara: 'grupos.html' }));
 
     const grade = criarGradeCategorias();
-    document.querySelector('#grade-categorias').appendChild(grade.elemento);
+    document.querySelector('#grade-categorias')!.appendChild(grade.elemento);
 
     // Datas: início é hoje (data local); o fim nunca pode ser antes do início
-    /** @type {HTMLInputElement} */
-    const inicio = document.querySelector('#inicio');
-    /** @type {HTMLInputElement} */
-    const fim = document.querySelector('#fim');
+    const inicio = document.querySelector('#inicio') as HTMLInputElement;
+    const fim = document.querySelector('#fim') as HTMLInputElement;
     inicio.value = paraChave(hoje());
     fim.min = inicio.value;
     inicio.addEventListener('change', () => {
@@ -96,17 +100,16 @@ if (autorizado) {
     atividades = [novaAtividade()];
     desenharAtividades();
 
-    const adicionar = document.querySelector('#adicionar-atividade');
+    const adicionar = document.querySelector('#adicionar-atividade')!;
     adicionar.prepend(icone('Plus', { tamanho: 18 }));
     adicionar.addEventListener('click', () => {
       atividades.push(novaAtividade());
       desenharAtividades();
-      /** @type {NodeListOf<HTMLInputElement>} */
-      const campos = document.querySelectorAll('#lista-atividades input');
+      const campos = document.querySelectorAll<HTMLInputElement>('#lista-atividades input');
       campos[campos.length - 1].focus();
     });
 
-    document.querySelector('#form-grupo').addEventListener('submit', (evento) => {
+    document.querySelector('#form-grupo')!.addEventListener('submit', (evento) => {
       evento.preventDefault();
       // S1-37: validar os campos e salvar o grupo
     });
