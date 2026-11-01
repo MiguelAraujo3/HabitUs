@@ -3,8 +3,17 @@
 
 const NS = 'http://www.w3.org/2000/svg';
 
+type FormaSvg = [string, Record<string, string>];
+
+export interface OpcoesIcone {
+  tamanho?: number;
+  classe?: string;
+  espessura?: number;
+  preencher?: boolean;
+}
+
 // Cada ícone é uma lista de [tag, atributos] desenhada em uma grade 24x24.
-const ICONES = {
+const ICONES: Record<string, FormaSvg[]> = {
   Plus: [['path', {d:'M5 12h14'}], ['path', {d:'M12 5v14'}]],
   Minus: [['path', {d:'M5 12h14'}]],
   Users: [['path', {d:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'}], ['circle', {cx:'9',cy:'7',r:'4'}], ['path', {d:'M22 21v-2a4 4 0 0 0-3-3.87'}], ['path', {d:'M16 3.13a4 4 0 0 1 0 7.75'}]],
@@ -45,7 +54,10 @@ const ICONES = {
   MessageCircle: [['path', {d:'M7.9 20A9 9 0 1 0 4 16.1L2 22Z'}]],
 };
 
-export function icone(nome, { tamanho = 24, classe = '', espessura = 2, preencher = false } = {}) {
+export function icone(
+  nome: string,
+  { tamanho = 24, classe = '', espessura = 2, preencher = false }: OpcoesIcone = {}
+): SVGSVGElement {
   const desenho = ICONES[nome];
   if (!desenho) {
     throw new Error(`Ícone desconhecido: ${nome}`);
