@@ -1,8 +1,10 @@
 import '../styles/grupos.css';
 import { exigirLogin } from '../components/auth.js';
 import { mostrarToast } from '../components/ui.js';
-import { criarTelaConvite, criarAcaoConvite } from '../components/grupos.js';
+import { criarTelaConvite, criarAcaoConvite, type OpcoesTelaConvite } from '../components/grupos.js';
 import { hoje, paraChave, somarDias } from '../utils/datas.js';
+
+type DadosEstadoConvite = Omit<OpcoesTelaConvite, 'destinoLogo'>;
 
 const autorizado = await exigirLogin();
 
@@ -24,11 +26,11 @@ if (autorizado) {
 
   const ESTADOS = ['entrar', 'voltar', 'invalido', 'bloqueado', 'ja-membro', 'encerrado'];
 
-  function emConstrucao(tarefa) {
+  function emConstrucao(tarefa: string): void {
     mostrarToast(`Em construção · ${tarefa}`);
   }
 
-  function descreverEstado(estado) {
+  function descreverEstado(estado: string): DadosEstadoConvite {
     const grupo = GRUPO_PROVISORIO;
     const meta = {
       categoria: grupo.categoria,
@@ -41,7 +43,7 @@ if (autorizado) {
       return {
         iconeNome: 'CircleHelp', tom: 'neutro', titulo: 'Convite inválido',
         texto: 'Esse link não leva a nenhum grupo. Peça um novo link a quem convidou você.',
-        meta: null,
+        meta: undefined,
         acoes: [criarAcaoConvite('Ir para Grupos', { href: 'grupos.html' })],
       };
     }
@@ -49,7 +51,7 @@ if (autorizado) {
       return {
         iconeNome: 'Ban', tom: 'perigo', titulo: 'Você não pode entrar neste grupo',
         texto: 'O dono do grupo removeu você, e o acesso não pode ser recuperado por convite.',
-        meta: null,
+        meta: undefined,
         acoes: [criarAcaoConvite('Voltar para Grupos', { href: 'grupos.html', variante: 'secondary' })],
       };
     }
@@ -81,13 +83,13 @@ if (autorizado) {
     };
   }
 
-  function montarPagina() {
+  function montarPagina(): void {
     const parametros = new URLSearchParams(window.location.search);
-    const pedido = parametros.get('estado'); // PROVISÓRIO: ?estado=invalido para ver cada tela
+    const pedido = parametros.get('estado') ?? ''; // PROVISÓRIO: ?estado=invalido para ver cada tela
     const estado = ESTADOS.includes(pedido) ? pedido : 'entrar';
 
     const dados = descreverEstado(estado);
-    document.querySelector('#app').appendChild(criarTelaConvite({ ...dados, destinoLogo: 'habitos.html' }));
+    document.querySelector('#app')!.appendChild(criarTelaConvite({ ...dados, destinoLogo: 'habitos.html' }));
   }
 
   montarPagina();
