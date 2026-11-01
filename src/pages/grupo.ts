@@ -5,21 +5,45 @@ import {
   criarElemento, juntar, criarCabecalhoPagina, criarChipCategoria, criarSeloStatus, criarAviso,
   criarVazio, criarAbas, criarBotaoAcao, criarCampo, criarStepper, criarResumoErros,
   abrirJanela, criarCorpoJanela, criarAcoesJanela, mostrarToast, CLASSE_INPUT,
+  type FilhoDom, type VarianteBotao,
 } from '../components/ui.js';
 import {
   textoMembros, textoPeriodo, calcularPosicoes, montarLinkConvite, criarCaixaLink,
   criarLinhaRanking, criarLinhaAtividade, criarLinhaMembro, criarCartaoPostagem,
+  type DadosPostagemGrupo,
 } from '../components/grupos.js';
 import { icone } from '../components/icones.js';
 import { hoje, paraChave, somarDias } from '../utils/datas.js';
-import { formatarDia, statusDoPeriodo } from '../utils/periodo.js';
+import { formatarDia, type StatusPeriodo } from '../utils/periodo.js';
+
+interface AtividadeGrupoProvisorio {
+  id: string;
+  nome: string;
+  pontos: number;
+  feitoHoje: boolean;
+}
+
+interface PessoaGrupoProvisorio {
+  nome: string;
+  usuario: string;
+  pontos: number;
+  voce: boolean;
+}
+
+interface OpcoesConfirmacao {
+  titulo: string;
+  corpo: FilhoDom | FilhoDom[];
+  textoConfirmar: string;
+  tarefa: string;
+  variante?: VarianteBotao | string;
+}
 
 const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
   if (menu) {
-    document.querySelector('#menu').appendChild(menu);
+    document.querySelector('#menu')!.appendChild(menu);
   }
 
   // ---------------------------------------------------------------------------
@@ -27,20 +51,35 @@ if (autorizado) {
   // Para ver cada situação: ?status=andamento|nao-iniciado|encerrado e ?dono=0 (não sou dono).
 
   const parametros = new URLSearchParams(window.location.search);
-  const STATUS_PEDIDO = parametros.get('status');
-  const status = ['andamento', 'nao-iniciado', 'encerrado'].includes(STATUS_PEDIDO) ? STATUS_PEDIDO : 'andamento';
+  const STATUS_PEDIDO = parametros.get('status') ?? '';
+  const status: StatusPeriodo = (
+    ['andamento', 'nao-iniciado', 'encerrado'].includes(STATUS_PEDIDO)
+      ? STATUS_PEDIDO
+      : 'andamento'
+  ) as StatusPeriodo;
   const souDono = parametros.get('dono') !== '0';
 
-  function diaRelativo(dias) {
+  function diaRelativo(dias: number): string {
     return paraChave(somarDias(hoje(), dias));
   }
-  const PERIODOS = {
+  const PERIODOS: Record<StatusPeriodo, [number, number]> = {
     andamento: [-10, 20],
     'nao-iniciado': [3, 33],
     encerrado: [-40, -5],
   };
 
-  const GRUPO = {
+  const GRUPO: {
+    id: string;
+    nome: string;
+    descricao: string;
+    categoria: string;
+    codigoConvite: string;
+    dataInicio: string;
+    dataFim: string;
+    atividades: AtividadeGrupoProvisorio[];
+    pessoas: PessoaGrupoProvisorio[];
+    postagens: DadosPostagemGrupo[];
+  } = {
     id: parametros.get('id') ?? 'g1',
     nome: 'Movimento 30 Dias',
     descricao: 'Trinta dias de treino para todo mundo sair do sofá.',
@@ -71,12 +110,12 @@ if (autorizado) {
   const encerrado = status === 'encerrado';
   const ABAS = ['feed', 'ranking', 'atividades', 'membros'];
 
-  function emConstrucao(tarefa) {
+  function emConstrucao(tarefa: string): void {
     mostrarToast(`Em construção · ${tarefa}`);
   }
 
   // Parágrafo com trechos em destaque: paragrafo('Você perde ', ['18 pontos'], ' ...')
-  function paragrafo(...partes) {
+  function paragrafo(...partes: Array<string | [string]>): HTMLParagraphElement {
     const p = criarElemento('p');
     partes.forEach((parte) => {
       if (Array.isArray(parte)) {
@@ -88,12 +127,12 @@ if (autorizado) {
     return p;
   }
 
-  const meusPontos = GRUPO.pessoas.find((p) => p.voce).pontos;
+  const meusPontos = GRUPO.pessoas.find((p) => p.voce)!.pontos;
 
   // ---------------------------------------------------------------------------
   // Janelas
 
-  function abrirConfirmacao({ titulo, corpo, textoConfirmar, tarefa, variante = 'dangerSolid' }) {
+  function abrirConfirmacao({ titulo, corpo, textoConfirmar, tarefa, variante = 'dangerSolid' }: OpcoesConfirmacao): void {
     abrirJanela(titulo, (fechar) => [
       criarCorpoJanela(corpo),
       criarAcoesJanela([
@@ -109,9 +148,9 @@ if (autorizado) {
     ]);
   }
 
-  function abrirJanelaSair() {
+  function abrirJanelaSair(): void {
     const outros = GRUPO.pessoas.filter((p) => p.usuario !== DONO_USUARIO || !souDono);
-    const sucessor = GRUPO.pessoas.find((p) => !p.voce);
+    const sucessor = GRUPO.pessoas.find((p) => !p.voce)!;
     let titulo = 'Sair do grupo?';
     let textoConfirmar = 'Sair do grupo';
     let corpo = [
@@ -129,7 +168,7 @@ if (autorizado) {
     abrirConfirmacao({ titulo, corpo, textoConfirmar, tarefa: 'S1-50' });
   }
 
-  function abrirJanelaRemoverMembro(pessoa) {
+  function abrirJanelaRemoverMembro(pessoa: PessoaGrupoProvisorio): void {
     abrirConfirmacao({
       titulo: `Remover ${pessoa.nome.split(' ')[0]}?`,
       corpo: [
@@ -141,7 +180,7 @@ if (autorizado) {
     });
   }
 
-  function abrirJanelaExcluirConclusao(post) {
+  function abrirJanelaExcluirConclusao(post: DadosPostagemGrupo): void {
     abrirConfirmacao({
       titulo: 'Excluir conclusão?',
       corpo: [paragrafo('Os ', [`${post.pontos} pontos`], ` concedidos por essa conclusão serão descontados do ranking de ${post.nome}.`)],
@@ -150,7 +189,7 @@ if (autorizado) {
     });
   }
 
-  function abrirJanelaExcluirGrupo() {
+  function abrirJanelaExcluirGrupo(): void {
     abrirConfirmacao({
       titulo: 'Excluir este grupo?',
       corpo: [paragrafo('Essa ação é ', ['permanente'], `. ${GRUPO.pessoas.length} membros perdem o acesso a ${GRUPO.nome}.`)],
@@ -160,7 +199,7 @@ if (autorizado) {
   }
 
   // Menu do dono: data final, atividades e exclusão (edição de verdade: S1-47)
-  function abrirJanelaGerenciar() {
+  function abrirJanelaGerenciar(): void {
     abrirJanela('Gerenciar grupo', (fechar) => {
       const entrada = criarElemento('input', CLASSE_INPUT);
       entrada.id = 'gerenciar-fim';
@@ -213,9 +252,9 @@ if (autorizado) {
   }
 
   // Postar conclusão: atividade + foto obrigatória + texto (salvar de verdade: S1-41 a S1-43)
-  function abrirJanelaPostar() {
+  function abrirJanelaPostar(): void {
     abrirJanela('Postar conclusão', (fechar) => {
-      let escolhida = null;
+      let escolhida: string | null = null;
       let temFoto = false;
 
       const formulario = criarElemento('form', 'mt-4 space-y-5');
@@ -228,7 +267,7 @@ if (autorizado) {
       const grupoRadio = criarElemento('div', 'space-y-2');
       grupoRadio.setAttribute('role', 'radiogroup');
       const erroAtividade = criarElemento('div');
-      function desenharAtividades() {
+      function desenharAtividades(): void {
         grupoRadio.replaceChildren();
         GRUPO.atividades.forEach((atividade) => {
           const ligada = escolhida === atividade.id;
@@ -272,7 +311,7 @@ if (autorizado) {
       entradaFoto.id = 'foto';
       const areaFoto = criarElemento('div');
       const erroFoto = criarElemento('div');
-      function desenharFoto(urlPrevia) {
+      function desenharFoto(urlPrevia: string): void {
         areaFoto.replaceChildren();
         temFoto = Boolean(urlPrevia);
         if (urlPrevia) {
@@ -300,7 +339,7 @@ if (autorizado) {
         }
       }
       entradaFoto.addEventListener('change', () => {
-        const arquivo = entradaFoto.files[0];
+        const arquivo = entradaFoto.files?.[0];
         desenharFoto(arquivo ? URL.createObjectURL(arquivo) : '');
       });
       desenharFoto('');
@@ -323,7 +362,7 @@ if (autorizado) {
 
       // Botão publicar (mostra os pontos quando há atividade escolhida)
       const areaPublicar = criarElemento('div');
-      function desenharBotaoPublicar() {
+      function desenharBotaoPublicar(): void {
         areaPublicar.replaceChildren();
         const atividade = GRUPO.atividades.find((a) => a.id === escolhida);
         const rotulo = atividade ? `Publicar conclusão · +${atividade.pontos} pts` : 'Publicar conclusão';
@@ -332,7 +371,7 @@ if (autorizado) {
 
       formulario.addEventListener('submit', (evento) => {
         evento.preventDefault();
-        const erros = [];
+        const erros: string[] = [];
         if (!escolhida) {
           erros.push('Escolha a atividade que você concluiu.');
         }
@@ -359,7 +398,7 @@ if (autorizado) {
   // ---------------------------------------------------------------------------
   // Blocos da página
 
-  function criarBotaoGerenciar() {
+  function criarBotaoGerenciar(): HTMLButtonElement {
     const botao = criarElemento('button', 'press flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[15px] font-medium text-action hover:bg-action-tint');
     botao.type = 'button';
     botao.setAttribute('aria-label', 'Gerenciar grupo');
@@ -369,11 +408,11 @@ if (autorizado) {
     return botao;
   }
 
-  function criarBotaoPostar(extra) {
+  function criarBotaoPostar(extra: string): HTMLButtonElement {
     return criarBotaoAcao('Postar conclusão', { extra, iconeNome: 'Camera', iconeTamanho: 19, aoClicar: abrirJanelaPostar });
   }
 
-  function criarResumoDoGrupo() {
+  function criarResumoDoGrupo(): HTMLElement {
     const secao = criarElemento('section', 'pt-5 pb-4');
 
     const chips = criarElemento('div', 'flex flex-wrap items-center gap-2');
@@ -416,11 +455,14 @@ if (autorizado) {
     return secao;
   }
 
-  function criarListaCaixa(classeLista = 'divide-y divide-line/70 overflow-hidden rounded-[18px] bg-surface', tag = 'ul') {
+  function criarListaCaixa(
+    classeLista = 'divide-y divide-line/70 overflow-hidden rounded-[18px] bg-surface',
+    tag: 'ul' | 'ol' = 'ul'
+  ): HTMLUListElement | HTMLOListElement {
     return criarElemento(tag, classeLista);
   }
 
-  function criarPainelFeed() {
+  function criarPainelFeed(): HTMLDivElement {
     if (POSTAGENS.length === 0) {
       const podePostar = !encerrado && status === 'andamento';
       return criarVazio({
@@ -438,7 +480,7 @@ if (autorizado) {
     return lista;
   }
 
-  function criarPainelRanking() {
+  function criarPainelRanking(): HTMLDivElement {
     const raiz = criarElemento('div');
     if (encerrado) {
       raiz.appendChild(criarElemento('p', 'mb-2 px-1 text-[17px] font-semibold', 'Ranking final'));
@@ -450,13 +492,13 @@ if (autorizado) {
     return raiz;
   }
 
-  function criarPainelAtividades() {
+  function criarPainelAtividades(): HTMLElement {
     const lista = criarListaCaixa();
     GRUPO.atividades.forEach((atividade) => lista.appendChild(criarLinhaAtividade(atividade)));
     return lista;
   }
 
-  function criarPainelMembros() {
+  function criarPainelMembros(): HTMLDivElement {
     const raiz = criarElemento('div');
     const lista = criarListaCaixa();
     GRUPO.pessoas.forEach((pessoa) => {
@@ -474,15 +516,15 @@ if (autorizado) {
     return raiz;
   }
 
-  const PAINEIS = {
+  const PAINEIS: Record<string, () => HTMLElement> = {
     feed: criarPainelFeed,
     ranking: criarPainelRanking,
     atividades: criarPainelAtividades,
     membros: criarPainelMembros,
   };
 
-  function montarPagina() {
-    const conteudo = document.querySelector('#conteudo');
+  function montarPagina(): void {
+    const conteudo = document.querySelector('#conteudo')!;
     document.title = `${GRUPO.nome} - HabitUs`;
 
     conteudo.appendChild(criarCabecalhoPagina({
@@ -495,7 +537,7 @@ if (autorizado) {
     const painel = criarElemento('div', 'mt-3');
     painel.setAttribute('role', 'tabpanel');
 
-    function mostrarAba(aba) {
+    function mostrarAba(aba: string): void {
       painel.replaceChildren(PAINEIS[aba]());
       // A aba fica na URL (?aba=ranking), sem criar uma entrada nova no histórico
       const url = new URL(window.location.href);
@@ -503,7 +545,7 @@ if (autorizado) {
       window.history.replaceState(null, '', url);
     }
 
-    const pedida = parametros.get('aba');
+    const pedida = parametros.get('aba') ?? '';
     const abaInicial = ABAS.includes(pedida) ? pedida : 'feed';
 
     const fixa = criarElemento('div', 'sticky top-14 z-10 -mx-4 bg-bg/92 px-4 py-2 backdrop-blur-lg md:mx-0');
