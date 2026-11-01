@@ -1,6 +1,6 @@
 import { obterUsuarioAtual } from '../data/index.js';
 
-export async function exigirLogin() {
+export async function exigirLogin(): Promise<boolean> {
   const usuario = await obterUsuarioAtual();
 
   if (usuario) {
