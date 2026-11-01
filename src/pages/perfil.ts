@@ -1,35 +1,46 @@
 import '../styles/base.css';
 import { criarNavbar } from '../components/navbar.js';
 import { exigirLogin } from '../components/auth.js';
-import { obterUsuarioAtual, updateUser, getHabitsByUser, encerrarSessao, getHabitStreak } from '../data/index.js';
+import {
+  obterUsuarioAtual,
+  updateUser,
+  getHabitsByUser,
+  encerrarSessao,
+  getHabitStreak,
+  getPostsByUser,
+  type SequenciaHabito,
+} from '../data/index.js';
+import type { Habito } from '../types/habito.js';
 import { obterIniciais } from '../utils/usuario.js';
 import { formatarSequencia } from '../utils/sequencia.js';
-import { getPostsByUser } from '../data/index.js';
-import { criarCartaoPostagem } from '../components/postagem.js'
+import { criarCartaoPostagem } from '../components/postagem.js';
 
+type HabitoComSequencia = Habito & {
+  sequencia: SequenciaHabito;
+};
 
 const autorizado = await exigirLogin();
 
 if (autorizado) {
-  let  usuarioAtual = await obterUsuarioAtual();
+  let usuarioAtual = (await obterUsuarioAtual())!;
   const habitos = await getHabitsByUser(usuarioAtual.id);
   const postagens = await getPostsByUser(usuarioAtual.id);
   const habitosAtivos = habitos.filter((habito) => habito.ativo);
-  const habitosComSequencia = [];
+  const habitosComSequencia: HabitoComSequencia[] = [];
   for (const habito of habitos) {
     const sequencia = await getHabitStreak(habito.id);
 
-    habitosComSequencia.push({...habito, sequencia,});
+    habitosComSequencia.push({ ...habito, sequencia });
   }
   const menu = await criarNavbar();
   if (menu) {
-    document.querySelector('#menu').appendChild(menu);
+    document.querySelector('#menu')!.appendChild(menu);
   }
 
   const parametros = new URLSearchParams(window.location.search);
   const usuario = parametros.get('usuario');
 
-  const app = document.querySelector('#app');
+  const app = document.querySelector('#app') as HTMLElement;
 
   app.innerHTML = `
     <section class="w-full overflow-hidden rounded-3xl border border-(--line) bg-white shadow-[0_12px_40px_#00000006] max-[700px]:rounded-[18px]" aria-labelledby="titulo-perfil">
@@ -132,56 +143,57 @@ if (autorizado) {
       </div>
     </section>
   `;
-  app.querySelector('#total-habitos').textContent = String(habitosAtivos.length);
-  function redenrizarPostagens() {
-    const lista = app.querySelector('#lista-postagens-perfil');
-    const cartoes = postagens.map(postagem => {
+  app.querySelector('#total-habitos')!.textContent = String(habitosAtivos.length);
+  function redenrizarPostagens(): void {
+    const lista = app.querySelector('#lista-postagens-perfil')!;
+    const cartoes = postagens.map((postagem) => {
       const habito = habitos.find(
-        habito => habito.id === postagem.idHabito
+        (habito) => habito.id === postagem.idHabito
       );
-      return criarCartaoPostagem({...postagem,
+      return criarCartaoPostagem({
+        ...postagem,
         autor: usuarioAtual,
-        habito
+        habito,
       });
     });
     lista.replaceChildren(...cartoes);
-    /** @type {HTMLElement} */ (app.querySelector('#postagens-vazias')).hidden = postagens.length > 0;
+    (app.querySelector('#postagens-vazias') as HTMLElement).hidden = postagens.length > 0;
   }
-  const recordista = habitosComSequencia.reduce((melhor, habito) => {
-  if (!melhor) {
-    return habito;
-  }
+  const recordista = habitosComSequencia.reduce<HabitoComSequencia | null>((melhor, habito) => {
+    if (!melhor) {
+      return habito;
+    }
 
-  const atual = habito.sequencia;
-  const anterior = melhor.sequencia;
+    const atual = habito.sequencia;
+    const anterior = melhor.sequencia;
 
-  if (atual.longest > anterior.longest) {
-    return habito;
-  }
+    if (atual.longest > anterior.longest) {
+      return habito;
+    }
 
-  const empatou = atual.longest === anterior.longest;
-  const dataAtual = atual.longestAchievedAt || '';
-  const dataAnterior = anterior.longestAchievedAt || '';
+    const empatou = atual.longest === anterior.longest;
+    const dataAtual = atual.longestAchievedAt || '';
+    const dataAnterior = anterior.longestAchievedAt || '';
 
-  if (empatou && dataAtual > dataAnterior) {
-    return habito;
-  }
+    if (empatou && dataAtual > dataAnterior) {
+      return habito;
+    }
 
-  return melhor;
+    return melhor;
   }, null);
   const temRecorde = recordista && recordista.sequencia.longest > 0;
 
-  app.querySelector('#maior-sequencia').textContent = temRecorde
-  ? formatarSequencia(recordista.sequencia.longest, recordista.frequencia)
-  : formatarSequencia(0, { tipo: 'diaria' });
+  app.querySelector('#maior-sequencia')!.textContent = temRecorde
+    ? formatarSequencia(recordista.sequencia.longest, recordista.frequencia)
+    : formatarSequencia(0, { tipo: 'diaria' });
 
-  app.querySelector('#habito-recordista').textContent = 
-  temRecorde ? recordista.nome  : 'Conclua um hábito para começar.';
-  const listaHabitos = app.querySelector('#lista-habitos');
-  /** @type {HTMLElement} */ (app.querySelector('#habitos-vazios')).hidden = habitosComSequencia.length > 0;
+  app.querySelector('#habito-recordista')!.textContent =
+    temRecorde ? recordista.nome : 'Conclua um hábito para começar.';
+  const listaHabitos = app.querySelector('#lista-habitos')!;
+  (app.querySelector('#habitos-vazios') as HTMLElement).hidden = habitosComSequencia.length > 0;
   for (const habito of habitosComSequencia) {
     const item = document.createElement('li');
-    item.className ='rounded-xl border border-(--line) bg-brand-ice p-4';
+    item.className = 'rounded-xl border border-(--line) bg-brand-ice p-4';
 
     const nome = document.createElement('h4');
     nome.className = 'font-semibold wrap-anywhere';
@@ -190,27 +202,24 @@ if (autorizado) {
     detalhes.className = 'mt-1 text-sm text-brand-light-gray';
 
     const textoSequencia = formatarSequencia(
-          habito.sequencia.current,
-          habito.frequencia
+      habito.sequencia.current,
+      habito.frequencia
     );
 
     detalhes.textContent = `Sequência atual: ${textoSequencia}`;
 
-  item.append(nome, detalhes);
-  listaHabitos.appendChild(item);
-}
+    item.append(nome, detalhes);
+    listaHabitos.appendChild(item);
+  }
 
-  app.querySelector('#perfil-avatar').textContent = obterIniciais(usuarioAtual);
-  app.querySelector('#perfil-nome').textContent = usuarioAtual.name;
-  app.querySelector('#perfil-username').textContent =`@${usuarioAtual.username}`;
-  app.querySelector('#perfil-descricao').textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
+  app.querySelector('#perfil-avatar')!.textContent = obterIniciais(usuarioAtual);
+  app.querySelector('#perfil-nome')!.textContent = usuarioAtual.name;
+  app.querySelector('#perfil-username')!.textContent = `@${usuarioAtual.username}`;
+  app.querySelector('#perfil-descricao')!.textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
   redenrizarPostagens();
-  /** @type {HTMLFormElement} */
-  const formulario = app.querySelector('#form-perfil');
-  /** @type {HTMLButtonElement} */
-  const botaoEditar = app.querySelector('#editar-perfil');
-  /** @type {HTMLButtonElement} */
-  const botaoSair = app.querySelector('#sair-perfil');
+  const formulario = app.querySelector('#form-perfil') as HTMLFormElement;
+  const botaoEditar = app.querySelector('#editar-perfil') as HTMLButtonElement;
+  const botaoSair = app.querySelector('#sair-perfil') as HTMLButtonElement;
   botaoSair.addEventListener('click', async () => {
     botaoSair.disabled = true;
 
@@ -219,21 +228,21 @@ if (autorizado) {
       window.location.href = `${import.meta.env.BASE_URL}index.html`;
     } catch {
       botaoSair.disabled = false;
-      botaoSair.textContent = 'Tentar sair novamente'
+      botaoSair.textContent = 'Tentar sair novamente';
     }
-  })
+  });
 
   botaoEditar.addEventListener('click', () => {
-    /** @type {HTMLInputElement} */ (formulario.elements.namedItem('name')).value = usuarioAtual.name;
-    /** @type {HTMLInputElement} */ (formulario.elements.namedItem('username')).value = usuarioAtual.username;
-    /** @type {HTMLTextAreaElement} */ (formulario.elements.namedItem('profileDescription')).value = usuarioAtual.profileDescription || '';
+    (formulario.elements.namedItem('name') as HTMLInputElement).value = usuarioAtual.name;
+    (formulario.elements.namedItem('username') as HTMLInputElement).value = usuarioAtual.username;
+    (formulario.elements.namedItem('profileDescription') as HTMLTextAreaElement).value = usuarioAtual.profileDescription || '';
 
-    app.querySelector('#mensagem-perfil').textContent = '';
+    app.querySelector('#mensagem-perfil')!.textContent = '';
     formulario.hidden = false;
     botaoEditar.hidden = true;
-    /** @type {HTMLInputElement} */ (formulario.elements.namedItem('name')).focus();
+    (formulario.elements.namedItem('name') as HTMLInputElement).focus();
   });
-  app.querySelector('#cancelar-edicao').addEventListener('click', () => {
+  app.querySelector('#cancelar-edicao')!.addEventListener('click', () => {
     formulario.hidden = true;
     botaoEditar.hidden = false;
     botaoEditar.focus();
@@ -241,36 +250,35 @@ if (autorizado) {
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
 
-    const mensagem = app.querySelector('#mensagem-perfil');
-    /** @type {HTMLButtonElement} */
-    const botaoSalvar = formulario.querySelector('[type="submit"]');
+    const mensagem = app.querySelector('#mensagem-perfil') as HTMLElement;
+    const botaoSalvar = formulario.querySelector('[type="submit"]') as HTMLButtonElement;
 
     mensagem.textContent = '';
     botaoSalvar.disabled = true;
 
     try {
       await updateUser(usuarioAtual.id, {
-        name: /** @type {HTMLInputElement} */ (formulario.elements.namedItem('name')).value,
-        username: /** @type {HTMLInputElement} */ (formulario.elements.namedItem('username')).value,
-        profileDescription: /** @type {HTMLTextAreaElement} */ (formulario.elements.namedItem('profileDescription')).value,
+        name: (formulario.elements.namedItem('name') as HTMLInputElement).value,
+        username: (formulario.elements.namedItem('username') as HTMLInputElement).value,
+        profileDescription: (formulario.elements.namedItem('profileDescription') as HTMLTextAreaElement).value,
       });
-      usuarioAtual = await obterUsuarioAtual();
-      
+      usuarioAtual = (await obterUsuarioAtual())!;
+
       // O cartão do usuário no menu lateral acompanha as alterações do perfil.
       document.getElementById('usuario-nome')?.replaceChildren(usuarioAtual.name);
       document.getElementById('usuario-username')?.replaceChildren(`@${usuarioAtual.username}`);
       document.getElementById('usuario-avatar')?.replaceChildren(obterIniciais(usuarioAtual));
-      app.querySelector('#perfil-avatar').textContent = obterIniciais(usuarioAtual);
-      app.querySelector('#perfil-nome').textContent = usuarioAtual.name;
-      app.querySelector('#perfil-username').textContent = `@${usuarioAtual.username}`;
-      app.querySelector('#perfil-descricao').textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
+      app.querySelector('#perfil-avatar')!.textContent = obterIniciais(usuarioAtual);
+      app.querySelector('#perfil-nome')!.textContent = usuarioAtual.name;
+      app.querySelector('#perfil-username')!.textContent = `@${usuarioAtual.username}`;
+      app.querySelector('#perfil-descricao')!.textContent = usuarioAtual.profileDescription || 'Você ainda não adicionou uma descrição.';
       formulario.hidden = true;
       botaoEditar.hidden = false;
       botaoEditar.focus();
-    } catch(erro) {
+    } catch (erro: any) {
       mensagem.textContent = erro.message;
     } finally {
       botaoSalvar.disabled = false;
     }
-  })
+  });
 }
