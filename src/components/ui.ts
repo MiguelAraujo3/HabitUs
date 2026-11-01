@@ -3,16 +3,121 @@
 // Tailwind só gera classes escritas por inteiro no código: nunca montar 'bg-' + cor.
 
 import { icone } from './icones.js';
-import { visualDaCategoria, VISUAL_CATEGORIAS } from './categoriasVisual.js';
+import { visualDaCategoria, VISUAL_CATEGORIAS, type FamiliaCor } from './categoriasVisual.js';
+import type { StatusPeriodo } from '../utils/periodo.js';
+
+export type FilhoDom = Node | string | null | undefined | false;
+
+export type VarianteBotao = 'primary' | 'black' | 'secondary' | 'ghost' | 'danger' | 'dangerSolid';
+export type TamanhoBotao = 'padrao' | 'alto' | 'm' | 'p';
+
+export interface OpcoesBotaoAcao {
+  variante?: VarianteBotao | string;
+  tamanho?: TamanhoBotao | string;
+  extra?: string;
+  tipo?: 'button' | 'submit' | 'reset';
+  aoClicar?: (evento: MouseEvent) => void;
+  desabilitado?: boolean;
+  iconeNome?: string;
+  iconeTamanho?: number;
+}
+
+export interface OpcoesLinkAcao {
+  href?: string;
+  variante?: VarianteBotao | string;
+  tamanho?: TamanhoBotao | string;
+  extra?: string;
+  iconeNome?: string;
+  iconeTamanho?: number;
+}
+
+export interface OpcoesCampo {
+  id: string;
+  rotulo: string;
+  controle: HTMLElement;
+  dica?: string;
+  contador?: string;
+}
+
+export interface OpcoesStepper {
+  rotulo: string;
+  valor: number;
+  min: number;
+  max: number;
+  aoMudar?: (valor: number) => void;
+  sufixo?: string;
+}
+
+export interface ControleStepper {
+  elemento: HTMLDivElement;
+  obterValor: () => number;
+}
+
+export interface OpcaoAba {
+  id: string;
+  rotulo: string;
+}
+
+export interface OpcoesAbas {
+  rotulo: string;
+  opcoes: OpcaoAba[];
+  valor: string;
+  aoMudar: (id: string) => void;
+  rolagem?: boolean;
+}
+
+export interface OpcoesVazio {
+  iconeNome: string;
+  titulo: string;
+  texto: string;
+  acao?: FilhoDom | FilhoDom[];
+}
+
+export type TomAviso = 'info' | 'warn' | 'danger';
+
+export interface OpcoesAviso {
+  tom?: TomAviso;
+  iconeNome?: string;
+  conteudo: FilhoDom | FilhoDom[];
+}
+
+export interface OpcoesCabecalhoPagina {
+  titulo: string;
+  voltarPara: string;
+  direita?: HTMLElement;
+}
+
+export interface OpcoesTituloGrande {
+  titulo: string;
+  subtitulo?: string;
+  direita?: HTMLElement;
+}
+
+export interface OpcoesGradeCategorias {
+  valor?: string;
+  aoMudar?: (valor: string) => void;
+}
+
+export interface ControleGradeCategorias {
+  elemento: HTMLDivElement;
+  obterValor: () => string;
+  definirErro: (mensagem: string) => void;
+}
 
 // ---------------------------------------------------------------------------
 // Utilitários de DOM
 
-export function juntar(...partes) {
+export function juntar(...partes: Array<string | false | null | undefined>): string {
   return partes.filter(Boolean).join(' ');
 }
 
-export function criarElemento(tag, classe = '', texto = '') {
+export function criarElemento<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  classe?: string,
+  texto?: string
+): HTMLElementTagNameMap[K];
+export function criarElemento(tag: string, classe?: string, texto?: string): HTMLElement;
+export function criarElemento(tag: string, classe = '', texto = ''): HTMLElement {
   const elemento = document.createElement(tag);
   if (classe) {
     elemento.className = classe;
@@ -24,18 +129,20 @@ export function criarElemento(tag, classe = '', texto = '') {
   return elemento;
 }
 
-function anexar(pai, filhos) {
+function anexar<T extends HTMLElement>(pai: T, filhos: FilhoDom | FilhoDom[]): T {
   const lista = Array.isArray(filhos) ? filhos : [filhos];
-  lista.filter((f) => f !== null && f !== undefined && f !== false).forEach((filho) => {
-    pai.appendChild(typeof filho === 'string' ? document.createTextNode(filho) : filho);
-  });
+  lista
+    .filter((f): f is Node | string => f !== null && f !== undefined && f !== false)
+    .forEach((filho) => {
+      pai.appendChild(typeof filho === 'string' ? document.createTextNode(filho) : filho);
+    });
   return pai;
 }
 
 // ---------------------------------------------------------------------------
 // Cores por família (chip de categoria e avatar)
 
-const FAMILIAS = {
+const FAMILIAS: Record<FamiliaCor, string> = {
   coral: 'bg-[#fde8e8] text-coral-ink',
   lime: 'bg-[#eef9cf] text-[#3f5a00]',
   blue: 'bg-[#e3ecff] text-[#1e40af]',
@@ -43,14 +150,14 @@ const FAMILIAS = {
   cyan: 'bg-[#ddf4f8] text-[#0e5a68]',
   gray: 'bg-[#ecece9] text-[#4a4a47]',
 };
-const FAMILIAS_AVATAR = ['blue', 'coral', 'violet', 'cyan', 'lime'];
+const FAMILIAS_AVATAR: FamiliaCor[] = ['blue', 'coral', 'violet', 'cyan', 'lime'];
 
 // ---------------------------------------------------------------------------
 // Botão — "tamanho" substitui a base inteira (sem classes em conflito)
 
 const BOTAO_BASE = 'press inline-flex items-center justify-center gap-2 rounded-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-45';
 
-const BOTAO_VARIANTES = {
+const BOTAO_VARIANTES: Record<string, string> = {
   primary: 'bg-action text-white hover:bg-action-press',
   black: 'bg-black text-white hover:bg-[#222]',
   secondary: 'bg-surface-2 text-ink hover:bg-[#e6e6e3]',
@@ -59,18 +166,23 @@ const BOTAO_VARIANTES = {
   dangerSolid: 'bg-danger text-white hover:bg-[#8f1c12]',
 };
 
-const BOTAO_TAMANHOS = {
+const BOTAO_TAMANHOS: Record<string, string> = {
   padrao: 'min-h-[50px] px-5 text-[16px]',
   alto: 'min-h-11 px-5 text-[16px]',
   m: 'min-h-11 px-4 text-[15px]',
   p: 'min-h-10 px-3.5 text-[14px]',
 };
 
-export function classeBotao(variante = 'primary', tamanho = 'padrao', extra = '') {
+export function classeBotao(variante = 'primary', tamanho = 'padrao', extra = ''): string {
   return juntar(BOTAO_BASE, BOTAO_VARIANTES[variante], BOTAO_TAMANHOS[tamanho], extra);
 }
 
-function preencherBotao(elemento, texto, iconeNome, iconeTamanho) {
+function preencherBotao<T extends HTMLElement>(
+  elemento: T,
+  texto: string,
+  iconeNome?: string,
+  iconeTamanho?: number
+): T {
   if (iconeNome) {
     elemento.appendChild(icone(iconeNome, { tamanho: iconeTamanho }));
   }
@@ -79,7 +191,7 @@ function preencherBotao(elemento, texto, iconeNome, iconeTamanho) {
 }
 
 // criarBotaoAcao('Entrar', { variante: 'secondary', aoClicar: () => {} })
-export function criarBotaoAcao(texto, opcoes = {}) {
+export function criarBotaoAcao(texto: string, opcoes: OpcoesBotaoAcao = {}): HTMLButtonElement {
   const {
     variante = 'primary', tamanho = 'padrao', extra = '', tipo = 'button',
     aoClicar, desabilitado = false, iconeNome, iconeTamanho = 18,
@@ -95,10 +207,12 @@ export function criarBotaoAcao(texto, opcoes = {}) {
 }
 
 // Link com aparência de botão.
-export function criarLinkAcao(texto, opcoes = {}) {
+export function criarLinkAcao(texto: string, opcoes: OpcoesLinkAcao = {}): HTMLAnchorElement {
   const { href, variante = 'primary', tamanho = 'padrao', extra = '', iconeNome, iconeTamanho = 18 } = opcoes;
   const link = criarElemento('a', classeBotao(variante, tamanho, extra));
-  link.href = href;
+  if (href) {
+    link.href = href;
+  }
   preencherBotao(link, texto, iconeNome, iconeTamanho);
   return link;
 }
@@ -108,10 +222,7 @@ export function criarLinkAcao(texto, opcoes = {}) {
 
 export const CLASSE_INPUT = 'w-full min-h-[48px] rounded-[10px] border border-line bg-surface px-3.5 text-[17px] text-ink placeholder:text-[#8a8a86] focus:border-action focus:outline-2 focus:outline-offset-0 focus:outline-action/30';
 
-/**
- * @param {{ id: string, rotulo: string, controle: HTMLElement, dica?: string, contador?: string }} opcoes
- */
-export function criarCampo({ id, rotulo, controle, dica, contador }) {
+export function criarCampo({ id, rotulo, controle, dica, contador }: OpcoesCampo): HTMLDivElement {
   const raiz = criarElemento('div', 'space-y-1.5');
   const linha = criarElemento('div', 'flex items-baseline justify-between');
   const etiqueta = criarElemento('label', 'text-[15px] font-medium', rotulo);
@@ -131,7 +242,7 @@ export function criarCampo({ id, rotulo, controle, dica, contador }) {
 }
 
 // mostrarErroCampo(campo, 'mensagem') mostra o erro; mostrarErroCampo(campo, '') limpa.
-export function mostrarErroCampo(raiz, mensagem) {
+export function mostrarErroCampo(raiz: HTMLElement, mensagem: string): void {
   const antigo = raiz.querySelector('[data-erro]');
   if (antigo) {
     antigo.remove();
@@ -161,7 +272,7 @@ export function mostrarErroCampo(raiz, mensagem) {
 }
 
 // Resumo de erros no topo do formulário. Devolve null quando não há erros.
-export function criarResumoErros(erros) {
+export function criarResumoErros(erros: string[]): HTMLDivElement | null {
   if (!erros.length) {
     return null;
   }
@@ -180,7 +291,7 @@ export function criarResumoErros(erros) {
 // ---------------------------------------------------------------------------
 // Chip de categoria, selo de status, avatar
 
-export function criarChipCategoria(rotuloCategoria, extra = '') {
+export function criarChipCategoria(rotuloCategoria: string, extra = ''): HTMLSpanElement {
   const visual = visualDaCategoria(rotuloCategoria);
   const chip = criarElemento('span', juntar('inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium leading-4', FAMILIAS[visual.familia], extra));
   chip.appendChild(icone(visual.icone, { tamanho: 13, classe: 'shrink-0' }));
@@ -188,13 +299,13 @@ export function criarChipCategoria(rotuloCategoria, extra = '') {
   return chip;
 }
 
-const STATUS = {
+const STATUS: Record<string, { rotulo: string; classe: string }> = {
   andamento: { rotulo: 'Em andamento', classe: 'bg-[#e3f4ea] text-ok' },
   'nao-iniciado': { rotulo: 'Não iniciado', classe: 'bg-[#fbf0c9] text-warn-ink' },
   encerrado: { rotulo: 'Encerrado', classe: 'bg-surface-2 text-closed' },
 };
 
-export function criarSeloStatus(status) {
+export function criarSeloStatus(status: StatusPeriodo | string): HTMLSpanElement {
   const dados = STATUS[status];
   const selo = criarElemento('span', juntar('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold', dados.classe));
   if (status === 'andamento') {
@@ -208,7 +319,7 @@ export function criarSeloStatus(status) {
   return selo;
 }
 
-export function criarAvatarIniciais(nome, tamanho = 40) {
+export function criarAvatarIniciais(nome: string, tamanho = 40): HTMLSpanElement {
   const partes = nome.trim().split(/\s+/);
   const primeira = partes[0] ? partes[0][0] : '?';
   const ultima = partes.length > 1 ? partes[partes.length - 1][0] : '';
@@ -230,10 +341,7 @@ export function criarAvatarIniciais(nome, tamanho = 40) {
 const CLASSE_STEPPER = 'press flex size-11 items-center justify-center rounded-full bg-surface-2 text-ink hover:bg-[#e6e6e3] disabled:opacity-35';
 
 // Devolve { elemento, obterValor }.
-/**
- * @param {{ rotulo: string, valor: number, min: number, max: number, aoMudar?: (valor: number) => void, sufixo?: string }} opcoes
- */
-export function criarStepper({ rotulo, valor, min, max, aoMudar, sufixo = '' }) {
+export function criarStepper({ rotulo, valor, min, max, aoMudar, sufixo = '' }: OpcoesStepper): ControleStepper {
   let atual = valor;
   const raiz = criarElemento('div', 'inline-flex items-center gap-1');
   raiz.setAttribute('role', 'group');
@@ -252,12 +360,12 @@ export function criarStepper({ rotulo, valor, min, max, aoMudar, sufixo = '' }) 
   aumentar.setAttribute('aria-label', `Aumentar ${rotulo}`);
   aumentar.appendChild(icone('Plus', { tamanho: 18 }));
 
-  function atualizar() {
+  function atualizar(): void {
     saida.textContent = `${atual}${sufixo}`;
     diminuir.disabled = atual <= min;
     aumentar.disabled = atual >= max;
   }
-  function mudar(passo) {
+  function mudar(passo: number): void {
     atual = Math.min(max, Math.max(min, atual + passo));
     atualizar();
     if (aoMudar) {
@@ -280,12 +388,12 @@ const ABA_ATIVA = 'bg-surface text-ink shadow-[0_1px_3px_rgb(0_0_0/0.12)]';
 const ABA_INATIVA = 'text-ink-2 hover:text-ink';
 
 // opcoes: [{ id, rotulo }]. Devolve o elemento da lista de abas.
-export function criarAbas({ rotulo, opcoes, valor, aoMudar, rolagem = false }) {
+export function criarAbas({ rotulo, opcoes, valor, aoMudar, rolagem = false }: OpcoesAbas): HTMLDivElement {
   const lista = criarElemento('div', juntar('flex gap-1 rounded-[12px] bg-surface-2 p-1', rolagem && 'no-scrollbar overflow-x-auto'));
   lista.setAttribute('role', 'tablist');
   lista.setAttribute('aria-label', rotulo);
 
-  function desenhar(selecionada) {
+  function desenhar(selecionada: string): void {
     lista.replaceChildren();
     opcoes.forEach((opcao) => {
       const ativa = opcao.id === selecionada;
@@ -309,9 +417,12 @@ export function criarAbas({ rotulo, opcoes, valor, aoMudar, rolagem = false }) {
 // Janela (Sheet) — criada por JS quando é aberta
 
 // abrirJanela('Título', (fechar) => [nó1, nó2]) abre a janela e devolve { fechar }.
-export function abrirJanela(titulo, construir, aoFechar) {
-  /** @type {HTMLElement | null} */
-  const anterior = /** @type {HTMLElement | null} */ (document.activeElement);
+export function abrirJanela(
+  titulo: string,
+  construir: (fechar: () => void) => FilhoDom | FilhoDom[],
+  aoFechar?: () => void
+): { fechar: () => void } {
+  const anterior = document.activeElement as HTMLElement | null;
 
   const raiz = criarElemento('div', 'fixed inset-0 z-50 flex items-end justify-center md:items-center');
   const fundo = criarElemento('div', 'anim-fade absolute inset-0 bg-black/40');
@@ -326,7 +437,7 @@ export function abrirJanela(titulo, construir, aoFechar) {
   painel.appendChild(alca);
   painel.appendChild(criarElemento('h2', 'text-[22px] leading-7 font-bold', titulo));
 
-  function fechar() {
+  function fechar(): void {
     document.removeEventListener('keydown', aoTeclar);
     raiz.remove();
     if (anterior && anterior.focus) {
@@ -338,7 +449,7 @@ export function abrirJanela(titulo, construir, aoFechar) {
   }
 
   // Esc fecha; Tab fica preso dentro da janela.
-  function aoTeclar(evento) {
+  function aoTeclar(evento: KeyboardEvent): void {
     if (evento.key === 'Escape') {
       fechar();
       return;
@@ -346,8 +457,8 @@ export function abrirJanela(titulo, construir, aoFechar) {
     if (evento.key !== 'Tab') {
       return;
     }
-    const focaveis = /** @type {HTMLElement[]} */ ([...painel.querySelectorAll('button, a, input, select, textarea')]).filter(
-      (el) => !/** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled
+    const focaveis = ([...painel.querySelectorAll('button, a, input, select, textarea')] as HTMLElement[]).filter(
+      (el) => !(el as HTMLButtonElement | HTMLInputElement).disabled
     );
     if (!focaveis.length) {
       return;
@@ -379,18 +490,18 @@ export function abrirJanela(titulo, construir, aoFechar) {
   return { fechar };
 }
 
-export function criarCorpoJanela(nos) {
+export function criarCorpoJanela(nos: FilhoDom | FilhoDom[]): HTMLDivElement {
   return anexar(criarElemento('div', 'mt-2 space-y-3 text-[16px] leading-[22px] text-ink-2'), nos);
 }
 
-export function criarAcoesJanela(botoes) {
+export function criarAcoesJanela(botoes: FilhoDom | FilhoDom[]): HTMLDivElement {
   return anexar(criarElemento('div', 'mt-6 flex flex-col gap-2'), botoes);
 }
 
 // ---------------------------------------------------------------------------
 // Estado vazio, aviso, cartão
 
-export function criarVazio({ iconeNome, titulo, texto, acao }) {
+export function criarVazio({ iconeNome, titulo, texto, acao }: OpcoesVazio): HTMLDivElement {
   const raiz = criarElemento('div', 'flex flex-col items-center rounded-[18px] border border-dashed border-line bg-surface px-6 py-12 text-center');
   const circulo = criarElemento('span', 'flex size-14 items-center justify-center rounded-full bg-surface-2 text-ink-2');
   circulo.appendChild(icone(iconeNome, { tamanho: 26 }));
@@ -403,14 +514,14 @@ export function criarVazio({ iconeNome, titulo, texto, acao }) {
   return raiz;
 }
 
-const AVISO_TONS = {
+const AVISO_TONS: Record<TomAviso, string> = {
   info: 'bg-action-tint text-[#1e3a8a]',
   warn: 'bg-[#fbf0c9] text-warn-ink',
   danger: 'bg-danger-tint text-danger',
 };
 
 // conteudo: texto, nó ou lista de nós/textos.
-export function criarAviso({ tom = 'info', iconeNome, conteudo }) {
+export function criarAviso({ tom = 'info', iconeNome, conteudo }: OpcoesAviso): HTMLDivElement {
   const raiz = criarElemento('div', juntar('flex items-start gap-2.5 rounded-[12px] px-3.5 py-3 text-[14px] leading-5 font-medium', AVISO_TONS[tom]));
   if (iconeNome) {
     raiz.appendChild(icone(iconeNome, { tamanho: 18, classe: 'mt-px shrink-0' }));
@@ -419,17 +530,14 @@ export function criarAviso({ tom = 'info', iconeNome, conteudo }) {
   return raiz;
 }
 
-export function criarCartaoSimples(filhos, extra = '') {
+export function criarCartaoSimples(filhos: FilhoDom | FilhoDom[], extra = ''): HTMLDivElement {
   return anexar(criarElemento('div', juntar('rounded-[14px] bg-surface p-4', extra)), filhos);
 }
 
 // ---------------------------------------------------------------------------
 // Cabeçalho de página e títulos
 
-/**
- * @param {{ titulo: string, voltarPara: string, direita?: HTMLElement }} opcoes
- */
-export function criarCabecalhoPagina({ titulo, voltarPara, direita }) {
+export function criarCabecalhoPagina({ titulo, voltarPara, direita }: OpcoesCabecalhoPagina): HTMLElement {
   const cabecalho = criarElemento('header', 'sticky top-0 z-20 -mx-4 flex min-h-14 items-center gap-1 border-b border-line/70 bg-bg/92 px-2 backdrop-blur-lg md:mx-0 md:rounded-b-[14px] md:px-2');
 
   const voltar = criarElemento('button', 'press flex min-h-11 items-center gap-1 rounded-full px-3 text-[16px] font-medium text-action hover:bg-action-tint');
@@ -455,10 +563,7 @@ export function criarCabecalhoPagina({ titulo, voltarPara, direita }) {
   return cabecalho;
 }
 
-/**
- * @param {{ titulo: string, subtitulo?: string, direita?: HTMLElement }} opcoes
- */
-export function criarTituloGrande({ titulo, subtitulo, direita }) {
+export function criarTituloGrande({ titulo, subtitulo, direita }: OpcoesTituloGrande): HTMLDivElement {
   const raiz = criarElemento('div', 'flex items-end justify-between gap-3 pt-6 pb-4 md:pt-8');
   const texto = criarElemento('div', 'min-w-0');
   texto.appendChild(criarElemento('h1', 'text-[34px] leading-[41px] font-bold tracking-[-0.02em]', titulo));
@@ -472,7 +577,7 @@ export function criarTituloGrande({ titulo, subtitulo, direita }) {
   return raiz;
 }
 
-export function criarTituloSecao(texto, direita) {
+export function criarTituloSecao(texto: string, direita?: HTMLElement): HTMLDivElement {
   const raiz = criarElemento('div', 'mt-8 mb-2 flex items-baseline justify-between px-1 first:mt-0');
   raiz.appendChild(criarElemento('h2', 'text-[22px] leading-7 font-bold tracking-[-0.01em]', texto));
   if (direita) {
@@ -485,10 +590,7 @@ export function criarTituloSecao(texto, direita) {
 // Grade de categorias
 
 // Devolve { elemento, obterValor, definirErro }.
-/**
- * @param {{ valor?: string, aoMudar?: (valor: string) => void }} [opcoes]
- */
-export function criarGradeCategorias({ valor = '', aoMudar } = {}) {
+export function criarGradeCategorias({ valor = '', aoMudar }: OpcoesGradeCategorias = {}): ControleGradeCategorias {
   let atual = valor;
   const raiz = criarElemento('div');
   const grade = criarElemento('div', 'grid grid-cols-2 gap-2 sm:grid-cols-3');
@@ -498,7 +600,7 @@ export function criarGradeCategorias({ valor = '', aoMudar } = {}) {
   raiz.appendChild(grade);
   raiz.appendChild(erroEl);
 
-  function desenhar() {
+  function desenhar(): void {
     grade.replaceChildren();
     VISUAL_CATEGORIAS.forEach((categoria) => {
       const ligada = atual === categoria.rotulo;
@@ -528,7 +630,7 @@ export function criarGradeCategorias({ valor = '', aoMudar } = {}) {
     });
   }
 
-  function definirErro(mensagem) {
+  function definirErro(mensagem: string): void {
     erroEl.replaceChildren();
     if (mensagem) {
       const p = criarElemento('p', 'mt-1.5 flex items-center gap-1.5 text-[13px] font-medium text-danger');
@@ -545,7 +647,7 @@ export function criarGradeCategorias({ valor = '', aoMudar } = {}) {
 // ---------------------------------------------------------------------------
 // Logo e aviso rápido (toast)
 
-export function criarLogo(tamanho = 24) {
+export function criarLogo(tamanho = 24): HTMLImageElement {
   const logo = criarElemento('img', 'block h-auto max-w-full');
   logo.src = `${import.meta.env.BASE_URL}images/logo.png`;
   logo.alt = 'HabitUs';
@@ -553,9 +655,9 @@ export function criarLogo(tamanho = 24) {
   return logo;
 }
 
-let temporizadorToast = null;
+let temporizadorToast: ReturnType<typeof setTimeout> | undefined;
 
-export function mostrarToast(texto) {
+export function mostrarToast(texto: string): void {
   let area = document.getElementById('area-toast');
   if (!area) {
     area = criarElemento('div', 'pointer-events-none fixed inset-x-0 bottom-24 z-[60] flex justify-center px-4 md:bottom-8');
