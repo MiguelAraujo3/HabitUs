@@ -1,6 +1,19 @@
-export function validarCadastro({name, username, email, password}) {
-  if (typeof name !== "string" || !name.trim() || name.trim().length> 100) {
-    return 'Informe um nome de até 100 caracteres'
+export interface DadosCadastro {
+  name?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+}
+
+export interface DadosPerfil {
+  name?: string;
+  username?: string;
+  profileDescription?: string;
+}
+
+export function validarCadastro({ name, username, email, password }: DadosCadastro): string | null {
+  if (typeof name !== 'string' || !name.trim() || name.trim().length > 100) {
+    return 'Informe um nome de até 100 caracteres';
   }
   if (typeof username !== 'string' || !/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
     return 'O usuário deve ter de 3 a 30 caracteres: letras, números ou _.';
@@ -16,7 +29,7 @@ export function validarCadastro({name, username, email, password}) {
   return null;
 }
 
-export function validarPerfil({ name, username, profileDescription }) {
+export function validarPerfil({ name, username, profileDescription }: DadosPerfil): string | null {
   if (typeof name !== 'string' || !name.trim() || name.length > 100) {
     return 'Informe um nome de até 100 caracteres.';
   }
@@ -25,10 +38,7 @@ export function validarPerfil({ name, username, profileDescription }) {
     return 'O usuário deve ter de 3 a 30 caracteres: letras, números ou _.';
   }
 
-  if (
-    typeof profileDescription !== 'string' ||
-    profileDescription.length > 500
-  ) {
+  if (typeof profileDescription !== 'string' || profileDescription.length > 500) {
     return 'A descrição deve ter até 500 caracteres.';
   }
 
