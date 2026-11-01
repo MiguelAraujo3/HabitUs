@@ -1,4 +1,4 @@
-export const CATEGORIAS = [
+export const CATEGORIAS: readonly string[] = [
   'Saúde',
   'Esportes e exercícios',
   'Estudos',
@@ -9,5 +9,7 @@ export const CATEGORIAS = [
   'Finanças',
   'Organização e produtividade',
   'Hobbies e criatividade',
-  'Outros'
+  'Outros',
 ];
+
+export type CategoriaGrupo = (typeof CATEGORIAS)[number];
