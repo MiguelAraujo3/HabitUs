@@ -5,26 +5,109 @@
 import { icone } from './icones.js';
 import {
   criarElemento, juntar, criarChipCategoria, criarSeloStatus, criarAvatarIniciais,
-  criarBotaoAcao, mostrarToast, criarLogo, criarLinkAcao,
+  criarBotaoAcao, mostrarToast, criarLogo, criarLinkAcao, type VarianteBotao,
 } from './ui.js';
-import { formatarDia } from '../utils/periodo.js';
+import { formatarDia, type StatusPeriodo } from '../utils/periodo.js';
+import type { Grupo } from '../data/grupos.js';
+
+export interface PessoaComPontos {
+  pontos: number;
+  [chave: string]: any;
+}
+
+export type PessoaComPosicao<T extends PessoaComPontos> = T & {
+  posicao: number;
+};
+
+export interface OpcoesCartaoGrupo {
+  grupo: Pick<Grupo, 'id' | 'nome' | 'categoria' | 'dataInicio' | 'dataFim'>;
+  status: StatusPeriodo | string;
+  quantidadeMembros: number;
+  posicao?: number | null;
+}
+
+export interface OpcoesLinhaRanking {
+  posicao: number;
+  nome: string;
+  usuario: string;
+  pontos: number;
+  voce?: boolean;
+}
+
+export interface OpcoesLinhaAtividade {
+  nome: string;
+  pontos: number;
+  feitoHoje?: boolean;
+}
+
+export interface OpcoesLinhaMembro {
+  nome: string;
+  usuario: string;
+  voce?: boolean;
+  dono?: boolean;
+  podeRemover?: boolean;
+  aoRemover?: () => void;
+}
+
+export interface DadosPostagemGrupo {
+  nome: string;
+  usuario: string;
+  voce?: boolean;
+  quando: string;
+  grupo: string;
+  atividade: string;
+  pontos: number;
+  texto: string;
+  foto?: string;
+  curtidas?: number;
+  comentarios?: number;
+}
+
+export interface OpcoesCartaoPostagemGrupo {
+  aoExcluir?: () => void;
+}
+
+export type TomConvite = 'neutro' | 'lima' | 'perigo' | 'acao' | 'encerrado';
+
+export interface MetaConvite {
+  categoria: string;
+  quantidadeMembros: number;
+  dataInicio: string;
+  dataFim: string;
+}
+
+export interface OpcoesTelaConvite {
+  iconeNome: string;
+  tom: TomConvite | string;
+  titulo: string;
+  texto: string;
+  meta?: MetaConvite;
+  acoes: HTMLElement[];
+  destinoLogo: string;
+}
+
+export interface OpcoesAcaoConvite {
+  href?: string;
+  variante?: VarianteBotao | string;
+  aoClicar?: () => void;
+}
 
 // "1 membro" / "5 membros"
-export function textoMembros(quantidade) {
+export function textoMembros(quantidade: number): string {
   return `${quantidade} ${quantidade === 1 ? 'membro' : 'membros'}`;
 }
 
 // "13 out – 12 nov"
-export function textoPeriodo(dataInicio, dataFim) {
+export function textoPeriodo(dataInicio: string, dataFim: string): string {
   return `${formatarDia(dataInicio)} – ${formatarDia(dataFim)}`;
 }
 
 // Ranking com empate na mesma posição, sem pular (1º, 1º, 2º).
 // RUBRICA: programação funcional (sort e map; a posição só muda quando os pontos mudam)
-export function calcularPosicoes(pessoas) {
+export function calcularPosicoes<T extends PessoaComPontos>(pessoas: T[]): Array<PessoaComPosicao<T>> {
   const ordenadas = [...pessoas].sort((a, b) => b.pontos - a.pontos);
   let posicao = 0;
-  let anterior = null;
+  let anterior: number | null = null;
   return ordenadas.map((pessoa) => {
     if (pessoa.pontos !== anterior) {
       posicao += 1;
@@ -38,7 +121,7 @@ export function calcularPosicoes(pessoas) {
 // Lista de grupos
 
 // grupo: { id, nome, categoria, dataInicio, dataFim } ; status: 'andamento' | ...
-export function criarCartaoGrupo({ grupo, status, quantidadeMembros, posicao }) {
+export function criarCartaoGrupo({ grupo, status, quantidadeMembros, posicao }: OpcoesCartaoGrupo): HTMLLIElement {
   const item = criarElemento('li');
   const link = criarElemento('a', 'flex items-center gap-3 p-4 hover:bg-surface-2');
   link.href = `grupo.html?id=${encodeURIComponent(grupo.id)}`;
@@ -76,12 +159,12 @@ export function criarCartaoGrupo({ grupo, status, quantidadeMembros, posicao }) 
 // Tela do grupo
 
 // Link de convite do grupo: convite.html?codigo=CÓDIGO (mesma pasta da página atual).
-export function montarLinkConvite(codigo) {
+export function montarLinkConvite(codigo: string): string {
   const pasta = window.location.pathname.replace(/[^/]*$/, '');
   return `${window.location.origin}${pasta}convite.html?codigo=${encodeURIComponent(codigo)}`;
 }
 
-async function copiarTexto(texto) {
+async function copiarTexto(texto: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(texto);
     return true;
@@ -90,7 +173,7 @@ async function copiarTexto(texto) {
   }
 }
 
-export function criarCaixaLink(link) {
+export function criarCaixaLink(link: string): HTMLDivElement {
   const caixa = criarElemento('div', 'mt-4 flex items-center gap-2 rounded-[12px] bg-surface p-2 pl-3.5');
   caixa.appendChild(criarElemento('span', 'min-w-0 flex-1 truncate text-[14px] text-ink-2', link.replace(/^https?:\/\//, '')));
   const copiar = criarBotaoAcao('Copiar', {
@@ -104,7 +187,7 @@ export function criarCaixaLink(link) {
   return caixa;
 }
 
-export function criarLinhaRanking({ posicao, nome, usuario, pontos, voce }) {
+export function criarLinhaRanking({ posicao, nome, usuario, pontos, voce }: OpcoesLinhaRanking): HTMLLIElement {
   const linha = criarElemento('li', juntar('relative flex items-center gap-3 px-4 py-3', voce && 'bg-action-tint'));
   if (voce) {
     const marca = criarElemento('span', 'absolute inset-y-0 left-0 w-1 bg-action');
@@ -131,7 +214,7 @@ export function criarLinhaRanking({ posicao, nome, usuario, pontos, voce }) {
   return linha;
 }
 
-export function criarLinhaAtividade({ nome, pontos, feitoHoje }) {
+export function criarLinhaAtividade({ nome, pontos, feitoHoje }: OpcoesLinhaAtividade): HTMLLIElement {
   const linha = criarElemento('li', 'flex items-center gap-3 px-4 py-3.5');
   linha.appendChild(criarElemento('span', 'min-w-0 flex-1 text-[16px] font-medium', nome));
   if (feitoHoje) {
@@ -144,7 +227,7 @@ export function criarLinhaAtividade({ nome, pontos, feitoHoje }) {
   return linha;
 }
 
-export function criarLinhaMembro({ nome, usuario, voce, dono, podeRemover, aoRemover }) {
+export function criarLinhaMembro({ nome, usuario, voce, dono, podeRemover, aoRemover }: OpcoesLinhaMembro): HTMLLIElement {
   const linha = criarElemento('li', 'flex items-center gap-3 px-4 py-3');
   linha.appendChild(criarAvatarIniciais(nome, 40));
 
@@ -160,7 +243,7 @@ export function criarLinhaMembro({ nome, usuario, voce, dono, podeRemover, aoRem
     selo.appendChild(document.createTextNode('Dono'));
     linha.appendChild(selo);
   }
-  if (podeRemover) {
+  if (podeRemover && aoRemover) {
     const remover = criarElemento('button', 'press min-h-11 rounded-full px-3 text-[14px] font-semibold text-danger hover:bg-danger-tint', 'Remover');
     remover.type = 'button';
     remover.addEventListener('click', aoRemover);
@@ -170,11 +253,10 @@ export function criarLinhaMembro({ nome, usuario, voce, dono, podeRemover, aoRem
 }
 
 // post: { nome, usuario, voce, quando, grupo, atividade, pontos, texto, foto }
-/**
- * @param {any} post
- * @param {{ aoExcluir?: () => void }} [opcoes]
- */
-export function criarCartaoPostagem(post, { aoExcluir } = {}) {
+export function criarCartaoPostagem(
+  post: DadosPostagemGrupo,
+  { aoExcluir }: OpcoesCartaoPostagemGrupo = {}
+): HTMLElement {
   const cartao = criarElemento('article', 'rounded-[14px] bg-surface');
   const destino = post.voce ? 'perfil.html' : `perfil.html?usuario=${encodeURIComponent(post.usuario)}`;
 
@@ -223,7 +305,7 @@ export function criarCartaoPostagem(post, { aoExcluir } = {}) {
   curtir.type = 'button';
   curtir.setAttribute('aria-pressed', 'false');
   const contagem = criarElemento('span', 'tnum', String(curtidas));
-  function desenharCurtir() {
+  function desenharCurtir(): void {
     curtir.replaceChildren();
     curtir.classList.toggle('text-coral-ink', curtiu);
     curtir.classList.toggle('text-ink-2', !curtiu);
@@ -254,7 +336,7 @@ export function criarCartaoPostagem(post, { aoExcluir } = {}) {
 // ---------------------------------------------------------------------------
 // Convite
 
-const TONS_CONVITE = {
+const TONS_CONVITE: Record<string, string> = {
   neutro: 'bg-surface-2 text-ink-2',
   lima: 'bg-lime text-black',
   perigo: 'bg-danger-tint text-danger',
@@ -263,7 +345,7 @@ const TONS_CONVITE = {
 };
 
 // Monta a tela do convite. acoes: lista de botões/links já criados.
-export function criarTelaConvite({ iconeNome, tom, titulo, texto, meta, acoes, destinoLogo }) {
+export function criarTelaConvite({ iconeNome, tom, titulo, texto, meta, acoes, destinoLogo }: OpcoesTelaConvite): HTMLDivElement {
   const raiz = criarElemento('div', 'flex min-h-dvh flex-col items-center justify-center px-4 py-10');
 
   const linkLogo = criarElemento('a', 'mb-8');
@@ -295,11 +377,10 @@ export function criarTelaConvite({ iconeNome, tom, titulo, texto, meta, acoes, d
 }
 
 // Botão/link largo usado no cartão do convite.
-/**
- * @param {string} texto
- * @param {{ href?: string, variante?: string, aoClicar?: () => void }} [opcoes]
- */
-export function criarAcaoConvite(texto, { href, variante = 'primary', aoClicar } = {}) {
+export function criarAcaoConvite(
+  texto: string,
+  { href, variante = 'primary', aoClicar }: OpcoesAcaoConvite = {}
+): HTMLAnchorElement | HTMLButtonElement {
   if (href) {
     return criarLinkAcao(texto, { href, variante, extra: 'w-full' });
   }
