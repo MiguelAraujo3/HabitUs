@@ -3,6 +3,8 @@ import { paraChave, hoje } from './datas.js';
 // ---------------------------------------------------------------------------
 // Formatação e período (telas de grupos)
 
+export type StatusPeriodo = 'nao-iniciado' | 'andamento' | 'encerrado';
+
 const MESES_CURTOS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const MESES_LONGOS = [
   'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
@@ -11,7 +13,7 @@ const MESES_LONGOS = [
 
 // formatarDia('2026-10-13') -> '13 out'; formatarDia('2026-10-13', true) -> '13 de outubro de 2026'
 // Lê a chave como texto: não cria Date, então não sofre com fuso horário.
-export function formatarDia(chave, longo = false) {
+export function formatarDia(chave: string, longo = false): string {
   const ano = parseInt(chave.substring(0, 4));
   const mes = parseInt(chave.substring(5, 7));
   const dia = parseInt(chave.substring(8, 10));
@@ -23,7 +25,11 @@ export function formatarDia(chave, longo = false) {
 
 // statusDoPeriodo(inicio, fim) -> 'nao-iniciado' | 'andamento' | 'encerrado'
 // Chaves 'AAAA-MM-DD' podem ser comparadas como texto.
-export function statusDoPeriodo(dataInicio, dataFim, chaveHoje = paraChave(hoje())) {
+export function statusDoPeriodo(
+  dataInicio: string,
+  dataFim: string,
+  chaveHoje: string = paraChave(hoje())
+): StatusPeriodo {
   if (chaveHoje < dataInicio) {
     return 'nao-iniciado';
   }
