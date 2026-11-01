@@ -15,21 +15,26 @@
 //   O recorde guarda o maior valor já atingido, mesmo que a semana depois tenha falhado;
 // - o dia (ou a semana) em curso nunca quebra a sequência: ainda dá tempo de marcar.
 
+import type { Frequencia, Sequencia } from '../types/habito.js';
 import { hoje, paraChave } from '../utils/datas.js';
 
 const MS_DIA = 86400000;
 
+export interface AtividadeComPontos {
+  pontos: number;
+}
+
 // Número do dia (dias desde 1970, em UTC): evita erros de fuso/horário de verão ao contar dias
-function numDia(chave) {
+function numDia(chave: string): number {
   const [ano, mes, dia] = chave.split('-').map(Number);
   return Math.round(Date.UTC(ano, mes - 1, dia) / MS_DIA);
 }
 
-function diaDaSemanaDeNum(n) {
+function diaDaSemanaDeNum(n: number): number {
   return new Date(n * MS_DIA).getUTCDay(); // 0 = domingo
 }
 
-function chaveDeHoje() {
+function chaveDeHoje(): string {
   return paraChave(hoje());
 }
 
@@ -37,15 +42,17 @@ function chaveDeHoje() {
 // Na frequência "dias da semana", `dias` são os dias de hoje e `historico` guarda os dias
 // antigos, se já foram trocados: [{ ate: 'AAAA-MM-DD', dias: [...] }]. Cada período vale até
 // a data `ate` (inclusive); depois do último, valem os dias atuais.
-function criarAgendamento(frequencia) {
+function criarAgendamento(frequencia?: Frequencia | null): (n: number) => boolean {
   const tipo = frequencia ? frequencia.tipo : 'diaria';
-  if (tipo !== 'dias-semana') return () => true; // diária: todo dia é previsto
+  if (tipo !== 'dias-semana' || !frequencia || frequencia.tipo !== 'dias-semana') {
+    return () => true; // diária: todo dia é previsto
+  }
 
   const anteriores = (frequencia.historico || [])
     .map((periodo) => ({ ate: numDia(periodo.ate), dias: periodo.dias }))
     .sort((a, b) => a.ate - b.ate);
 
-  return (n) => {
+  return (n: number): boolean => {
     const periodo = anteriores.find((p) => n <= p.ate);
     const dias = periodo ? periodo.dias : frequencia.dias;
     // Sem dias (dado antigo): na prática é todo dia
@@ -54,10 +61,13 @@ function criarAgendamento(frequencia) {
 }
 
 // Diária e dias da semana: "agendado(n)" diz se o dia n é previsto
-function sequenciaPorDias(datas, agendado, hojeN) {
-
+function sequenciaPorDias(
+  datas: number[],
+  agendado: (n: number) => boolean,
+  hojeN: number
+): Sequencia {
   // Existe algum dia previsto estritamente entre a e b sem marcação?
-  const temAgendadoEntre = (a, b) => {
+  const temAgendadoEntre = (a: number, b: number): boolean => {
     for (let n = a + 1; n < b; n++) {
       if (agendado(n)) return true;
     }
@@ -84,20 +94,20 @@ function sequenciaPorDias(datas, agendado, hojeN) {
 // "X vezes por semana": semanas de domingo a sábado.
 // Cada dia marcado soma 1 na hora (até a meta da semana); marcar além da meta não soma.
 // Semana que termina abaixo da meta zera a sequência, mas o recorde guarda o pico alcançado.
-function sequenciaVezesNaSemana(datas, meta, hojeN) {
-  const semanaDe = (n) => n - diaDaSemanaDeNum(n); // número do domingo da semana
+function sequenciaVezesNaSemana(datas: number[], meta: number, hojeN: number): Sequencia {
+  const semanaDe = (n: number): number => n - diaDaSemanaDeNum(n); // número do domingo da semana
   const semanaAtual = semanaDe(hojeN);
 
   const contagem = datas.reduce((mapa, n) => {
     const s = semanaDe(n);
     mapa.set(s, (mapa.get(s) || 0) + 1);
     return mapa;
-  }, new Map());
+  }, new Map<number, number>());
   const semanas = [...contagem.keys()].sort((a, b) => a - b);
 
   const resultado = semanas.reduce(
     (acc, s, i) => {
-      const marcadas = contagem.get(s);
+      const marcadas = contagem.get(s) || 0;
       // Houve semana(s) sem nenhuma marcação entre a anterior e esta: a sequência tinha zerado
       const base = i > 0 && s - semanas[i - 1] > 7 ? 0 : acc.atual;
       const pico = base + Math.min(marcadas, meta); // soma 1 por marcação, até a meta
@@ -115,7 +125,11 @@ function sequenciaVezesNaSemana(datas, meta, hojeN) {
 // Ponto de entrada geral: devolve { atual, maior } para qualquer frequência do modelo
 // frequencia: { tipo: 'diaria' | 'dias-semana' | 'vezes-semana', dias?: number[], vezes?: number,
 //   historico?: { ate: string, dias: number[] }[] }
-export function calcularSequencia(frequencia, completes, chaveHoje = chaveDeHoje()) {
+export function calcularSequencia(
+  frequencia: Frequencia | null | undefined,
+  completes: string[],
+  chaveHoje: string = chaveDeHoje()
+): Sequencia {
   const hojeN = numDia(chaveHoje);
   const datas = [...new Set(completes.map(numDia))]
     .filter((n) => n <= hojeN)
@@ -124,39 +138,54 @@ export function calcularSequencia(frequencia, completes, chaveHoje = chaveDeHoje
   if (datas.length === 0) return { atual: 0, maior: 0 };
 
   const tipo = frequencia ? frequencia.tipo : 'diaria';
-  if (tipo === 'vezes-semana') {
+  if (tipo === 'vezes-semana' && frequencia && frequencia.tipo === 'vezes-semana') {
     return sequenciaVezesNaSemana(datas, frequencia.vezes || 1, hojeN);
   }
   return sequenciaPorDias(datas, criarAgendamento(frequencia), hojeN);
 }
 
 // Atalhos usados pelos testes e por quem só precisa de um dos números
-export function calcularSequenciaDiaria(completes, chaveHoje = chaveDeHoje()) {
+export function calcularSequenciaDiaria(
+  completes: string[],
+  chaveHoje: string = chaveDeHoje()
+): number {
   return calcularSequencia({ tipo: 'diaria' }, completes, chaveHoje).atual;
 }
 
-export function calcularSequenciaDiasDaSemana(completes, diasSelecionados, chaveHoje = chaveDeHoje()) {
+export function calcularSequenciaDiasDaSemana(
+  completes: string[],
+  diasSelecionados: number[],
+  chaveHoje: string = chaveDeHoje()
+): number {
   return calcularSequencia({ tipo: 'dias-semana', dias: diasSelecionados }, completes, chaveHoje).atual;
 }
 
-export function calcularSequenciaVezesNaSemana(completes, meta, chaveHoje = chaveDeHoje()) {
+export function calcularSequenciaVezesNaSemana(
+  completes: string[],
+  meta: number,
+  chaveHoje: string = chaveDeHoje()
+): number {
   return calcularSequencia({ tipo: 'vezes-semana', vezes: meta }, completes, chaveHoje).atual;
 }
 
-export function calcularMaiorSequencia(completes, frequencia, chaveHoje = chaveDeHoje()) {
+export function calcularMaiorSequencia(
+  completes: string[],
+  frequencia: Frequencia,
+  chaveHoje: string = chaveDeHoje()
+): number {
   return calcularSequencia(frequencia, completes, chaveHoje).maior;
 }
 
 // Soma dos pontos das atividades concluídas (pontos 1 a 10, definido em src/data/modelo.js).
-export function calcularPontos(atividades) {
+export function calcularPontos(atividades: AtividadeComPontos[]): number {
   return atividades.reduce((total, atividade) => total + atividade.pontos, 0);
 }
 
 export function calcularDataRecorde(
-  frequencia,
-  conclusoes,
-  chaveHoje = chaveDeHoje()
-) {
+  frequencia: Frequencia,
+  conclusoes: string[],
+  chaveHoje: string = chaveDeHoje()
+): string | null {
   const datas = [...new Set(conclusoes)]
     .filter((data) => data <= chaveHoje)
     .sort();
@@ -167,7 +196,7 @@ export function calcularDataRecorde(
     return null;
   }
 
-  let dataRecorde = null;
+  let dataRecorde: string | null = null;
 
   for (const data of datas) {
     const anteriores = datas.filter((dia) => dia < data);
