@@ -4,12 +4,12 @@
 // NÃO usar Intl.DateTimeFormat com timeZone:'local' (lança RangeError)
 
 // hoje() — horário LOCAL
-export function hoje() {
+export function hoje(): Date {
   return new Date();
 }
 
 // paraChave(data) — 'AAAA-MM-DD' sem usar toISOString
-export function paraChave(data) {
+export function paraChave(data: Date | string | number): string {
   const d = new Date(data); // copia
   const yr = d.getFullYear();
   const mo = String(d.getMonth() + 1).padStart(2, '0');
@@ -18,7 +18,7 @@ export function paraChave(data) {
 }
 
 // deChave('AAAA-MM-DD') — Date local sem interpretar como UTC
-export function deChave(chave) {
+export function deChave(chave: string): Date {
   const ano = parseInt(chave.substring(0, 4));
   const mes = parseInt(chave.substring(5, 7)) - 1;
   const dia = parseInt(chave.substring(8, 10));
@@ -26,12 +26,12 @@ export function deChave(chave) {
 }
 
 // mesmoDia(a, b) — compara no fuso local
-export function mesmoDia(a, b) {
+export function mesmoDia(a: Date | string | number, b: Date | string | number): boolean {
   return paraChave(a) === paraChave(b);
 }
 
 // inicioDaSemana(data) — domingo 00:00:00.000 fuso local
-export function inicioDaSemana(data) {
+export function inicioDaSemana(data: Date | string | number): Date {
   const d = new Date(data); // copia
   d.setHours(0, 0, 0, 0);
   const diaSemana = d.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
@@ -42,7 +42,7 @@ export function inicioDaSemana(data) {
 }
 
 // fimDaSemana(data) — sábado 23:59:59.999 fuso local
-export function fimDaSemana(data) {
+export function fimDaSemana(data: Date | string | number): Date {
   const d = new Date(data); // copia
   d.setHours(23, 59, 59, 999);
   const diaSemana = d.getDay();
@@ -53,13 +53,13 @@ export function fimDaSemana(data) {
 }
 
 // somarDias(data, n) — adiciona n dias (copia antes, nunca muta original)
-export function somarDias(data, n) {
+export function somarDias(data: Date | string | number, n: number): Date {
   const d = new Date(data); // copia
   d.setDate(d.getDate() + n);
   return d;
 }
 
 // diaDaSemana(data) — 0=Domingo a 6=Sábado
-export function diaDaSemana(data) {
+export function diaDaSemana(data: Date): number {
   return data.getDay();
 }
