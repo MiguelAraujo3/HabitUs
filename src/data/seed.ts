@@ -1,15 +1,25 @@
+import type { Habito } from '../types/habito.js';
 import { salvarLista } from './storage.js';
 import { createUser, updateUser } from './index.js';
 import { hoje, somarDias, paraChave } from '../utils/datas.js';
 
 // ============================================================
-// seed.js - Dados iniciais (Stage S1-05)
+// seed.ts - Dados iniciais (Stage S1-05)
 // carregarDadosIniciais() so POPULA quando todas as colecoes estiverem vazias.
 // NUNCA sobrescreve dados existentes.
 // Apenas exportada; nao e chamada por nenhuma pagina.
 // ============================================================
 
-const USUARIOS_SEED = [
+interface UsuarioSeed {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  profileDescription: string;
+}
+
+const USUARIOS_SEED: UsuarioSeed[] = [
   // Os IDs u1-u4 sao aliases internos; createUser gera os UUIDs persistidos.
   // As senhas de demonstracao sao usadas apenas como entrada para o cadastro.
   { id: 'u1', name: 'Ana Silva', username: 'ana_silva', email: 'ana@email.com', password: '123456', profileDescription: 'Estudante de computacao' },
@@ -18,7 +28,7 @@ const USUARIOS_SEED = [
   { id: 'u4', name: 'Daniel Pereira', username: 'daniel_p', email: 'daniel@email.com', password: 'senha000', profileDescription: 'Designer UX/UI' },
 ];
 
-const HABITOS_SEED = [
+const HABITOS_SEED: Habito[] = [
   { id: 'h1', idUsuario: 'u1', nome: 'Beber agua', categoria: 'saude', descricao: '2 litros por dia', frequencia: { tipo: 'diaria' }, dataCriacao: paraChave(hoje()), ativo: true },
   { id: 'h2', idUsuario: 'u1', nome: 'Corrida matinal', categoria: 'esportes', descricao: '5 km manha', frequencia: { tipo: 'dias-semana', dias: [1, 3, 5] }, dataCriacao: paraChave(somarDias(hoje(), -7)), ativo: true },
   { id: 'h3', idUsuario: 'u2', nome: 'Leitura', categoria: 'leitura', descricao: '30 min antes de dormir', frequencia: { tipo: 'vezes-semana', vezes: 4 }, dataCriacao: paraChave(somarDias(hoje(), -14)), ativo: true },
@@ -45,7 +55,7 @@ const GRUPOS_SEED = [
     idDono: 'u1',
     codigoConvite: 'CORRIDA2026',
     encerrado: false,
-    rankingFinal: null,
+    rankingFinal: null as Record<string, number> | null,
   },
   {
     id: 'g2',
@@ -57,7 +67,7 @@ const GRUPOS_SEED = [
     idDono: 'u2',
     codigoConvite: 'LEITURA26',
     encerrado: true,
-    rankingFinal: { u1: 1, u3: 2, u4: 3 },
+    rankingFinal: { u1: 1, u3: 2, u4: 3 } as Record<string, number> | null,
   },
 ];
 
@@ -126,7 +136,7 @@ const COLECOES = [
   'postagens', 'comentarios', 'curtidas',
 ];
 
-function baseEstaVazia() {
+function baseEstaVazia(): boolean {
   return COLECOES.every((chave) => {
     const texto = localStorage.getItem(chave);
     if (texto === null) return true;
@@ -141,17 +151,20 @@ function baseEstaVazia() {
   });
 }
 
-function vincularUsuarios(registros, idsUsuarios) {
+function vincularUsuarios<T extends { idUsuario: string }>(
+  registros: T[],
+  idsUsuarios: Record<string, string>
+): T[] {
   return registros.map((registro) => ({
     ...registro,
     idUsuario: idsUsuarios[registro.idUsuario],
   }));
 }
 
-export async function carregarDadosIniciais() {
+export async function carregarDadosIniciais(): Promise<void> {
   if (!baseEstaVazia()) return;
 
-  const idsUsuarios = {};
+  const idsUsuarios: Record<string, string> = {};
   for (const { id, profileDescription, ...dadosCadastro } of USUARIOS_SEED) {
     const usuario = await createUser(dadosCadastro);
     await updateUser(usuario.id, { profileDescription });
@@ -161,18 +174,26 @@ export async function carregarDadosIniciais() {
   const grupos = GRUPOS_SEED.map((grupo) => ({
     ...grupo,
     idDono: idsUsuarios[grupo.idDono],
-    rankingFinal: grupo.rankingFinal === null ? null : Object.fromEntries(
-      Object.entries(grupo.rankingFinal).map(([idUsuario, posicao]) => [
-        idsUsuarios[idUsuario], posicao,
-      ])
-    ),
+    rankingFinal:
+      grupo.rankingFinal === null
+        ? null
+        : Object.fromEntries(
+            Object.entries(grupo.rankingFinal).map(([idUsuario, posicao]) => [
+              idsUsuarios[idUsuario],
+              posicao,
+            ])
+          ),
   }));
 
   // Nestas colecoes, o ID do registro tambem e o ID do usuario.
-  const recordes = vincularUsuarios(RECORDES_SEED, idsUsuarios)
-    .map((registro) => ({ ...registro, id: registro.idUsuario }));
-  const totais = vincularUsuarios(TOTAIS_SEED, idsUsuarios)
-    .map((registro) => ({ ...registro, id: registro.idUsuario }));
+  const recordes = vincularUsuarios(RECORDES_SEED, idsUsuarios).map((registro) => ({
+    ...registro,
+    id: registro.idUsuario,
+  }));
+  const totais = vincularUsuarios(TOTAIS_SEED, idsUsuarios).map((registro) => ({
+    ...registro,
+    id: registro.idUsuario,
+  }));
 
   salvarLista('habitos', vincularUsuarios(HABITOS_SEED, idsUsuarios));
   salvarLista('grupos', grupos);
