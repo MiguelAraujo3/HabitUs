@@ -15,7 +15,7 @@ export interface HabitoPostagem {
 }
 
 export interface PostagemComDetalhes extends Postagem {
-  autor: AutorPostagem;
+  autor?: AutorPostagem | null;
   habito?: HabitoPostagem | null;
 }
 
@@ -53,12 +53,14 @@ export function criarCartaoPostagem(postagem: PostagemComDetalhes): HTMLLIElemen
     obterIniciais(postagem.autor)
   );
   const quem = criarElemento('div', 'flex flex-col');
-  quem.appendChild(criarElemento('span', 'text-sm font-semibold', postagem.autor.name));
+  const nomeAutor = postagem.autor?.name ?? 'Usuário';
+  const usernameAutor = postagem.autor?.username ?? 'usuario';
+  quem.appendChild(criarElemento('span', 'text-sm font-semibold', nomeAutor));
   quem.appendChild(
     criarElemento(
       'span',
       'text-xs text-gray-500',
-      `@${postagem.autor.username} · ${formatarTempo(postagem.dataHora)}`
+      `@${usernameAutor} · ${formatarTempo(postagem.dataHora)}`
     )
   );
   cabecalho.appendChild(avatar);
@@ -85,7 +87,7 @@ export function criarCartaoPostagem(postagem: PostagemComDetalhes): HTMLLIElemen
   if (postagem.imagem) {
     const imagem = criarElemento('img', 'max-h-96 w-full rounded-lg object-cover');
     imagem.src = postagem.imagem;
-    imagem.alt = `Imagem da postagem de ${postagem.autor.name}`;
+    imagem.alt = `Imagem da postagem de ${nomeAutor}`;
     item.appendChild(imagem);
   }
 

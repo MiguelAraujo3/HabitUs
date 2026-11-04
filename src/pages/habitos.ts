@@ -958,8 +958,8 @@ async function iniciar(): Promise<void> {
   // Se o menu falhar, a página continua funcionando e o erro aparece no console.
   try {
     const menu = await criarNavbar();
-    ajustarMenuMobile(menu);
-    $('menu').appendChild(menu);
+    if (menu) ajustarMenuMobile(menu);
+    if (menu) $('menu').appendChild(menu);
   } catch (erro) {
     console.error('Não foi possível montar o menu:', erro);
   }

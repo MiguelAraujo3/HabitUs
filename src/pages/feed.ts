@@ -120,7 +120,7 @@ function criarTelaPostagem(): TelaPostagemElement {
 
     botaoPublicar.disabled = true;
     try {
-      const usuario = await obterUsuarioAtual();
+      const usuario = (await obterUsuarioAtual())!;
       await repoPostagens.criar({ idUsuario: usuario.id, idHabito, texto, imagem: null });
       fecharTelaPostagem();
       mostrarPostagens(await carregarPostagens());
@@ -139,7 +139,7 @@ function criarTelaPostagem(): TelaPostagemElement {
     erroHabito.hidden = true;
     erroTexto.hidden = true;
 
-    const usuario = await obterUsuarioAtual();
+    const usuario = (await obterUsuarioAtual())!;
     const habitos = await getHabitsByUser(usuario.id);
 
     const placeholder = document.createElement('option');
