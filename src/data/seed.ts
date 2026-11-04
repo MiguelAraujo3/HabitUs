@@ -1,4 +1,5 @@
 import type { Habito } from '../types/habito.js';
+import type { Postagem } from './postagens.js';
 import { salvarLista } from './storage.js';
 import { createUser, updateUser } from './index.js';
 import { hoje, somarDias, paraChave } from '../utils/datas.js';
@@ -121,7 +122,7 @@ const TOTAIS_SEED = [
   { id: 'u4', idUsuario: 'u4', atividadesConcluidas: 12 },
 ];
 
-const POSTAGENS_SEED = [
+const POSTAGENS_SEED: Postagem[] = [
   { id: 'p1', idUsuario: 'u1', idHabito: 'h1', texto: 'Consegui beber agua hoje!', imagem: null, dataHora: new Date(somarDias(dataHoje, -1)).toISOString() },
   { id: 'p2', idUsuario: 'u2', idHabito: 'h3', texto: 'Terminei mais um livro.', imagem: null, dataHora: new Date(somarDias(dataHoje, -2)).toISOString() },
   { id: 'p3', idUsuario: 'u3', idHabito: 'h5', texto: 'Treino de pernas concluido.', imagem: null, dataHora: new Date(somarDias(dataHoje, -3)).toISOString() },
