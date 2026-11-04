@@ -64,12 +64,13 @@ function montarLogin(): void {
       try {
         await entrar(identificador, senha);
         voltarParaUltimoDestino();
-      } catch (erro: any) {
+      } catch (erro: unknown) {
+        const erroComCodigo = erro as { code?: string; message?: string };
         const erroEsperado =
-          erro.code === 'VALIDATION_ERROR' ||
-          erro.code === 'UNAUTHORIZED';
+          erroComCodigo.code === 'VALIDATION_ERROR' ||
+          erroComCodigo.code === 'UNAUTHORIZED';
 
-        erroLogin.textContent = erroEsperado ? erro.message : 'Não foi possível entrar. Tente novamente.';
+        erroLogin.textContent = erroEsperado ? (erroComCodigo.message ?? '') : 'Não foi possível entrar. Tente novamente.';
 
         erroLogin.hidden = false;
       } finally {
@@ -166,15 +167,16 @@ function montarCadastro(): void {
 
         await entrar(usuario.email, password);
         voltarParaUltimoDestino();
-      } catch (erro: any) {
+      } catch (erro: unknown) {
+        const erroComCodigo = erro as { code?: string; message?: string };
         const erroEsperado =
-          erro.code === 'VALIDATION_ERROR' ||
-          erro.code === 'ALREADY_EXISTS';
+          erroComCodigo.code === 'VALIDATION_ERROR' ||
+          erroComCodigo.code === 'ALREADY_EXISTS';
 
         if (contaCriada) {
           erroCadastro.textContent = 'Conta criada, mas não foi possível entrar. Acesse pelo formulário de login.';
         } else {
-          erroCadastro.textContent = erroEsperado ? erro.message : 'Não foi possível cadastrar. Tente novamente.';
+          erroCadastro.textContent = erroEsperado ? (erroComCodigo.message ?? '') : 'Não foi possível cadastrar. Tente novamente.';
         }
 
         erroCadastro.hidden = false;

@@ -26,7 +26,7 @@ export interface ConfiguracaoItemLista {
 export interface AbaBase {
   rotulo: string;
   selecionada?: boolean;
-  [chave: string]: any;
+
 }
 
 export interface ConfiguracaoAba {

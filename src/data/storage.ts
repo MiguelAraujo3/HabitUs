@@ -1,4 +1,4 @@
-export function lerLista<T = any>(chave: string): T[] {
+export function lerLista<T = unknown>(chave: string): T[] {
   const dados = localStorage.getItem(chave);
   if (dados === null) return [];
   try {

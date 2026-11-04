@@ -275,8 +275,8 @@ if (autorizado) {
       formulario.hidden = true;
       botaoEditar.hidden = false;
       botaoEditar.focus();
-    } catch (erro: any) {
-      mensagem.textContent = erro.message;
+    } catch (erro: unknown) {
+      mensagem.textContent = erro instanceof Error ? erro.message : String(erro);
     } finally {
       botaoSalvar.disabled = false;
     }

@@ -12,7 +12,7 @@ import type { Grupo } from '../data/grupos.js';
 
 export interface PessoaComPontos {
   pontos: number;
-  [chave: string]: any;
+
 }
 
 export type PessoaComPosicao<T extends PessoaComPontos> = T & {
