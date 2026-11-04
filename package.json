@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node tests/test-runner.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "migration:report": "node scripts/relatorio-migracao.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
