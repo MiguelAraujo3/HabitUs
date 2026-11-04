@@ -1,5 +1,21 @@
 // Runner dos testes unitários — console, com resumo no final e código de saída.
-import { executarRegras } from './unit/regras.test.js';
+import { registerHooks } from 'node:module';
+
+// Permite que o Node resolva imports './arquivo.js' para './arquivo.ts' (padrão NodeNext).
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    try {
+      return nextResolve(specifier, context);
+    } catch (erro) {
+      if (erro?.code === 'ERR_MODULE_NOT_FOUND' && specifier.endsWith('.js')) {
+        return nextResolve(specifier.replace(/\.js$/, '.ts'), context);
+      }
+      throw erro;
+    }
+  },
+});
+
+const { executarRegras } = await import('./unit/regras.test.js');
 
 console.log('========================================');
 console.log('TESTES DE REGRAS: SEQUÊNCIA E PONTOS');

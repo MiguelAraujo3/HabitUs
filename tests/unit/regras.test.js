@@ -123,11 +123,11 @@ async function testarSequenciaDiasDaSemana() {
 async function testarSequenciaVezesNaSemana() {
   console.log('--- Sequência por vezes na semana ---');
 
-  // Meta de 3. Na semana corrente há 2 conclusões: a meta não conta.
+  // Meta de 3. Na semana corrente há 2 conclusões: soma cada dia marcado.
   {
     const completados = [chave(dataAnterior(1)), chave(dataAnterior(2))];
     const atual = calcularSequenciaVezesNaSemana(completados, 3);
-    testar('meta nao atingida nao conta', atual === 0, `atual=${atual}`);
+    testar('meta parcial na semana corrente soma os dias marcados', atual === 2, `atual=${atual}`);
   }
 
   // Meta de 3. Na semana corrente há 3 conclusões: conta a meta.
