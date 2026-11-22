@@ -125,8 +125,13 @@ async function testarSequenciaVezesNaSemana() {
 
   // Meta de 3. Na semana corrente há 2 conclusões: soma cada dia marcado.
   {
-    const completados = [chave(dataAnterior(1)), chave(dataAnterior(2))];
-    const atual = calcularSequenciaVezesNaSemana(completados, 3);
+    const domingo = inicioDaSemanaDe(new Date());
+    const segunda = new Date(domingo);
+    segunda.setDate(domingo.getDate() + 1);
+    const terca = new Date(domingo);
+    terca.setDate(domingo.getDate() + 2);
+    const completados = [chave(domingo), chave(segunda)];
+    const atual = calcularSequenciaVezesNaSemana(completados, 3, chave(terca));
     testar('meta parcial na semana corrente soma os dias marcados', atual === 2, `atual=${atual}`);
   }
 

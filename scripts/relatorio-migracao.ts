@@ -25,7 +25,7 @@ function listarArquivos(diretorio: string): string[] {
 }
 
 const todosArquivos = listarArquivos(PASTA_SRC);
-const arquivosTs = todosArquivos.filter((a) => a.endsWith('.ts'));
+const arquivosTs = todosArquivos.filter((a) => a.endsWith('.ts') || a.endsWith('.tsx'));
 const arquivosJs = todosArquivos.filter((a) => a.endsWith('.js'));
 const totalCodigo = arquivosTs.length + arquivosJs.length;
 const percentual = totalCodigo > 0 ? ((arquivosTs.length / totalCodigo) * 100).toFixed(1) : '100.0';

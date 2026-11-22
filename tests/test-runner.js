@@ -1,14 +1,19 @@
 // Runner dos testes unitários — console, com resumo no final e código de saída.
 import { registerHooks } from 'node:module';
 
-// Permite que o Node resolva imports './arquivo.js' para './arquivo.ts' (padrão NodeNext).
+// Permite que o Node resolva imports relativos sem extensão ou com '.js' para '.ts'.
 registerHooks({
   resolve(specifier, context, nextResolve) {
     try {
       return nextResolve(specifier, context);
     } catch (erro) {
-      if (erro?.code === 'ERR_MODULE_NOT_FOUND' && specifier.endsWith('.js')) {
-        return nextResolve(specifier.replace(/\.js$/, '.ts'), context);
+      if (erro?.code === 'ERR_MODULE_NOT_FOUND') {
+        if (specifier.endsWith('.js')) {
+          return nextResolve(specifier.replace(/\.js$/, '.ts'), context);
+        }
+        if (specifier.startsWith('./') || specifier.startsWith('../')) {
+          return nextResolve(`${specifier}.ts`, context);
+        }
       }
       throw erro;
     }
