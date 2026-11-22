@@ -1,4 +1,4 @@
-import { paraChave, hoje } from './datas.js';
+import { paraChave, hoje } from './datas';
 
 // ---------------------------------------------------------------------------
 // Formatação e período (telas de grupos)

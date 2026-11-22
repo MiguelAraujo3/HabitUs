@@ -1,5 +1,4 @@
-import '../styles/base.css';
-import { entrar, createUser, obterUsuarioAtual } from '../data/index.js';
+import { entrar, createUser, obterUsuarioAtual } from '../data/index';
 
 function voltarParaUltimoDestino(): void {
   const destino = localStorage.getItem('destinoLogin');
@@ -7,11 +6,11 @@ function voltarParaUltimoDestino(): void {
   window.location.href = destino || 'habitos.html';
 }
 
-async function iniciarPagina(): Promise<void> {
+export async function iniciarPaginaInicial(): Promise<void> {
   const usuario = await obterUsuarioAtual();
 
   if (usuario) {
-    window.location.replace(`${import.meta.env.BASE_URL}habitos.html`);
+    window.location.replace('/habitos.html');
     return;
   }
 
@@ -24,7 +23,7 @@ function montarLogin(): void {
   <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
       <h1 class="mb-2 w-full max-w-64">
-        <img src="${import.meta.env.BASE_URL}images/logo.png" alt="HabitUs" class="block h-auto w-full">
+        <img src="/images/logo.png" alt="HabitUs" class="block h-auto w-full">
       </h1>
     </div>
 
@@ -93,7 +92,7 @@ function montarCadastro(): void {
   <div class="auth-card p-8 rounded-xl shadow-2xl w-full max-w-md border border-brand-blue">
     <div class="flex flex-col items-center justify-center mb-8">
       <h1 class="mb-2 w-full max-w-64">
-        <img src="${import.meta.env.BASE_URL}images/logo.png" alt="HabitUs" class="block h-auto w-full">
+        <img src="/images/logo.png" alt="HabitUs" class="block h-auto w-full">
       </h1>
     </div>
 
@@ -195,4 +194,4 @@ function montarCadastro(): void {
   }
 }
 
-await iniciarPagina();
+

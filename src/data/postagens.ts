@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarPostagem } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarPostagem } from './modelo';
 
 export interface Postagem {
   id: string;

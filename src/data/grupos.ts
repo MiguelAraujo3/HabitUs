@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarGrupo, type Grupo } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarGrupo, type Grupo } from './modelo';
 
 export type { Grupo };
 

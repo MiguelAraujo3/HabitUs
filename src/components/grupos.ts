@@ -2,13 +2,13 @@
 // Classes copiadas de docs/design/COMPONENTES.md. Os componentes só recebem dados
 // já prontos; quem lê o LocalStorage é a página (tarefas S1-35, S1-40 em diante).
 
-import { icone } from './icones.js';
+import { icone } from './icones';
 import {
   criarElemento, juntar, criarChipCategoria, criarSeloStatus, criarAvatarIniciais,
   criarBotaoAcao, mostrarToast, criarLogo, criarLinkAcao, type VarianteBotao,
-} from './ui.js';
-import { formatarDia, type StatusPeriodo } from '../utils/periodo.js';
-import type { Grupo } from '../data/grupos.js';
+} from './ui';
+import { formatarDia, type StatusPeriodo } from '../utils/periodo';
+import type { Grupo } from '../data/grupos';
 
 export interface PessoaComPontos {
   pontos: number;

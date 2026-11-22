@@ -1,7 +1,7 @@
-import type { ConclusaoHabito } from '../types/habito.js';
-import { lerLista, salvarLista } from './storage.js';
-import { criarConclusaoHabito } from './modelo.js';
-import { hoje, paraChave } from '../utils/datas.js';
+import type { ConclusaoHabito } from '../types/habito';
+import { lerLista, salvarLista } from './storage';
+import { criarConclusaoHabito } from './modelo';
+import { hoje, paraChave } from '../utils/datas';
 
 export interface DadosNovaConclusaoHabito {
   id?: string;

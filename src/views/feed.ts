@@ -1,19 +1,19 @@
-import '../styles/base.css';
-import { criarNavbar } from '../components/navbar.js';
-import { exigirLogin } from '../components/auth.js';
-import { getUserById, obterUsuarioAtual, getHabitsByUser } from '../data/index.js';
-import * as repoPostagens from '../data/postagens.js';
-import * as repoHabitos from '../data/habitos.js';
-import { criarCartaoPostagem, type PostagemComDetalhes } from '../components/postagem.js';
-import { criarElemento } from '../components/ui.js';
+import { criarNavbar } from '../components/navbar';
+import { exigirLogin } from '../components/auth';
+import { getUserById, obterUsuarioAtual, getHabitsByUser } from '../data/index';
+import * as repoPostagens from '../data/postagens';
+import * as repoHabitos from '../data/habitos';
+import { criarCartaoPostagem, type PostagemComDetalhes } from '../components/postagem';
+import { criarElemento } from '../components/ui';
 
 interface TelaPostagemElement extends HTMLElement {
   preparar: () => Promise<void>;
 }
 
-const listaPostagens = document.querySelector<HTMLUListElement>('#lista-postagens')!;
-const estadoVazio = document.querySelector<HTMLElement>('#estado-vazio')!;
-const telaFeed = listaPostagens.parentElement!;
+export async function iniciarPaginaFeed(): Promise<void> {
+  const listaPostagens = document.querySelector<HTMLUListElement>('#lista-postagens')!;
+  const estadoVazio = document.querySelector<HTMLElement>('#estado-vazio')!;
+  const telaFeed = listaPostagens.parentElement!;
 
 function atualizarEstadoVazio(): void {
   const temPostagens = listaPostagens.children.length > 0;
@@ -78,7 +78,7 @@ function criarTelaPostagem(): TelaPostagemElement {
 
   const aviso = criarElemento('p', 'rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900', 'Postar não marca o hábito como cumprido. Para registrar, vá em ');
   const linkAviso = criarElemento('a', 'underline', 'Hábitos');
-  linkAviso.href = `${import.meta.env.BASE_URL}habitos.html`;
+  linkAviso.href = '/habitos.html';
   aviso.append(linkAviso, '.');
 
   const botaoPublicar = criarElemento('button', 'w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700', 'Publicar');
@@ -185,5 +185,6 @@ if (autorizado) {
 
   const postagens = await carregarPostagens();
   mostrarPostagens(postagens);
-  document.querySelector('#btn-nova-postagem')!.addEventListener('click', abrirTelaPostagem);
+    document.querySelector('#btn-nova-postagem')!.addEventListener('click', abrirTelaPostagem);
+  }
 }

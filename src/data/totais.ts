@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarTotalUsuario, type TotalUsuario } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarTotalUsuario, type TotalUsuario } from './modelo';
 
 export type { TotalUsuario };
 

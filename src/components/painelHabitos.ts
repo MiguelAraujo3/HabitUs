@@ -3,17 +3,17 @@
 //   <aside id="painel-habitos" class="hidden lg:block ..."></aside>
 // e de carregar src/pages/painel-habitos.ts, que chama montarPainelHabitos().
 // Quem controla a posição e quando o painel aparece é o HTML da página (classes do aside).
-import { obterUsuarioAtual } from '../data/index.js';
-import * as repoConclusoes from '../data/conclusoesHabito.js';
-import { carregarHabitosDoUsuario } from '../data/consultas.js';
-import { calcularSequencia } from '../rules/streak.js';
-import { habitosDoDia, conclusaoDoDia, contarFeitos } from '../rules/habitosDoDia.js';
-import type { ConclusaoHabito, Habito } from '../types/habito.js';
-import { paraChave, hoje } from '../utils/datas.js';
-import { formatarSequencia } from '../utils/sequencia.js';
-import { el, svg } from '../utils/dom.js';
+import { obterUsuarioAtual } from '../data/index';
+import * as repoConclusoes from '../data/conclusoesHabito';
+import { carregarHabitosDoUsuario } from '../data/consultas';
+import { calcularSequencia } from '../rules/streak';
+import { habitosDoDia, conclusaoDoDia, contarFeitos } from '../rules/habitosDoDia';
+import type { ConclusaoHabito, Habito } from '../types/habito';
+import { paraChave, hoje } from '../utils/datas';
+import { formatarSequencia } from '../utils/sequencia';
+import { el, svg } from '../utils/dom';
 
-const BASE = import.meta.env.BASE_URL;
+const BASE = '/';
 
 // Classes do Tailwind (strings fixas, escritas por extenso para o Tailwind encontrá-las)
 const CLASSE_CHECK =

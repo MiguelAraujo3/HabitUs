@@ -2,7 +2,7 @@
 // Contrato de todas as funções: recebem uma configuração simples, devolvem o
 // elemento pronto e anexam listeners quando a configuração traz uma ação.
 
-import { obterIniciais, type UsuarioIdentificavel } from '../utils/usuario.js';
+import { obterIniciais, type UsuarioIdentificavel } from '../utils/usuario';
 
 export { obterIniciais };
 

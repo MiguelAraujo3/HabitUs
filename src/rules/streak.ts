@@ -15,8 +15,8 @@
 //   O recorde guarda o maior valor já atingido, mesmo que a semana depois tenha falhado;
 // - o dia (ou a semana) em curso nunca quebra a sequência: ainda dá tempo de marcar.
 
-import type { Frequencia, Sequencia } from '../types/habito.js';
-import { hoje, paraChave } from '../utils/datas.js';
+import type { Frequencia, Sequencia } from '../types/habito';
+import { hoje, paraChave } from '../utils/datas';
 
 const MS_DIA = 86400000;
 

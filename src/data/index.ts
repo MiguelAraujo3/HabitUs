@@ -6,35 +6,35 @@ export {
   updateUser,
   type Usuario,
   type ErroComCodigo,
-} from './users.js';
+} from './users';
 
 export {
   iniciarSessao,
   obterSessao,
   encerrarSessao,
   type SessaoUsuario,
-} from './session.js';
+} from './session';
 
 export {
   entrar,
   obterUsuarioAtual,
   type PerfilPublico,
-} from './auth.js';
+} from './auth';
 
 export {
   getHabitsByUser,
-} from './habitos.js';
+} from './habitos';
 
 export {
   getCompletionsByHabit,
-} from './conclusoesHabito.js';
+} from './conclusoesHabito';
 
 export {
   getHabitStreak,
   type SequenciaHabito,
-} from './consultas.js';
+} from './consultas';
 
 export {
   getPostsByUser,
   type Postagem,
-} from './postagens.js';
+} from './postagens';

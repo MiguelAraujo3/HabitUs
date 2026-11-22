@@ -3,8 +3,8 @@
 // como argumento, então a mesma entrada sempre dá a mesma saída (fácil de testar).
 //
 // diaDaSemana: 0 = domingo ... 6 = sábado. chave: 'AAAA-MM-DD'.
-import type { ConclusaoHabito, Habito } from '../types/habito.js';
-import { deChave, fimDaSemana, inicioDaSemana, paraChave } from '../utils/datas.js';
+import type { ConclusaoHabito, Habito } from '../types/habito';
+import { deChave, fimDaSemana, inicioDaSemana, paraChave } from '../utils/datas';
 
 // O hábito é do dia? Só os de "dias da semana" podem ficar de fora; os demais são sempre do dia.
 export function ehDoDia(habito: Habito, diaDaSemana: number): boolean {

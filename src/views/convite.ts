@@ -1,12 +1,12 @@
-import '../styles/grupos.css';
-import { exigirLogin } from '../components/auth.js';
-import { mostrarToast } from '../components/ui.js';
-import { criarTelaConvite, criarAcaoConvite, type OpcoesTelaConvite } from '../components/grupos.js';
-import { hoje, paraChave, somarDias } from '../utils/datas.js';
+import { exigirLogin } from '../components/auth';
+import { mostrarToast } from '../components/ui';
+import { criarTelaConvite, criarAcaoConvite, type OpcoesTelaConvite } from '../components/grupos';
+import { hoje, paraChave, somarDias } from '../utils/datas';
 
 type DadosEstadoConvite = Omit<OpcoesTelaConvite, 'destinoLogo'>;
 
-const autorizado = await exigirLogin();
+export async function iniciarPaginaConvite(): Promise<void> {
+  const autorizado = await exigirLogin();
 
 if (autorizado) {
 
@@ -89,8 +89,9 @@ if (autorizado) {
     const estado = ESTADOS.includes(pedido) ? pedido : 'entrar';
 
     const dados = descreverEstado(estado);
-    document.querySelector('#app')!.appendChild(criarTelaConvite({ ...dados, destinoLogo: 'habitos.html' }));
+    document.querySelector('#app')!.replaceChildren(criarTelaConvite({ ...dados, destinoLogo: 'habitos.html' }));
   }
 
   montarPagina();
+}
 }

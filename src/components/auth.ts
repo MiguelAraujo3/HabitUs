@@ -1,4 +1,4 @@
-import { obterUsuarioAtual } from '../data/index.js';
+import { obterUsuarioAtual } from '../data/index';
 
 export async function exigirLogin(): Promise<boolean> {
   const usuario = await obterUsuarioAtual();
@@ -8,7 +8,7 @@ export async function exigirLogin(): Promise<boolean> {
   }
 
   localStorage.setItem('destinoLogin', window.location.href);
-  window.location.href = `${import.meta.env.BASE_URL}index.html`;
+  window.location.href = '/index.html';
 
   return false;
 }

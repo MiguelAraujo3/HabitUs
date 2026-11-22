@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarCurtida } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarCurtida } from './modelo';
 
 export interface Curtida {
   id: string;

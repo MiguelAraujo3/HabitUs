@@ -4,13 +4,13 @@ import {
   getUserById,
   type Usuario,
   type ErroComCodigo,
-} from './users.js';
+} from './users';
 
 import {
   iniciarSessao,
   obterSessao,
   encerrarSessao,
-} from './session.js';
+} from './session';
 
 export interface PerfilPublico {
   id: string;

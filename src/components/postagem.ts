@@ -1,6 +1,6 @@
-import { obterIniciais } from '../utils/usuario.js';
-import { criarElemento } from './ui.js';
-import type { Postagem } from '../data/postagens.js';
+import { obterIniciais } from '../utils/usuario';
+import { criarElemento } from './ui';
+import type { Postagem } from '../data/postagens';
 
 export interface AutorPostagem {
   id?: string;

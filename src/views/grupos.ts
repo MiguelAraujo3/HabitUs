@@ -1,12 +1,11 @@
-import '../styles/grupos.css';
-import { criarNavbar } from '../components/navbar.js';
-import { exigirLogin } from '../components/auth.js';
+import { criarNavbar } from '../components/navbar';
+import { exigirLogin } from '../components/auth';
 import {
   criarElemento, criarTituloGrande, criarLinkAcao, criarBotaoAcao, criarVazio, CLASSE_INPUT,
-} from '../components/ui.js';
-import { criarCartaoGrupo } from '../components/grupos.js';
-import { hoje, paraChave, somarDias } from '../utils/datas.js';
-import { statusDoPeriodo, type StatusPeriodo } from '../utils/periodo.js';
+} from '../components/ui';
+import { criarCartaoGrupo } from '../components/grupos';
+import { hoje, paraChave, somarDias } from '../utils/datas';
+import { statusDoPeriodo, type StatusPeriodo } from '../utils/periodo';
 
 interface GrupoProvisorio {
   id: string;
@@ -23,7 +22,8 @@ interface SecaoGrupo {
   titulo: string;
 }
 
-const autorizado = await exigirLogin();
+export async function iniciarPaginaGrupos(): Promise<void> {
+  const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
@@ -103,6 +103,7 @@ if (autorizado) {
 
   function montarPagina(): void {
     const conteudo = document.querySelector('#conteudo')!;
+    conteudo.replaceChildren();
     const botaoCriar = criarLinkAcao('Criar grupo', { href: 'criar-grupo.html', tamanho: 'm', iconeNome: 'Plus' });
     conteudo.appendChild(criarTituloGrande({ titulo: 'Grupos', direita: botaoCriar }));
 
@@ -128,4 +129,5 @@ if (autorizado) {
   }
 
   montarPagina();
+}
 }

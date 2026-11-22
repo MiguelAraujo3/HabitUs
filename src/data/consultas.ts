@@ -1,8 +1,8 @@
-import type { ConclusaoHabito, Habito } from '../types/habito.js';
-import { buscarPorId, listar as listarHabitos } from './habitos.js';
-import { getCompletionsByHabit, listar as listarConclusoes } from './conclusoesHabito.js';
-import { calcularSequencia, calcularDataRecorde } from '../rules/streak.js';
-import type { ErroComCodigo } from './users.js';
+import type { ConclusaoHabito, Habito } from '../types/habito';
+import { buscarPorId, listar as listarHabitos } from './habitos';
+import { getCompletionsByHabit, listar as listarConclusoes } from './conclusoesHabito';
+import { calcularSequencia, calcularDataRecorde } from '../rules/streak';
+import type { ErroComCodigo } from './users';
 
 export interface SequenciaHabito {
   current: number;

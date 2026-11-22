@@ -1,11 +1,10 @@
-import '../styles/grupos.css';
-import { criarNavbar } from '../components/navbar.js';
-import { exigirLogin } from '../components/auth.js';
+import { criarNavbar } from '../components/navbar';
+import { exigirLogin } from '../components/auth';
 import {
   criarElemento, criarCabecalhoPagina, criarGradeCategorias, criarStepper, CLASSE_INPUT,
-} from '../components/ui.js';
-import { icone } from '../components/icones.js';
-import { hoje, paraChave } from '../utils/datas.js';
+} from '../components/ui';
+import { icone } from '../components/icones';
+import { hoje, paraChave } from '../utils/datas';
 
 interface AtividadeFormulario {
   id: number;
@@ -13,7 +12,8 @@ interface AtividadeFormulario {
   pontos: number;
 }
 
-const autorizado = await exigirLogin();
+export async function iniciarPaginaCriarGrupo(): Promise<void> {
+  const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
@@ -83,10 +83,10 @@ if (autorizado) {
   }
 
   function iniciar(): void {
-    document.querySelector('#cabecalho')!.appendChild(criarCabecalhoPagina({ titulo: 'Criar grupo', voltarPara: 'grupos.html' }));
+    document.querySelector('#cabecalho')!.replaceChildren(criarCabecalhoPagina({ titulo: 'Criar grupo', voltarPara: 'grupos.html' }));
 
     const grade = criarGradeCategorias();
-    document.querySelector('#grade-categorias')!.appendChild(grade.elemento);
+    document.querySelector('#grade-categorias')!.replaceChildren(grade.elemento);
 
     // Datas: início é hoje (data local); o fim nunca pode ser antes do início
     const inicio = document.querySelector('#inicio') as HTMLInputElement;
@@ -116,4 +116,5 @@ if (autorizado) {
   }
 
   iniciar();
+}
 }

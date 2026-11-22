@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarAtividade, type Atividade } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarAtividade, type Atividade } from './modelo';
 
 export type { Atividade };
 

@@ -6,9 +6,9 @@
 import {
   obterUsuarioAtual,
   type PerfilPublico,
-} from '../data/index.js';
-import { icone } from './icones.js';
-import { obterIniciais } from '../utils/usuario.js';
+} from '../data/index';
+import { icone } from './icones';
+import { obterIniciais } from '../utils/usuario';
 
 export interface ItemMenu {
   texto: string;
@@ -17,7 +17,7 @@ export interface ItemMenu {
   tambemEm?: string[];
 }
 
-const BASE = import.meta.env.BASE_URL;
+const BASE = '/';
 
 // Telas de autenticação: a navegação principal não é montada nelas.
 // Hoje o login e o cadastro vivem na mesma página (index.html); se a recuperação
@@ -62,6 +62,8 @@ export async function criarNavbar(): Promise<HTMLElement | null> {
 
   // A barra inferior é `fixed` e entra direto no <body>: assim ela aparece em
   // qualquer página, sem depender das classes do container #menu.
+  document.getElementById('barra-inferior-mobile')?.remove();
+  document.getElementById('menu')?.replaceChildren();
   document.body.appendChild(criarBarraInferior());
 
   return lateral;
@@ -172,6 +174,7 @@ function criarItemLateral(item: ItemMenu): HTMLAnchorElement {
 
 function criarBarraInferior(): HTMLElement {
   const barra = document.createElement('nav');
+  barra.id = 'barra-inferior-mobile';
   barra.className =
     'fixed bottom-0 left-0 right-0 z-50 flex items-stretch justify-around gap-1 md:hidden ' +
     'border-t border-slate-200 bg-white px-2 py-2 shadow-[0_-4px_16px_rgb(0_0_0/0.06)]';
@@ -212,7 +215,8 @@ function criarItemInferior(item: ItemMenu): HTMLAnchorElement {
 
 // Nome do arquivo da página atual (ex.: "habitos.html").
 function paginaAtual(): string {
-  return window.location.pathname.split('/').pop() || '';
+  const segmento = window.location.pathname.split('/').filter(Boolean).pop() || 'index.html';
+  return segmento.endsWith('.html') ? segmento : `${segmento}.html`;
 }
 
 function ehPaginaDeAutenticacao(): boolean {

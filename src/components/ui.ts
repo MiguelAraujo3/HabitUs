@@ -2,9 +2,9 @@
 // As classes são copiadas de docs/design/COMPONENTES.md — não reescrever nem "melhorar".
 // Tailwind só gera classes escritas por inteiro no código: nunca montar 'bg-' + cor.
 
-import { icone } from './icones.js';
-import { visualDaCategoria, VISUAL_CATEGORIAS, type FamiliaCor } from './categoriasVisual.js';
-import type { StatusPeriodo } from '../utils/periodo.js';
+import { icone } from './icones';
+import { visualDaCategoria, VISUAL_CATEGORIAS, type FamiliaCor } from './categoriasVisual';
+import type { StatusPeriodo } from '../utils/periodo';
 
 export type FilhoDom = Node | string | null | undefined | false;
 
@@ -649,7 +649,7 @@ export function criarGradeCategorias({ valor = '', aoMudar }: OpcoesGradeCategor
 
 export function criarLogo(tamanho = 24): HTMLImageElement {
   const logo = criarElemento('img', 'block h-auto max-w-full');
-  logo.src = `${import.meta.env.BASE_URL}images/logo.png`;
+  logo.src = '/images/logo.png';
   logo.alt = 'HabitUs';
   logo.style.width = `${tamanho * 7}px`;
   return logo;

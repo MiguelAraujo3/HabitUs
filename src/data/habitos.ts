@@ -1,6 +1,6 @@
-import type { Frequencia, Habito } from '../types/habito.js';
-import { lerLista, salvarLista } from './storage.js';
-import { criarHabito } from './modelo.js';
+import type { Frequencia, Habito } from '../types/habito';
+import { lerLista, salvarLista } from './storage';
+import { criarHabito } from './modelo';
 
 export interface DadosNovoHabito {
   id?: string;

@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarMembro, type Membro } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarMembro, type Membro } from './modelo';
 
 export type { Membro };
 

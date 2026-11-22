@@ -1,5 +1,5 @@
-import type { ConclusaoHabito, Frequencia, Habito } from '../types/habito.js';
-import { paraChave, hoje } from '../utils/datas.js';
+import type { ConclusaoHabito, Frequencia, Habito } from '../types/habito';
+import { paraChave, hoje } from '../utils/datas';
 
 export interface Grupo {
   id: string;

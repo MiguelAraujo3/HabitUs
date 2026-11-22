@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarRegistroRecordes, type RegistroRecordes } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarRegistroRecordes, type RegistroRecordes } from './modelo';
 
 export type { RegistroRecordes };
 

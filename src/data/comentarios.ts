@@ -1,5 +1,5 @@
-import { lerLista, salvarLista } from './storage.js';
-import { criarComentario } from './modelo.js';
+import { lerLista, salvarLista } from './storage';
+import { criarComentario } from './modelo';
 
 export interface Comentario {
   id: string;

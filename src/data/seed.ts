@@ -1,8 +1,8 @@
-import type { Habito } from '../types/habito.js';
-import type { Postagem } from './postagens.js';
-import { salvarLista } from './storage.js';
-import { createUser, updateUser } from './index.js';
-import { hoje, somarDias, paraChave } from '../utils/datas.js';
+import type { Habito } from '../types/habito';
+import type { Postagem } from './postagens';
+import { salvarLista } from './storage';
+import { createUser, updateUser } from './index';
+import { hoje, somarDias, paraChave } from '../utils/datas';
 
 // ============================================================
 // seed.ts - Dados iniciais (Stage S1-05)

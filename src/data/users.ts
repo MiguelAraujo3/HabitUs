@@ -1,6 +1,6 @@
-import { lerLista, salvarLista } from './storage.js';
-import { conferirSenha, gerarHashSenha } from '../utils/crypto.js';
-import { validarCadastro, validarPerfil, type DadosCadastro, type DadosPerfil } from '../rules/validation.js';
+import { lerLista, salvarLista } from './storage';
+import { conferirSenha, gerarHashSenha } from '../utils/crypto';
+import { validarCadastro, validarPerfil, type DadosCadastro, type DadosPerfil } from '../rules/validation';
 
 export interface Usuario {
   id: string;

@@ -1,20 +1,19 @@
-import '../styles/grupos.css';
-import { criarNavbar } from '../components/navbar.js';
-import { exigirLogin } from '../components/auth.js';
+import { criarNavbar } from '../components/navbar';
+import { exigirLogin } from '../components/auth';
 import {
   criarElemento, juntar, criarCabecalhoPagina, criarChipCategoria, criarSeloStatus, criarAviso,
   criarVazio, criarAbas, criarBotaoAcao, criarCampo, criarStepper, criarResumoErros,
   abrirJanela, criarCorpoJanela, criarAcoesJanela, mostrarToast, CLASSE_INPUT,
   type FilhoDom, type VarianteBotao,
-} from '../components/ui.js';
+} from '../components/ui';
 import {
   textoMembros, textoPeriodo, calcularPosicoes, montarLinkConvite, criarCaixaLink,
   criarLinhaRanking, criarLinhaAtividade, criarLinhaMembro, criarCartaoPostagem,
   type DadosPostagemGrupo,
-} from '../components/grupos.js';
-import { icone } from '../components/icones.js';
-import { hoje, paraChave, somarDias } from '../utils/datas.js';
-import { formatarDia, type StatusPeriodo } from '../utils/periodo.js';
+} from '../components/grupos';
+import { icone } from '../components/icones';
+import { hoje, paraChave, somarDias } from '../utils/datas';
+import { formatarDia, type StatusPeriodo } from '../utils/periodo';
 
 interface AtividadeGrupoProvisorio {
   id: string;
@@ -38,7 +37,8 @@ interface OpcoesConfirmacao {
   variante?: VarianteBotao | string;
 }
 
-const autorizado = await exigirLogin();
+export async function iniciarPaginaGrupo(): Promise<void> {
+  const autorizado = await exigirLogin();
 
 if (autorizado) {
   const menu = await criarNavbar();
@@ -525,6 +525,7 @@ if (autorizado) {
 
   function montarPagina(): void {
     const conteudo = document.querySelector('#conteudo')!;
+    conteudo.replaceChildren();
     document.title = `${GRUPO.nome} - HabitUs`;
 
     conteudo.appendChild(criarCabecalhoPagina({
@@ -567,4 +568,5 @@ if (autorizado) {
   }
 
   montarPagina();
+}
 }

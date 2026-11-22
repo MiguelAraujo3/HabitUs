@@ -1,14 +1,13 @@
-import '../styles/base.css'; // Tailwind + cores "brand-*" (mesmo import das outras páginas)
-import { criarNavbar } from '../components/navbar.js';
-import { exigirLogin } from '../components/auth.js';
-import { obterUsuarioAtual } from '../data/index.js';
-import * as repoHabitos from '../data/habitos.js';
-import * as repoConclusoes from '../data/conclusoesHabito.js';
-import { carregarHabitosDoUsuario } from '../data/consultas.js';
-import { paraChave, hoje } from '../utils/datas.js';
-import { formatarSequencia } from '../utils/sequencia.js';
-import { calcularSequencia } from '../rules/streak.js';
-import { ehDoDia, conclusaoDoDia, contarFeitos, contarNaSemana } from '../rules/habitosDoDia.js';
+import { criarNavbar } from '../components/navbar';
+import { exigirLogin } from '../components/auth';
+import { obterUsuarioAtual } from '../data/index';
+import * as repoHabitos from '../data/habitos';
+import * as repoConclusoes from '../data/conclusoesHabito';
+import { carregarHabitosDoUsuario } from '../data/consultas';
+import { paraChave, hoje } from '../utils/datas';
+import { formatarSequencia } from '../utils/sequencia';
+import { calcularSequencia } from '../rules/streak';
+import { ehDoDia, conclusaoDoDia, contarFeitos, contarNaSemana } from '../rules/habitosDoDia';
 import {
   DIAS_ABREV,
   DIAS_NOME,
@@ -20,9 +19,9 @@ import {
   trocarDiasDaSemana,
   validarFrequencia,
   validarTrocaDeDias,
-} from '../rules/frequencia.js';
-import type { ConclusaoHabito, Frequencia, Habito, Sequencia } from '../types/habito.js';
-import { el, obterPorId, selecionar, svg } from '../utils/dom.js';
+} from '../rules/frequencia';
+import type { ConclusaoHabito, Frequencia, Habito, Sequencia } from '../types/habito';
+import { el, obterPorId, selecionar, svg } from '../utils/dom';
 
 const TAMANHO_MAX_NOME = 60;
 const TAMANHO_MAX_DESCRICAO = 200;
@@ -947,7 +946,7 @@ function ajustarMenuMobile(menu: HTMLElement): void {
     ?.classList.add('max-[700px]:flex-row', 'max-[700px]:flex-wrap', 'max-[700px]:gap-4');
 }
 
-async function iniciar(): Promise<void> {
+export async function iniciarPaginaHabitos(): Promise<void> {
   const autorizado = await exigirLogin();
   if (!autorizado) return;
 
@@ -1005,4 +1004,4 @@ async function iniciar(): Promise<void> {
   renderizar();
 }
 
-iniciar();
+

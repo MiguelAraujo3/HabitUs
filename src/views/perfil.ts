@@ -1,6 +1,5 @@
-import '../styles/base.css';
-import { criarNavbar } from '../components/navbar.js';
-import { exigirLogin } from '../components/auth.js';
+import { criarNavbar } from '../components/navbar';
+import { exigirLogin } from '../components/auth';
 import {
   obterUsuarioAtual,
   updateUser,
@@ -9,17 +8,18 @@ import {
   getHabitStreak,
   getPostsByUser,
   type SequenciaHabito,
-} from '../data/index.js';
-import type { Habito } from '../types/habito.js';
-import { obterIniciais } from '../utils/usuario.js';
-import { formatarSequencia } from '../utils/sequencia.js';
-import { criarCartaoPostagem } from '../components/postagem.js';
+} from '../data/index';
+import type { Habito } from '../types/habito';
+import { obterIniciais } from '../utils/usuario';
+import { formatarSequencia } from '../utils/sequencia';
+import { criarCartaoPostagem } from '../components/postagem';
 
 type HabitoComSequencia = Habito & {
   sequencia: SequenciaHabito;
 };
 
-const autorizado = await exigirLogin();
+export async function iniciarPaginaPerfil(): Promise<void> {
+  const autorizado = await exigirLogin();
 
 if (autorizado) {
   let usuarioAtual = (await obterUsuarioAtual())!;
@@ -225,7 +225,7 @@ if (autorizado) {
 
     try {
       await encerrarSessao();
-      window.location.href = `${import.meta.env.BASE_URL}index.html`;
+      window.location.href = '/index.html';
     } catch {
       botaoSair.disabled = false;
       botaoSair.textContent = 'Tentar sair novamente';
@@ -281,4 +281,5 @@ if (autorizado) {
       botaoSalvar.disabled = false;
     }
   });
+}
 }

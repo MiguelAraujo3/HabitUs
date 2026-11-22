@@ -1,7 +1,7 @@
 // Regras puras da frequência do hábito: validação, texto para a tela e troca dos dias.
 // Nada aqui lê o relógio (a data de hoje entra como argumento) nem mexe no DOM ou no storage.
-import type { Frequencia } from '../types/habito.js';
-import { deChave, paraChave, somarDias } from '../utils/datas.js';
+import type { Frequencia } from '../types/habito';
+import { deChave, paraChave, somarDias } from '../utils/datas';
 
 export const DIAS_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'] as const;
 export const DIAS_NOME = [
