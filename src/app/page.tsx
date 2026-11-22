@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { iniciarPaginaInicial } from '../views/inicial';
 
 export default function PaginaInicial() {
+  const iniciado = useRef(false);
   useEffect(() => {
+    if (iniciado.current) return;
+    iniciado.current = true;
     iniciarPaginaInicial();
   }, []);
 

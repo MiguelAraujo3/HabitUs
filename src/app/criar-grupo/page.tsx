@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { iniciarPaginaCriarGrupo } from '../../views/criar-grupo';
 import { iniciarPainelHabitos } from '../../views/painel-habitos';
 
 export default function PaginaCriarGrupo() {
+  const iniciado = useRef(false);
   useEffect(() => {
+    if (iniciado.current) return;
+    iniciado.current = true;
     iniciarPaginaCriarGrupo();
     iniciarPainelHabitos();
   }, []);

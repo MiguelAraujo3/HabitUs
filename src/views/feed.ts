@@ -44,7 +44,9 @@ function mostrarPostagens(postagens: PostagemComDetalhes[]): void {
 let telaPostagem: TelaPostagemElement | null = null;
 
 function criarTelaPostagem(): TelaPostagemElement {
+  document.getElementById('tela-nova-postagem')?.remove();
   const tela = criarElemento('section', 'flex w-full flex-col gap-4') as unknown as TelaPostagemElement;
+  tela.id = 'tela-nova-postagem';
   tela.hidden = true;
 
   // Barra do topo: ← Voltar + título
@@ -185,6 +187,6 @@ if (autorizado) {
 
   const postagens = await carregarPostagens();
   mostrarPostagens(postagens);
-    document.querySelector('#btn-nova-postagem')!.addEventListener('click', abrirTelaPostagem);
+    (document.querySelector('#btn-nova-postagem') as HTMLButtonElement).onclick = abrirTelaPostagem;
   }
 }

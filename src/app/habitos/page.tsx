@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { iniciarPaginaHabitos } from '../../views/habitos';
 
 export default function PaginaHabitos() {
+  const iniciado = useRef(false);
   useEffect(() => {
+    if (iniciado.current) return;
+    iniciado.current = true;
     iniciarPaginaHabitos();
   }, []);
 

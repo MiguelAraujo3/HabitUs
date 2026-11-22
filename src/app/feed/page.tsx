@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { iniciarPaginaFeed } from '../../views/feed';
 import { iniciarPainelHabitos } from '../../views/painel-habitos';
 
 export default function PaginaFeed() {
+  const iniciado = useRef(false);
+
   useEffect(() => {
+    if (iniciado.current) return;
+    iniciado.current = true;
     iniciarPaginaFeed();
     iniciarPainelHabitos();
   }, []);
