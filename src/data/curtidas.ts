@@ -13,6 +13,11 @@ export interface DadosNovaCurtida {
   idUsuario: string;
 }
 
+export interface ResultadoAlternarCurtida {
+  curtiu: boolean;
+  total: number;
+}
+
 export async function criar(dados: DadosNovaCurtida): Promise<Curtida> {
   const curtida: Curtida = criarCurtida({ id: dados.id, ...dados });
   const lista: Curtida[] = await lerLista('curtidas');
@@ -23,6 +28,34 @@ export async function criar(dados: DadosNovaCurtida): Promise<Curtida> {
 
 export async function listar(): Promise<Curtida[]> {
   return lerLista('curtidas');
+}
+
+export async function listarPorPostagem(idPostagem: string): Promise<Curtida[]> {
+  const lista = await listar();
+  return lista.filter((c) => c.idPostagem === idPostagem);
+}
+
+export async function alternarCurtida(
+  idPostagem: string,
+  idUsuario: string
+): Promise<ResultadoAlternarCurtida> {
+  const lista = await listar();
+  const idx = lista.findIndex(
+    (c) => c.idPostagem === idPostagem && c.idUsuario === idUsuario
+  );
+
+  if (idx !== -1) {
+    lista.splice(idx, 1);
+    salvarLista('curtidas', lista);
+    const total = lista.filter((c) => c.idPostagem === idPostagem).length;
+    return { curtiu: false, total };
+  }
+
+  const novaCurtida: Curtida = criarCurtida({ idPostagem, idUsuario });
+  lista.push(novaCurtida);
+  salvarLista('curtidas', lista);
+  const total = lista.filter((c) => c.idPostagem === idPostagem).length;
+  return { curtiu: true, total };
 }
 
 export async function buscarPorId(id: string): Promise<Curtida | null> {
