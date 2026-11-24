@@ -13,6 +13,7 @@ import type { Habito } from '../types/habito';
 import { obterIniciais } from '../utils/usuario';
 import { formatarSequencia } from '../utils/sequencia';
 import { criarCartaoPostagem } from '../components/postagem';
+import * as repoCurtidas from '../data/curtidas';
 
 type HabitoComSequencia = Habito & {
   sequencia: SequenciaHabito;
@@ -25,6 +26,7 @@ if (autorizado) {
   let usuarioAtual = (await obterUsuarioAtual())!;
   const habitos = await getHabitsByUser(usuarioAtual.id);
   const postagens = await getPostsByUser(usuarioAtual.id);
+  const todasCurtidas = await repoCurtidas.listar();
   const habitosAtivos = habitos.filter((habito) => habito.ativo);
   const habitosComSequencia: HabitoComSequencia[] = [];
   for (const habito of habitos) {
@@ -150,10 +152,14 @@ if (autorizado) {
       const habito = habitos.find(
         (habito) => habito.id === postagem.idHabito
       );
+      const curtidasPostagem = todasCurtidas.filter((c) => c.idPostagem === postagem.id);
       return criarCartaoPostagem({
         ...postagem,
         autor: usuarioAtual,
         habito,
+        curtidas: curtidasPostagem.length,
+        curtiu: curtidasPostagem.some((c) => c.idUsuario === usuarioAtual.id),
+        idUsuarioAtual: usuarioAtual.id,
       });
     });
     lista.replaceChildren(...cartoes);
