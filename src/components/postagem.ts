@@ -1,5 +1,7 @@
 import { obterIniciais } from '../utils/usuario';
 import { criarElemento } from './ui';
+import { icone } from './icones';
+import { alternarCurtida } from '../data/curtidas';
 import type { Postagem } from '../data/postagens';
 
 export interface AutorPostagem {
@@ -17,6 +19,9 @@ export interface HabitoPostagem {
 export interface PostagemComDetalhes extends Postagem {
   autor?: AutorPostagem | null;
   habito?: HabitoPostagem | null;
+  curtidas?: number;
+  curtiu?: boolean;
+  idUsuarioAtual?: string;
 }
 
 function formatarTempo(dataHora: string): string {
@@ -90,6 +95,43 @@ export function criarCartaoPostagem(postagem: PostagemComDetalhes): HTMLLIElemen
     imagem.alt = `Imagem da postagem de ${nomeAutor}`;
     item.appendChild(imagem);
   }
+
+  const barraAcoes = criarElemento('div', 'flex items-center gap-2 border-t border-gray-100 pt-2');
+  let totalCurtidas = postagem.curtidas ?? 0;
+  let curtiu = Boolean(postagem.curtiu);
+
+  const botaoCurtir = criarElemento('button');
+  botaoCurtir.type = 'button';
+
+  function atualizarBotaoCurtir(): void {
+    botaoCurtir.className = curtiu
+      ? 'inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100'
+      : 'inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100';
+    botaoCurtir.setAttribute('aria-pressed', String(curtiu));
+    botaoCurtir.setAttribute('aria-label', curtiu ? 'Descurtir postagem' : 'Curtir postagem');
+    botaoCurtir.replaceChildren(
+      icone('Heart', { tamanho: 16, preencher: curtiu }),
+      criarElemento('span', 'tabular-nums', String(totalCurtidas)),
+      criarElemento('span', '', 'Curtir')
+    );
+  }
+
+  botaoCurtir.addEventListener('click', async () => {
+    if (!postagem.idUsuarioAtual) return;
+    botaoCurtir.disabled = true;
+    try {
+      const resultado = await alternarCurtida(postagem.id, postagem.idUsuarioAtual);
+      curtiu = resultado.curtiu;
+      totalCurtidas = resultado.total;
+      atualizarBotaoCurtir();
+    } finally {
+      botaoCurtir.disabled = false;
+    }
+  });
+
+  atualizarBotaoCurtir();
+  barraAcoes.appendChild(botaoCurtir);
+  item.appendChild(barraAcoes);
 
   return item;
 }
