@@ -137,12 +137,19 @@ async function testarSequenciaVezesNaSemana() {
 
   // Meta de 3. Na semana corrente há 3 conclusões: conta a meta.
   {
+    const domingo = inicioDaSemanaDe(new Date());
+    const segunda = new Date(domingo);
+    segunda.setDate(domingo.getDate() + 1);
+    const terca = new Date(domingo);
+    terca.setDate(domingo.getDate() + 2);
+    const quarta = new Date(domingo);
+    quarta.setDate(domingo.getDate() + 3);
     const completados = [
-      chave(dataAnterior(1)),
-      chave(dataAnterior(2)),
-      chave(dataAnterior(3)),
+      chave(domingo),
+      chave(segunda),
+      chave(terca),
     ];
-    const atual = calcularSequenciaVezesNaSemana(completados, 3);
+    const atual = calcularSequenciaVezesNaSemana(completados, 3, chave(quarta));
     testar('meta atingida conta a meta', atual === 3, `atual=${atual}`);
   }
 
