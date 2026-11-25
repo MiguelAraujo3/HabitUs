@@ -1,4 +1,4 @@
-import { lerLista, salvarLista } from './storage';
+import { supabase } from '../lib/supabase';
 import { criarMembro, type Membro } from './modelo';
 
 export type { Membro };
@@ -11,40 +11,127 @@ export interface DadosNovoMembro {
   bloqueado?: boolean;
 }
 
+interface MembroLinha {
+  id: string;
+  id_grupo: string;
+  id_usuario: string;
+  data_entrada: string;
+  bloqueado: boolean;
+}
+
+interface MembroLinhaAtualizacao {
+  id_grupo?: string;
+  id_usuario?: string;
+  data_entrada?: string;
+  bloqueado?: boolean;
+}
+
+function linhaParaMembro(linha: MembroLinha): Membro {
+  return {
+    id: linha.id,
+    idGrupo: linha.id_grupo,
+    idUsuario: linha.id_usuario,
+    dataEntrada: linha.data_entrada,
+    bloqueado: linha.bloqueado,
+  };
+}
+
+function membroParaLinha(membro: Membro): MembroLinha {
+  return {
+    id: membro.id,
+    id_grupo: membro.idGrupo,
+    id_usuario: membro.idUsuario,
+    data_entrada: membro.dataEntrada,
+    bloqueado: membro.bloqueado,
+  };
+}
+
+function dadosParaLinhaAtualizacao(dados: Partial<Omit<Membro, 'id'>>): MembroLinhaAtualizacao {
+  const linha: MembroLinhaAtualizacao = {};
+  if (dados.idGrupo !== undefined) linha.id_grupo = dados.idGrupo;
+  if (dados.idUsuario !== undefined) linha.id_usuario = dados.idUsuario;
+  if (dados.dataEntrada !== undefined) linha.data_entrada = dados.dataEntrada;
+  if (dados.bloqueado !== undefined) linha.bloqueado = dados.bloqueado;
+  return linha;
+}
+
 export async function criar(dados: DadosNovoMembro): Promise<Membro> {
   const membro = criarMembro(dados);
-  const lista = await lerLista<Membro>('membros');
-  lista.push(membro);
-  salvarLista('membros', lista);
-  return membro;
+  const linha = membroParaLinha(membro);
+  const { data, error } = await supabase
+    .from('membros')
+    .insert(linha)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return linhaParaMembro(data as MembroLinha);
 }
 
 export async function listar(): Promise<Membro[]> {
-  return lerLista<Membro>('membros');
+  const { data, error } = await supabase
+    .from('membros')
+    .select('*');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const linhas = (data ?? []) as MembroLinha[];
+  return linhas.map(linhaParaMembro);
 }
 
 export async function buscarPorId(id: string): Promise<Membro | null> {
-  const lista = await listar();
-  return lista.find((m) => m.id === id) || null;
+  const { data, error } = await supabase
+    .from('membros')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return linhaParaMembro(data as MembroLinha);
 }
 
 export async function atualizar(
   id: string,
   dados: Partial<Omit<Membro, 'id'>>
 ): Promise<Membro | null> {
-  const lista = await listar();
-  const idx = lista.findIndex((m) => m.id === id);
-  if (idx === -1) return null;
-  const atualizado: Membro = { ...lista[idx], ...dados };
-  lista[idx] = atualizado;
-  salvarLista('membros', lista);
-  return atualizado;
+  const linhaAtualizacao = dadosParaLinhaAtualizacao(dados);
+  const { data, error } = await supabase
+    .from('membros')
+    .update(linhaAtualizacao)
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return linhaParaMembro(data as MembroLinha);
 }
 
 export async function excluir(id: string): Promise<void> {
-  const lista = await listar();
-  const idx = lista.findIndex((m) => m.id === id);
-  if (idx === -1) return;
-  lista.splice(idx, 1);
-  salvarLista('membros', lista);
+  const { error } = await supabase
+    .from('membros')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
