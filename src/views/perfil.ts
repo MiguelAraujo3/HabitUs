@@ -7,6 +7,7 @@ import {
   encerrarSessao,
   getHabitStreak,
   getPostsByUser,
+  getUserById,
   type SequenciaHabito,
 } from '../data/index';
 import type { Habito } from '../types/habito';
@@ -14,6 +15,7 @@ import { obterIniciais } from '../utils/usuario';
 import { formatarSequencia } from '../utils/sequencia';
 import { criarCartaoPostagem } from '../components/postagem';
 import * as repoCurtidas from '../data/curtidas';
+import * as repoComentarios from '../data/comentarios';
 
 type HabitoComSequencia = Habito & {
   sequencia: SequenciaHabito;
@@ -27,6 +29,12 @@ if (autorizado) {
   const habitos = await getHabitsByUser(usuarioAtual.id);
   const postagens = await getPostsByUser(usuarioAtual.id);
   const todasCurtidas = await repoCurtidas.listar();
+  const todosComentarios = await Promise.all(
+    (await repoComentarios.listar()).map(async (c) => ({
+      ...c,
+      autor: await getUserById(c.idUsuario),
+    }))
+  );
   const habitosAtivos = habitos.filter((habito) => habito.ativo);
   const habitosComSequencia: HabitoComSequencia[] = [];
   for (const habito of habitos) {
@@ -153,6 +161,9 @@ if (autorizado) {
         (habito) => habito.id === postagem.idHabito
       );
       const curtidasPostagem = todasCurtidas.filter((c) => c.idPostagem === postagem.id);
+      const comentariosPostagem = todosComentarios
+        .filter((c) => c.idPostagem === postagem.id)
+        .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime());
       return criarCartaoPostagem({
         ...postagem,
         autor: usuarioAtual,
@@ -160,6 +171,8 @@ if (autorizado) {
         curtidas: curtidasPostagem.length,
         curtiu: curtidasPostagem.some((c) => c.idUsuario === usuarioAtual.id),
         idUsuarioAtual: usuarioAtual.id,
+        usuarioAtual,
+        comentarios: comentariosPostagem,
       });
     });
     lista.replaceChildren(...cartoes);

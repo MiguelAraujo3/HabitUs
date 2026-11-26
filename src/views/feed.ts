@@ -4,6 +4,7 @@ import { getUserById, obterUsuarioAtual, getHabitsByUser } from '../data/index';
 import * as repoPostagens from '../data/postagens';
 import * as repoHabitos from '../data/habitos';
 import * as repoCurtidas from '../data/curtidas';
+import * as repoComentarios from '../data/comentarios';
 import { criarCartaoPostagem, type PostagemComDetalhes } from '../components/postagem';
 import { criarElemento } from '../components/ui';
 
@@ -33,16 +34,32 @@ export async function iniciarPaginaFeed(): Promise<void> {
 
     return Promise.all(
       ordenadas.map(async (postagem) => {
-        const [autor, habito, listaCurtidas] = await Promise.all([
+        const [autor, habito, listaCurtidas, listaComentarios] = await Promise.all([
           getUserById(postagem.idUsuario),
           repoHabitos.buscarPorId(postagem.idHabito),
           repoCurtidas.listarPorPostagem(postagem.id),
+          repoComentarios.listarPorPostagem(postagem.id),
         ]);
+        const comentarios = await Promise.all(
+          listaComentarios.map(async (comentario) => ({
+            ...comentario,
+            autor: await getUserById(comentario.idUsuario),
+          }))
+        );
         const curtidas = listaCurtidas.length;
         const curtiu = Boolean(
           idUsuarioAtual && listaCurtidas.some((c) => c.idUsuario === idUsuarioAtual)
         );
-        return { ...postagem, autor, habito, curtidas, curtiu, idUsuarioAtual };
+        return {
+          ...postagem,
+          autor,
+          habito,
+          curtidas,
+          curtiu,
+          idUsuarioAtual,
+          usuarioAtual,
+          comentarios,
+        };
       })
     );
   }
