@@ -18,10 +18,14 @@ export interface DadosNovoComentario {
 }
 
 export async function criar(dados: DadosNovoComentario): Promise<Comentario> {
+  const textoLimpo = dados.texto.trim();
+  if (!textoLimpo) {
+    throw new Error('O texto do comentário não pode estar vazio.');
+  }
+
   const comentario: Comentario = criarComentario({
-    id: dados.id,
-    dataHora: dados.dataHora,
     ...dados,
+    texto: textoLimpo,
   });
   const lista: Comentario[] = await lerLista('comentarios');
   lista.push(comentario);
@@ -31,6 +35,13 @@ export async function criar(dados: DadosNovoComentario): Promise<Comentario> {
 
 export async function listar(): Promise<Comentario[]> {
   return lerLista('comentarios');
+}
+
+export async function listarPorPostagem(idPostagem: string): Promise<Comentario[]> {
+  const lista = await listar();
+  return lista
+    .filter((c) => c.idPostagem === idPostagem)
+    .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime());
 }
 
 export async function buscarPorId(id: string): Promise<Comentario | null> {
