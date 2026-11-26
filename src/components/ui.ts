@@ -142,7 +142,7 @@ function anexar<T extends HTMLElement>(pai: T, filhos: FilhoDom | FilhoDom[]): T
 // ---------------------------------------------------------------------------
 // Cores por família (chip de categoria e avatar)
 
-const FAMILIAS: Record<FamiliaCor, string> = {
+export const FAMILIAS: Record<FamiliaCor, string> = {
   coral: 'bg-[#fde8e8] text-coral-ink',
   lime: 'bg-[#eef9cf] text-[#3f5a00]',
   blue: 'bg-[#e3ecff] text-[#1e40af]',
